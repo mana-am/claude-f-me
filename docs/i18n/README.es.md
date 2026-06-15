@@ -237,6 +237,10 @@ Siente el mercado. Nombra una empresa o ticker y consulta una cotización en viv
 
 > Sondea en tu máquina, respeta el techo de seguridad y no va más rápido de una vez cada 5 s. No es asesoramiento financiero.
 
+## 💓🎬🧑‍💻 Cuerpo, grabaciones y disparadores de desarrollo
+
+El **biofeedback** y la **grabación de sesión** viven en la consola (arriba) — ambos necesitan un navegador (Bluetooth, captura). Los **disparadores de desarrollo** controlan el dispositivo desde tu bucle de desarrollo mediante un pequeño endpoint local — ver [Disparadores de desarrollo](#-disparadores-de-desarrollo).
+
 ## 🧠 Memoria
 
 Memoria local opcional para que claude-f-me **te llegue a conocer**. Registra a qué juegos y partituras Muse recurres, con qué persona conectas y **señales de disgusto suave** (cosas detenidas a los pocos segundos de empezar), además de cualquier nota libre. Claude puede `recall` antes de componer o escalar, y `forget` lo borra.
