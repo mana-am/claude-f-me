@@ -15197,21 +15197,23 @@ var CONSOLE_HTML = (
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>claude-f-me</title>
 <style>
-  :root { color-scheme: dark; --lvl: 0; }
+  :root { color-scheme: dark; --lvl: 0;
+    --ring:#ff8ec7; --ease:cubic-bezier(.22,1,.36,1);
+    --z-bg:0; --z-grain:1; --z-content:2; --z-wave:2; --z-drawer:6; --z-modal:7; --z-overlay:8; }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body { margin:0; overflow:hidden; color:#f3e9f5; background:#070509;
     font:14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
-  #aurora { position:fixed; inset:0; z-index:0; display:block; }
-  .grain { position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.05;
+  #aurora { position:fixed; inset:0; z-index:var(--z-bg); display:block; }
+  .grain { position:fixed; inset:0; z-index:var(--z-grain); pointer-events:none; opacity:.05;
     background-image:radial-gradient(#fff 1px, transparent 1px); background-size:3px 3px; }
-  .wrap { position:relative; z-index:2; height:100%; display:flex; flex-direction:column; }
+  .wrap { position:relative; z-index:var(--z-content); height:100%; display:flex; flex-direction:column; }
 
   header { display:flex; align-items:center; gap:10px; padding:14px 18px; flex-wrap:wrap; }
   .brand { font-size:16px; font-weight:800; letter-spacing:.5px;
     background:linear-gradient(90deg,#ff8ec7,#c9a0ff); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .pill { font-size:11px; padding:3px 9px; border-radius:999px; border:1px solid #ffffff1f; color:#d8c8e2;
-    background:#ffffff0a; backdrop-filter:blur(8px); }
+    background:#ffffff0a; backdrop-filter:blur(8px); white-space:nowrap; flex:0 0 auto; }
   .pill.sim { color:#7fe0c4; border-color:#1f4a3e88; }
   .pill.bp  { color:#ffc187; border-color:#4a332088; }
   .pill.act { color:#d7b3ff; border-color:#7a4bd055; background:#c9a0ff14; }
@@ -15219,9 +15221,9 @@ var CONSOLE_HTML = (
   .dot { width:7px;height:7px;border-radius:50%;background:#6a6076; }
   .dot.on { background:#7fe0c4; box-shadow:0 0 8px #7fe0c4; }
   .spacer { flex:1; }
-  .btn { font:inherit; cursor:pointer; border-radius:11px; border:1px solid #ffffff1f; color:#f3e9f5;
-    background:#ffffff0d; backdrop-filter:blur(8px); padding:8px 13px; transition:.15s; }
-  .btn:hover { background:#ffffff1a; border-color:#ffffff33; }
+  .btn { font:inherit; font-weight:600; cursor:pointer; border-radius:11px; border:1px solid #ffffff33; color:#f6eefb;
+    background:#241a30; backdrop-filter:blur(8px); padding:8px 13px; transition:.15s; box-shadow:0 1px 2px #00000055; }
+  .btn:hover { background:#33263f; border-color:#ffffff55; }
   .btn.ghost { padding:6px 10px; font-size:12px; }
   .btn.estop { background:linear-gradient(90deg,#d6443b,#b3261e); border:none; color:#fff; font-weight:800; box-shadow:0 4px 24px #b3261e55; }
 
@@ -15253,24 +15255,44 @@ var CONSOLE_HTML = (
   .scrub input::-webkit-slider-thumb { -webkit-appearance:none; width:26px;height:26px;border-radius:50%;background:#fff; margin-top:-8px; box-shadow:0 2px 12px #000; }
 
   .dock { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; max-width:92vw; }
-  .chip { cursor:pointer; border:1px solid #ffffff1f; background:#ffffff0a; backdrop-filter:blur(8px); color:#f3e9f5;
-    border-radius:999px; padding:7px 12px; font-size:13px; display:inline-flex; align-items:center; gap:8px; transition:.15s; }
-  .chip:hover { background:#ffffff18; }
-  .chip.sel { border-color:#ff8ec7; box-shadow:0 0 0 1px #ff8ec7aa, 0 0 16px #ff5ea644; }
-  .chipring { width:16px;height:16px;border-radius:50%;
-    background:conic-gradient(#ff4d8d calc(var(--p,0)*1%), #ffffff22 0); }
+  .chip { cursor:pointer; border:1px solid #ffffff2b; background:#221a2e; color:#f6eefb;
+    border-radius:14px; padding:11px 18px; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:9px;
+    transition:.15s; box-shadow:0 2px 6px #00000055; }
+  .chip:hover { background:#322642; border-color:#ffffff4d; transform:translateY(-1px); }
+  .chip.sel { background:linear-gradient(135deg,#3a2342,#2a1c3a); border-color:#ff8ec7; color:#fff; box-shadow:0 0 0 1px #ff8ec7aa, 0 6px 22px #ff5ea644; }
+  .chipring { width:16px;height:16px;border-radius:50%; flex:0 0 auto;
+    background:conic-gradient(#ff4d8d calc(var(--p,0)*1%), #ffffff33 0); }
 
-  .deck { display:flex; flex-direction:column; gap:8px; padding:10px 14px 14px; align-items:center; }
-  .deckrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; }
-  .deckrow .lbl { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:#a99bb5; margin-right:2px; }
+  /* tabbed control panel \u2014 one category visible at a time, on a panel that
+     floats above the live aurora so it always stays readable */
+  .panel { margin:0 auto 56px; width:max-content; max-width:min(1040px,94vw);
+    background:linear-gradient(180deg,#16101fe6,#0a0711f5); backdrop-filter:blur(24px) saturate(1.2);
+    border:1px solid #ffffff1f; border-radius:26px; box-shadow:0 24px 70px #000000b0, inset 0 1px 0 #ffffff1f;
+    padding:8px 12px; }
+  /* segmented tab bar */
+  .tabs { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; background:#00000040; border-radius:18px; padding:5px; }
+  .tab { font:inherit; font-weight:700; cursor:pointer; color:#bcaecf; background:transparent; border:none;
+    border-radius:14px; padding:10px 22px; font-size:14.5px; transition:.18s; white-space:nowrap; }
+  .tab:hover { color:#fff; background:#ffffff12; }
+  .tab.sel { background:linear-gradient(135deg,#ff6eb3,#a06bff); color:#fff; box-shadow:0 4px 20px #ff5ea655; }
+  .tabbody { min-height:64px; display:flex; align-items:center; justify-content:center; padding:18px 10px; }
+  .tabpane { display:none; flex-wrap:wrap; gap:11px; align-items:center; justify-content:center; max-width:680px; }
+  .tabpane.sel { display:flex; }
+  /* a labelled sub-group occupies its own row inside a pane */
+  .grp { display:flex; gap:11px; flex-wrap:wrap; align-items:center; justify-content:center; flex-basis:100%; }
+  .deckfoot { display:flex; gap:16px; align-items:center; justify-content:center; flex-wrap:wrap;
+    padding:12px 8px 6px; border-top:1px solid #ffffff14; }
+  .lbl { font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:#cdbfe0; font-weight:700; margin-right:2px; }
   .maxbox { display:flex; align-items:center; gap:8px; }
   .maxbox input { width:120px; accent-color:#ff4d8d; }
-  .small { font-size:12px; color:#a99bb5; }
+  .small { font-size:12px; color:#c4b6d4; }
+  .panel input[type=text], .panel select { background:#160f1e; color:#f6eefb; border:1px solid #ffffff33; border-radius:999px; padding:9px 14px; font:inherit; }
+  .panel input[type=text]::placeholder { color:#9286a3; }
 
-  #wave { position:fixed; left:0; right:0; bottom:0; height:64px; z-index:2; width:100%; display:block; opacity:.9; }
+  #wave { position:fixed; left:0; right:0; bottom:0; height:64px; z-index:var(--z-wave); width:100%; display:block; opacity:.9; }
 
   /* log drawer */
-  #logdrawer { position:fixed; z-index:6; right:0; top:0; height:100%; width:min(420px,90vw);
+  #logdrawer { position:fixed; z-index:var(--z-drawer); right:0; top:0; height:100%; width:min(420px,90vw);
     background:#0c0810ee; backdrop-filter:blur(12px); border-left:1px solid #ffffff1f; transform:translateX(100%);
     transition:transform .25s ease; padding:16px; overflow:auto; }
   #logdrawer.open { transform:none; }
@@ -15278,15 +15300,47 @@ var CONSOLE_HTML = (
   .log div { font-family:ui-monospace, Menlo, monospace; font-size:12px; padding:3px 0; border-bottom:1px solid #ffffff10; white-space:pre-wrap; }
   .lv-cmd{color:#9ecbff} .lv-safety{color:#ff9e9e} .lv-warn{color:#ffd27f} .lv-info{color:#9a90a6}
 
-  /* funscript modal */
-  #fsmodal { position:fixed; inset:0; z-index:7; background:#000a; display:none; align-items:center; justify-content:center; }
-  #fsmodal.open { display:flex; }
-  .modal { width:min(560px,92vw); background:#140d1a; border:1px solid #ffffff22; border-radius:16px; padding:18px; }
+  /* funscript + duet modals share one overlay (duet had no overlay styles before) */
+  #fsmodal, #duetmodal { position:fixed; inset:0; z-index:var(--z-modal); background:#000a;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s var(--ease), visibility .2s; }
+  #fsmodal.open, #duetmodal.open { opacity:1; visibility:visible; pointer-events:auto; }
+  .modal { width:min(560px,92vw); background:#140d1a; border:1px solid #ffffff22; border-radius:16px; padding:18px;
+    transform:translateY(10px) scale(.985); transition:transform .24s var(--ease); }
+  #fsmodal.open .modal, #duetmodal.open .modal { transform:none; }
   .modal h3 { margin:0 0 10px; font-size:15px; }
   textarea#fs { width:100%; height:120px; background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:10px;
     padding:10px; font-family:ui-monospace, Menlo, monospace; font-size:12px; resize:vertical; }
   label.opt { font-size:12px; color:#c9bcd2; display:inline-flex; align-items:center; gap:5px; }
   input[type=number]{ background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:6px; padding:4px 6px; }
+
+  /* ---- focus, press & disabled states (keyboard a11y + tactile feedback) ---- */
+  :where(button, input, select, textarea, a):focus-visible { outline:2px solid var(--ring); outline-offset:2px; }
+  .btn:focus-visible, .chip:focus-visible, .tab:focus-visible { outline-offset:3px; }
+  .btn:active { transform:translateY(1px); }
+  .chip:active { transform:translateY(0); }
+  .tab:active { transform:translateY(1px); }
+  .btn:disabled, .chip:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+  .btn:disabled:hover, .chip:disabled:hover { background:#241a30; border-color:#ffffff33; transform:none; }
+  /* text inputs & selects: brand-tinted focus instead of the default UA ring */
+  input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
+    outline:none; border-color:var(--ring); box-shadow:0 0 0 3px #ff8ec733; }
+  /* range sliders: visible keyboard focus + Firefox parity */
+  .scrub input:focus-visible { outline:none; }
+  .scrub input:focus-visible::-webkit-slider-thumb { box-shadow:0 2px 12px #000, 0 0 0 5px #ff8ec755; }
+  .scrub input::-moz-range-track { height:10px; border-radius:999px; background:linear-gradient(90deg,#ff8ec7,#a06bff); box-shadow:0 0 18px #ff5ea655; }
+  .scrub input::-moz-range-thumb { width:26px; height:26px; border:none; border-radius:50%; background:#fff; box-shadow:0 2px 12px #000; }
+  .scrub input:focus-visible::-moz-range-thumb { box-shadow:0 2px 12px #000, 0 0 0 5px #ff8ec755; }
+  #max:focus-visible { outline-offset:4px; }
+  ::selection { background:#ff8ec7; color:#160f1e; }
+
+  /* ---- reduced motion: drop decorative spin/breathe/pulse, keep state feedback ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .orb-core { animation:none; }
+    .ring { animation:none; opacity:0; }
+    *, *::before, *::after { transition-duration:.01ms !important; }
+    .btn:active, .chip:active, .tab:active { transform:none; }
+  }
 </style>
 </head>
 <body>
@@ -15323,72 +15377,74 @@ var CONSOLE_HTML = (
     <div id="dock" class="dock"></div>
   </div>
 
-  <div class="deck">
-    <div class="deckrow">
-      <span class="lbl" data-i18n="patterns"></span>
-      <button class="chip" data-pat="pulse" data-i18n="pulse"></button>
-      <button class="chip" data-pat="wave" data-i18n="wave"></button>
-      <button class="chip" data-pat="escalate" data-i18n="escalate"></button>
-      <button class="chip" data-pat="tease" data-i18n="tease"></button>
-      <button class="chip" data-pat="heartbeat" data-i18n="heartbeat"></button>
-      <button class="chip" data-pat="staircase" data-i18n="staircase"></button>
-      <button class="chip" data-pat="sos" data-i18n="sos"></button>
-      <button class="chip" data-pat="earthquake" data-i18n="earthquake"></button>
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab sel" data-tab="play" data-i18n="tabPlay"></button>
+      <button class="tab" data-tab="games" data-i18n="tabGames"></button>
+      <button class="tab" data-tab="persona" data-i18n="tabPersona"></button>
+      <button class="tab" data-tab="muse" data-i18n="tabMuse"></button>
+      <button class="tab" data-tab="live" data-i18n="tabLive"></button>
+      <button class="tab" data-tab="connect" data-i18n="tabConnect"></button>
     </div>
-    <div class="deckrow">
-      <span class="lbl" data-i18n="game"></span>
-      <button class="chip" data-game="roulette" data-i18n="roulette"></button>
-      <button class="chip" data-game="escalation" data-i18n="escalation"></button>
-      <button class="chip" data-game="ambient" data-i18n="ambient"></button>
-      <button class="chip" data-game="edge" data-i18n="edge"></button>
-      <button class="chip" data-game="wheel" data-i18n="wheel"></button>
-      <button class="chip" id="surprise" data-i18n="surprise"></button>
+    <div class="tabbody">
+      <div class="tabpane sel" data-pane="play">
+        <button class="chip" data-pat="pulse" data-i18n="pulse"></button>
+        <button class="chip" data-pat="wave" data-i18n="wave"></button>
+        <button class="chip" data-pat="escalate" data-i18n="escalate"></button>
+        <button class="chip" data-pat="tease" data-i18n="tease"></button>
+        <button class="chip" data-pat="heartbeat" data-i18n="heartbeat"></button>
+        <button class="chip" data-pat="staircase" data-i18n="staircase"></button>
+        <button class="chip" data-pat="sos" data-i18n="sos"></button>
+        <button class="chip" data-pat="earthquake" data-i18n="earthquake"></button>
+      </div>
+      <div class="tabpane" data-pane="games">
+        <button class="chip" data-game="roulette" data-i18n="roulette"></button>
+        <button class="chip" data-game="escalation" data-i18n="escalation"></button>
+        <button class="chip" data-game="ambient" data-i18n="ambient"></button>
+        <button class="chip" data-game="edge" data-i18n="edge"></button>
+        <button class="chip" data-game="wheel" data-i18n="wheel"></button>
+        <button class="chip" id="surprise" data-i18n="surprise"></button>
+      </div>
+      <div class="tabpane" data-pane="persona">
+        <div class="grp"><span class="lbl" data-i18n="persona"></span><span id="personas"></span></div>
+        <div class="grp"><span class="lbl" data-i18n="scene"></span><span id="scenes"></span></div>
+      </div>
+      <div class="tabpane" data-pane="muse">
+        <span id="muselib"></span>
+        <input id="musebrief" type="text" data-i18n-ph="musePh" style="min-width:220px; max-width:360px;" />
+        <button class="chip" id="musego" data-i18n="museGo"></button>
+      </div>
+      <div class="tabpane" data-pane="live">
+        <div class="grp">
+          <button class="chip" id="biobtn" data-i18n="bio"></button>
+          <select id="biomode">
+            <option value="follow" data-i18n="bioFollow"></option>
+            <option value="edge" data-i18n="bioEdge"></option>
+          </select>
+          <span id="bpmout" class="small"></span>
+          <button class="chip" id="pomobtn" data-i18n="pomo"></button>
+          <button class="chip" id="recbtn" data-i18n="rec"></button>
+        </div>
+        <div class="grp">
+          <span class="lbl" data-i18n="market"></span>
+          <input id="market" type="text" data-i18n-ph="marketPh" style="min-width:180px;" />
+          <button class="chip" id="marketgo" data-i18n="marketGo"></button>
+        </div>
+      </div>
+      <div class="tabpane" data-pane="connect">
+        <button class="chip" id="vidbtn" data-i18n="funscript"></button>
+        <button class="chip" id="duetbtn" data-i18n="duet"></button>
+        <button class="chip" id="audmic" data-i18n="useMic"></button>
+        <button class="chip" id="audtab" data-i18n="useTab"></button>
+        <button class="chip" id="audstop" style="display:none" data-i18n="stopAudio"></button>
+      </div>
     </div>
-    <div class="deckrow">
-      <span class="lbl" data-i18n="persona"></span>
-      <span id="personas"></span>
-    </div>
-    <div class="deckrow">
-      <span class="lbl" data-i18n="scene"></span>
-      <span id="scenes"></span>
-    </div>
-    <div class="deckrow">
-      <span class="lbl" data-i18n="muse"></span>
-      <span id="muselib"></span>
-      <input id="musebrief" type="text" data-i18n-ph="musePh" style="min-width:200px; flex:1; max-width:340px;
-        background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:7px 12px; font:inherit;" />
-      <button class="chip" id="musego" data-i18n="museGo"></button>
-    </div>
-    <div class="deckrow">
-      <span class="lbl" data-i18n="live"></span>
-      <button class="chip" id="biobtn" data-i18n="bio"></button>
-      <select id="biomode" style="background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:6px 10px; font:inherit;">
-        <option value="follow" data-i18n="bioFollow"></option>
-        <option value="edge" data-i18n="bioEdge"></option>
-      </select>
-      <span id="bpmout" class="small"></span>
-      <button class="chip" id="pomobtn" data-i18n="pomo"></button>
-      <button class="chip" id="recbtn" data-i18n="rec"></button>
-    </div>
-    <div class="deckrow">
-      <span class="lbl" data-i18n="market"></span>
-      <input id="market" type="text" data-i18n-ph="marketPh" style="min-width:180px;
-        background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:7px 12px; font:inherit;" />
-      <button class="chip" id="marketgo" data-i18n="marketGo"></button>
-    </div>
-    <div class="deckrow">
-      <span class="lbl" data-i18n="video"></span>
-      <button class="chip" id="vidbtn" data-i18n="funscript"></button>
-      <button class="chip" id="duetbtn" data-i18n="duet"></button>
-      <span class="lbl" data-i18n="audio"></span>
-      <button class="chip" id="audmic" data-i18n="useMic"></button>
-      <button class="chip" id="audtab" data-i18n="useTab"></button>
-      <button class="chip" id="audstop" style="display:none" data-i18n="stopAudio"></button>
+    <div class="deckfoot">
       <button class="chip" id="modestop" data-i18n="stopMode"></button>
       <div class="maxbox"><span class="small" data-i18n="safetyMax"></span>
         <input id="max" type="range" min="0" max="1" step="0.01" value="1" /><span id="maxval" class="small">100%</span></div>
+      <span class="small" data-i18n="keys" style="margin-left:6px"></span>
     </div>
-    <div class="deckrow"><span class="small" data-i18n="keys"></span></div>
   </div>
 </div>
 <canvas id="wave"></canvas>
@@ -15414,7 +15470,7 @@ var CONSOLE_HTML = (
   </div>
 </div></div>
 
-<div id="vsync" style="position:fixed; inset:0; z-index:8; background:#000d; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px;">
+<div id="vsync" style="position:fixed; inset:0; z-index:var(--z-overlay); background:#000d; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px;">
   <video id="vsyncvid" controls style="max-width:92vw; max-height:78vh; border-radius:12px; box-shadow:0 0 60px #ff5ea655;"></video>
   <button class="btn estop" id="vsyncclose" data-i18n="vsyncClose" style="font-weight:700"></button>
 </div>
@@ -15447,7 +15503,7 @@ var CONSOLE_HTML = (
 
 <script>
   var I18N = {
-    en: { remote:"\u{1F451} Remote", scan:"Scan", estop:"\u25A0 STOP", log:"Log",
+    en: { remote:"\u{1F451} Remote", scan:"Scan", estop:"\u25A0 E-STOP", log:"Log",
       connecting:"connecting", connected:"connected", reconnecting:"reconnecting",
       tapScan:"tap SCAN", allTarget:"ALL", motor:"motor", motors:"motors",
       patterns:"Patterns", pulse:"Pulse", wave:"Wave", escalate:"Escalate", tease:"Tease",
@@ -15470,13 +15526,14 @@ var CONSOLE_HTML = (
       rec:"\u23FA Record", recStop:"\u23F9 Save", recName:"Name this recording (blank = auto):", recSaved:"\u{1F4BE} saved as ", recShort:"recording too short",
       vsync:"\u{1F39E}\uFE0F With video", vsyncPlay:"\u25B6 Play with video", vsyncClose:"\u2715 Close video", needVid:"Choose a video file first.", pickVideo:"video file",
       market:"Market", marketPh:"ticker \u2014 AAPL / tesla / bitcoin", marketGo:"\u{1F4C8} Feel it", needTicker:"Enter a ticker or company.",
+      tabPlay:"\u25B6 Patterns", tabGames:"\u{1F3AE} Games", tabPersona:"\u{1F3AD} Persona", tabMuse:"\u{1F3BC} Muse", tabLive:"\u{1F4C8} Live", tabConnect:"\u{1F517} Connect",
       duet:"\u{1F49E} Duet", duetTitle:"\u{1F49E} Duet \u2014 long-distance sync", duetRelay:"relay URL", duetRoom:"room code",
       duetMode:"mode", duetMirror:"mirror", duetLead:"I lead", duetFollow:"I follow",
       duetConnect:"Connect", duetLeave:"Leave", duetTouch:"\u{1F44B} Touch",
       duetWaiting:"waiting for partner\u2026", duetLinked:"partner linked", duetOffline:"not connected",
       duetPeers:"{n} in room", duetBadge:"\u{1F517} Duet",
       needFs:"Paste a funscript JSON first.", audFail:"Audio capture failed: ", langBtn:"\u4E2D\u6587" },
-    zh: { remote:"\u{1F451} \u9065\u63A7", scan:"\u626B\u63CF", estop:"\u25A0 \u505C\u6B62", log:"\u65E5\u5FD7",
+    zh: { remote:"\u{1F451} \u9065\u63A7", scan:"\u626B\u63CF", estop:"\u25A0 \u7D27\u6025\u505C\u6B62", log:"\u65E5\u5FD7",
       connecting:"\u8FDE\u63A5\u4E2D", connected:"\u5DF2\u8FDE\u63A5", reconnecting:"\u91CD\u8FDE\u4E2D",
       tapScan:"\u70B9\u626B\u63CF", allTarget:"\u5168\u90E8", motor:"\u9A6C\u8FBE", motors:"\u9A6C\u8FBE",
       patterns:"\u8282\u594F", pulse:"\u8109\u51B2", wave:"\u6CE2\u6D6A", escalate:"\u9012\u589E", tease:"\u6311\u9017",
@@ -15499,6 +15556,7 @@ var CONSOLE_HTML = (
       rec:"\u23FA \u5F55\u5236", recStop:"\u23F9 \u4FDD\u5B58", recName:"\u7ED9\u8FD9\u6BB5\u5F55\u5236\u8D77\u540D\uFF08\u7559\u7A7A\u81EA\u52A8\uFF09\uFF1A", recSaved:"\u{1F4BE} \u5DF2\u5B58\u4E3A ", recShort:"\u5F55\u5236\u592A\u77ED",
       vsync:"\u{1F39E}\uFE0F \u914D\u89C6\u9891", vsyncPlay:"\u25B6 \u914D\u89C6\u9891\u64AD\u653E", vsyncClose:"\u2715 \u5173\u95ED\u89C6\u9891", needVid:"\u8BF7\u5148\u9009\u4E00\u4E2A\u89C6\u9891\u6587\u4EF6\u3002", pickVideo:"\u89C6\u9891\u6587\u4EF6",
       market:"\u5E02\u503C", marketPh:"\u4EE3\u7801 \u2014 AAPL / \u7279\u65AF\u62C9 / \u6BD4\u7279\u5E01", marketGo:"\u{1F4C8} \u611F\u53D7\u5B83", needTicker:"\u8BF7\u8F93\u5165\u4EE3\u7801\u6216\u516C\u53F8\u540D\u3002",
+      tabPlay:"\u25B6 \u8282\u594F", tabGames:"\u{1F3AE} \u6E38\u620F", tabPersona:"\u{1F3AD} \u4EBA\u683C", tabMuse:"\u{1F3BC} Muse", tabLive:"\u{1F4C8} \u5B9E\u65F6", tabConnect:"\u{1F517} \u8FDE\u63A5",
       duet:"\u{1F49E} \u53CC\u4EBA", duetTitle:"\u{1F49E} \u53CC\u4EBA \u2014 \u5F02\u5730\u540C\u6B65", duetRelay:"\u4E2D\u8F6C\u5730\u5740", duetRoom:"\u623F\u95F4\u7801",
       duetMode:"\u6A21\u5F0F", duetMirror:"\u955C\u50CF", duetLead:"\u6211\u4E3B\u5BFC", duetFollow:"\u6211\u8DDF\u968F",
       duetConnect:"\u8FDE\u63A5", duetLeave:"\u65AD\u5F00", duetTouch:"\u{1F44B} \u89E6\u78B0",
@@ -15520,6 +15578,8 @@ var CONSOLE_HTML = (
   }
 
   var $ = function(s){ return document.querySelector(s); };
+  var prefersRM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+  var reduceMotion = function(){ return !!(prefersRM && prefersRM.matches); };
   var ws, state = null, target = "all", held = false, maxHeld = false;
   var lvl = 0, lvlEase = 0; // smoothed display level
   var museScores = [], museLlm = false;
@@ -15559,7 +15619,7 @@ var CONSOLE_HTML = (
     var mode = $("#mode"); mode.textContent = state.mode; mode.className = "pill " + (state.mode === "buttplug" ? "bp" : "sim");
 
     var act = $("#active"), mEl = $("#masters");
-    if (state.activeMode){ act.style.display=""; var ic={video:"\u{1F3AC} ",audio:"\u{1F3B5} ",muse:"\u{1F3BC} ",bio:"\u{1F493} ",market:"\u{1F4C8} ",game:"\u{1F3AE} "}; act.textContent = (ic[state.activeMode.type]||"\u{1F3AE} ") + state.activeMode.label; }
+    if (state.activeMode){ act.style.display=""; act.textContent = state.activeMode.label; }
     else act.style.display="none";
     if (state.masters > 0){ mEl.style.display=""; mEl.textContent = (state.masters>1?t("mastersOnN"):t("mastersOn")).replace("{n}", state.masters); } else mEl.style.display="none";
 
@@ -15610,7 +15670,7 @@ var CONSOLE_HTML = (
   for (var i=0;i<5;i++) blobs.push({ x:Math.random(), y:Math.random(), s:0.6+Math.random()*0.7, h:300+Math.random()*60, ph:Math.random()*6.28, sp:0.2+Math.random()*0.5 });
   var tms = 0;
   function frame(){
-    tms += 0.016;
+    if (!reduceMotion()) tms += 0.016; // freeze decorative drift; level feedback still applies
     lvlEase += (lvl - lvlEase) * 0.12;
     var L = lvlEase;
 
@@ -15987,6 +16047,15 @@ var CONSOLE_HTML = (
   }
   $("#marketgo").onclick = marketGo;
   $("#market").addEventListener("keydown", function(e){ if (e.key==="Enter") marketGo(); });
+
+  // ---- tabbed control panel: show one category at a time ----
+  document.querySelectorAll(".tab").forEach(function(tb){
+    tb.addEventListener("click", function(){
+      var name = tb.getAttribute("data-tab");
+      document.querySelectorAll(".tab").forEach(function(x){ x.classList.toggle("sel", x===tb); });
+      document.querySelectorAll(".tabpane").forEach(function(p){ p.classList.toggle("sel", p.getAttribute("data-pane")===name); });
+    });
+  });
 
   applyI18n();
   $("#connlbl").textContent = t("connecting");
@@ -16808,7 +16877,7 @@ function startConsole(manager2, modes2, port2) {
             }
             break;
           case "audio_start":
-            manager2.setActiveMode({ type: "audio", label: String(m.source ?? "mic") });
+            manager2.setActiveMode({ type: "audio", label: "\u{1F3B5} " + String(m.source ?? "mic") });
             break;
           case "audio_stop":
             await manager2.stop(m.target ?? "all");
@@ -31706,7 +31775,7 @@ var ModeController = class {
   async playVideo(target, opts = {}) {
     if (this.actions.length === 0) throw new Error("no funscript loaded \u2014 call load_funscript first");
     const invert = !!opts.invert;
-    const label = `funscript \xD7${normSpeed(opts.speed)}${opts.loop ? " \u21BB" : ""}${invert ? " inv" : ""}`;
+    const label = `\u{1F3AC} funscript \xD7${normSpeed(opts.speed)}${opts.loop ? " \u21BB" : ""}${invert ? " inv" : ""}`;
     return this.runTimeline("video", target, this.actions, {
       loop: opts.loop,
       speed: opts.speed,
@@ -31743,7 +31812,7 @@ var ModeController = class {
   /** Play a score (Muse mode). Returns immediately; runs async. */
   async playScore(target, score, opts = {}) {
     const kf = normalizeKeyframes(score.keyframes);
-    const label = score.brief || score.name || "muse";
+    const label = "\u{1F3BC} " + (score.brief || score.name || "muse");
     this.memory?.recordPlay("muse", score.name || label, this.persona.id);
     this.manager.log_("cmd", `muse \u2192 "${label}"${score.by ? " \xB7 by " + score.by : ""}`);
     return this.runTimeline("muse", target, kf, { loop: opts.loop, speed: opts.speed, label });

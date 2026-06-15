@@ -153,7 +153,7 @@ export function startConsole(
             }
             break;
           case "audio_start":
-            manager.setActiveMode({ type: "audio", label: String(m.source ?? "mic") });
+            manager.setActiveMode({ type: "audio", label: "🎵 " + String(m.source ?? "mic") });
             break;
           case "audio_stop":
             await manager.stop(m.target ?? "all");

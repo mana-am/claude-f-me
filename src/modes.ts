@@ -133,7 +133,7 @@ export class ModeController {
   ): Promise<{ started: boolean; durationMs: number }> {
     if (this.actions.length === 0) throw new Error("no funscript loaded — call load_funscript first");
     const invert = !!opts.invert;
-    const label = `funscript ×${normSpeed(opts.speed)}${opts.loop ? " ↻" : ""}${invert ? " inv" : ""}`;
+    const label = `🎬 funscript ×${normSpeed(opts.speed)}${opts.loop ? " ↻" : ""}${invert ? " inv" : ""}`;
     return this.runTimeline("video", target, this.actions, {
       loop: opts.loop,
       speed: opts.speed,
@@ -180,7 +180,7 @@ export class ModeController {
     opts: { loop?: boolean; speed?: number } = {}
   ): Promise<{ started: boolean; durationMs: number }> {
     const kf = normalizeKeyframes(score.keyframes);
-    const label = score.brief || score.name || "muse";
+    const label = "🎼 " + (score.brief || score.name || "muse");
     this.memory?.recordPlay("muse", score.name || label, this.persona.id);
     this.manager.log_("cmd", `muse → "${label}"${score.by ? " · by " + score.by : ""}`);
     return this.runTimeline("muse", target, kf, { loop: opts.loop, speed: opts.speed, label });

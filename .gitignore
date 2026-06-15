@@ -4,3 +4,13 @@ dist/*
 *.log
 .DS_Store
 .env
+
+# local editor / agent tooling scaffolding (not part of the project)
+.claude/settings.local.json
+.agents/
+.codex/
+.cursor/
+.gemini/
+.kiro/
+.opencode/
+.qoder/
