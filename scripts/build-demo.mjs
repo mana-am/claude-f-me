@@ -18,6 +18,12 @@ let html = CONSOLE_HTML.replace("</head>", inject + "</head>");
 // nudge the document title so the tab reads as a demo
 html = html.replace(/<title>[^<]*<\/title>/i, "<title>claude·f·me — live demo</title>");
 
+// the public demo defaults to English (the app keeps browser-language detection).
+// First visit → English; an explicit ?lang=zh or the in-page toggle still win.
+const langDefault = '(navigator.language||"").indexOf("zh")===0 ? "zh" : "en"';
+if (html.includes(langDefault)) html = html.replace(langDefault, '"en"');
+else console.error("warning: language-default snippet not found — demo lang may follow the browser");
+
 await mkdir("site", { recursive: true });
 await writeFile("site/index.html", html);
 await writeFile("site/.nojekyll", ""); // serve files verbatim, no Jekyll
