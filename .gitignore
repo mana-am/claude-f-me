@@ -1,0 +1,6 @@
+node_modules/
+dist/*
+!dist/opendick.mjs
+*.log
+.DS_Store
+.env

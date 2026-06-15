@@ -1,0 +1,15 @@
+{
+  "name": "opendick",
+  "owner": {
+    "name": "SimonAKing",
+    "url": "https://github.com/SimonAKing"
+  },
+  "plugins": [
+    {
+      "name": "opendick",
+      "description": "Control intimate hardware by chatting in Claude Code — live console, built-in simulator, video (funscript) + game modes, safety caps.",
+      "source": "./",
+      "version": "0.1.0"
+    }
+  ]
+}

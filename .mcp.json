@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "opendick": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/opendick.mjs"],
+      "env": {
+        "OPENDICK_MODE": "simulated",
+        "OPENDICK_CONSOLE_PORT": "8731",
+        "OPENDICK_MAX_INTENSITY": "1.0",
+        "OPENDICK_INTIFACE_URL": "ws://127.0.0.1:12345"
+      }
+    }
+  }
+}
