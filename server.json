@@ -1,0 +1,49 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mana-am/claude-f-me",
+  "description": "Control intimate hardware (Buttplug/Intiface) by chatting — reactive web console, built-in simulator, master remote, video/game/audio modes, safety caps.",
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/mana-am/claude-f-me",
+  "repository": {
+    "url": "https://github.com/mana-am/claude-f-me",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "claude-f-me",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "CFM_MODE",
+          "description": "Backend: 'simulated' (no hardware) or 'buttplug' (real device via Intiface Central).",
+          "isRequired": false,
+          "default": "simulated",
+          "choices": ["simulated", "buttplug"]
+        },
+        {
+          "name": "CFM_CONSOLE_PORT",
+          "description": "Port for the live web console.",
+          "isRequired": false,
+          "default": "8731"
+        },
+        {
+          "name": "CFM_MAX_INTENSITY",
+          "description": "Hard safety cap on output intensity, between 0 and 1.",
+          "isRequired": false,
+          "default": "1.0"
+        },
+        {
+          "name": "CFM_INTIFACE_URL",
+          "description": "Intiface Central WebSocket URL (only used when CFM_MODE=buttplug).",
+          "isRequired": false,
+          "default": "ws://127.0.0.1:12345"
+        }
+      ]
+    }
+  ]
+}

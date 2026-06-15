@@ -2,6 +2,7 @@
   "name": "claude-f-me",
   "version": "0.1.0",
   "description": "An installable Claude Code plugin to control intimate hardware (Buttplug/Intiface) by chatting — with a reactive web console, a built-in simulator, master remote, plus video (funscript), game and audio modes.",
+  "mcpName": "io.github.mana-am/claude-f-me",
   "type": "module",
   "bin": {
     "claude-f-me": "dist/index.js"
