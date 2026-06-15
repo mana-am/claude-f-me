@@ -18,6 +18,12 @@
 
 <img src="../pulse-core.gif" alt="claude-f-me Pulse Core コンソールがリアルタイムに反応" width="640" />
 
+<br/>
+
+<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4" controls muted playsinline width="300"></video>
+
+<sub>▶️ <b>機能ツアー</b> — すべてのモードを一望（約25秒）· <a href="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4">動画を開く</a></sub>
+
 <p><b><a href="https://pages.mana.am/">▶ ブラウザでライブコンソールを試す</a></b> — 本物の UI、フル操作可能、シミュレート（ハードウェア不要）。<sub>main から GitHub Pages で公開。Pages を有効化すると表示されます。</sub></p>
 
 </div>
@@ -62,35 +68,31 @@
 |---|---|---|---|
 | <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
-## ▶️ Claude Code または Codex で使う
+## ▶️ Claude Code・Codex・任意の MCP クライアントで使う
 
-claude-f-me は **MCP サーバー**なので、MCP 対応のエージェントなら会話するだけで駆動できます。**ハードウェア不要**——内蔵シミュレーターがすべてを動かします（**http://localhost:8731**）。
+claude-f-me は標準の **MCP サーバー**——**Claude Code・Codex・Cursor・Cline・Claude Desktop** など MCP を話せるものなら何でも駆動できます。**ハードウェア不要**、内蔵シミュレーターがすべてを動かします（**http://localhost:8731**）。すぐ使える設定は [`examples/`](./examples) にあります。
 
-**🟣 Claude Code** —— プラグインとしてインストール：
+**🟣 Claude Code** —— プラグインとしてワンクリック導入（スラッシュコマンド付き）：
 
 ```bash
 /plugin marketplace add mana-am/claude-f-me
 /plugin install claude-f-me@claude-f-me
 ```
 
-あとは話しかけるだけ：`scan for devices` · `vibrate at 40% for 3s` · `start an edge game` —— またはスラッシュコマンド `/claude-f-me:fuck`、`:edge`、`:morse`、`:safeword`。
+**🟢 Codex / Cursor / Cline / Claude Desktop / …** —— クライアントをサーバーに向けるだけ。最も簡単なのは `npx`（Node ≥ 18、クローン不要）：
 
-**🟢 Codex（または任意の MCP クライアント）** —— ビルドしてサーバーを登録：
-
-```bash
-git clone https://github.com/mana-am/claude-f-me && cd claude-f-me && npm install && npm run build
+```jsonc
+// "mcpServers" エントリ（Claude Desktop / Cursor / Cline / Windsurf）—— examples/mcp.json 参照
+"claude-f-me": {
+  "command": "npx",
+  "args": ["-y", "github:mana-am/claude-f-me"],
+  "env": { "CFM_MODE": "simulated" }
+}
 ```
 
-`~/.codex/config.toml`（Codex CLI）に追加：
+Codex は TOML —— [`examples/codex-config.toml`](./examples/codex-config.toml) を `~/.codex/config.toml` に入れます。クライアント別の一覧は [`examples/`](./examples)。
 
-```toml
-[mcp_servers.claude-f-me]
-command = "node"
-args = ["/absolute/path/to/claude-f-me/dist/claude-f-me.mjs"]
-env = { CFM_MODE = "simulated", CFM_CONSOLE_PORT = "8731" }
-```
-
-あとは同じように会話——Codex も同じツール（`vibrate`、`start_game`、`compose`…）を呼びます。
+あとはどこでも同じように会話——`scan for devices` · `start an edge game` · `compose a slow build`——または Claude Code ではスラッシュコマンド `/claude-f-me:fuck`、`:edge`、`:morse`、`:safeword`。
 
 > ➡️ 実機の接続、マスターリモートなどは [はじめ方](#-はじめ方--ステップバイステップ) を参照。
 

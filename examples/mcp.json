@@ -1,0 +1,13 @@
+{
+  "//": "Generic MCP server config for claude-f-me. Works in Claude Desktop, Cursor, Cline, Windsurf and most MCP clients — paste the 'claude-f-me' block into that client's MCP servers config. Needs Node >= 18.",
+  "mcpServers": {
+    "claude-f-me": {
+      "command": "npx",
+      "args": ["-y", "github:mana-am/claude-f-me"],
+      "env": {
+        "CFM_MODE": "simulated",
+        "CFM_CONSOLE_PORT": "8731"
+      }
+    }
+  }
+}

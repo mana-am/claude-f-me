@@ -17,6 +17,12 @@
 
 <img src="../pulse-core.gif" alt="claude-f-me Pulse Core 主控台即時反應" width="640" />
 
+<br/>
+
+<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-zh.mp4" controls muted playsinline width="300"></video>
+
+<sub>▶️ <b>功能速覽</b> — 所有玩法一次看完（約 25 秒）· <a href="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-zh.mp4">開啟影片</a></sub>
+
 <p><b><a href="https://pages.mana.am/">▶ 在瀏覽器裡試玩即時主控台</a></b> — 真實介面、完整可玩、模擬（無硬體）。<sub>由 main 經 GitHub Pages 發布；Pages 啟用後即可存取。</sub></p>
 
 </div>
@@ -60,35 +66,31 @@
 |---|---|---|---|
 | <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
-## ▶️ 用 Claude Code 或 Codex 使用
+## ▶️ 用 Claude Code、Codex 或任意 MCP 用戶端使用
 
-claude-f-me 是一個 **MCP 服務**，任何支援 MCP 的 agent 都能靠對話驅動它。**無需硬體**——內建模擬器跑完整體驗，位址 **http://localhost:8731**。
+claude-f-me 是標準的 **MCP 服務**——可從 **Claude Code、Codex、Cursor、Cline、Claude Desktop** 或任何支援 MCP 的工具驅動。**無需硬體**，內建模擬器跑完整體驗（位址 **http://localhost:8731**）。現成配置見 [`examples/`](./examples)。
 
-**🟣 Claude Code** —— 作為外掛安裝：
+**🟣 Claude Code** —— 作為外掛一鍵安裝（含 slash 指令）：
 
 ```bash
 /plugin marketplace add mana-am/claude-f-me
 /plugin install claude-f-me@claude-f-me
 ```
 
-然後直接說：`掃描裝置` · `以 40% 震動 3 秒` · `開始 edge 遊戲` —— 或 slash 指令 `/claude-f-me:fuck`、`:edge`、`:morse`、`:safeword`。
+**🟢 Codex / Cursor / Cline / Claude Desktop / …** —— 讓用戶端指向本服務，最簡單用 `npx`（Node ≥ 18，無需 clone）：
 
-**🟢 Codex（或任意 MCP 用戶端）** —— 先建置，再註冊服務：
-
-```bash
-git clone https://github.com/mana-am/claude-f-me && cd claude-f-me && npm install && npm run build
+```jsonc
+// "mcpServers" 條目（Claude Desktop / Cursor / Cline / Windsurf）—— 見 examples/mcp.json
+"claude-f-me": {
+  "command": "npx",
+  "args": ["-y", "github:mana-am/claude-f-me"],
+  "env": { "CFM_MODE": "simulated" }
+}
 ```
 
-在 `~/.codex/config.toml`（Codex CLI）裡加：
+Codex 用 TOML —— 把 [`examples/codex-config.toml`](./examples/codex-config.toml) 放進 `~/.codex/config.toml`。各用戶端對照表見 [`examples/`](./examples)。
 
-```toml
-[mcp_servers.claude-f-me]
-command = "node"
-args = ["/absolute/path/to/claude-f-me/dist/claude-f-me.mjs"]
-env = { CFM_MODE = "simulated", CFM_CONSOLE_PORT = "8731" }
-```
-
-然後照樣對話——Codex 呼叫同一套工具（`vibrate`、`start_game`、`compose`…）。
+然後到處都照樣對話——`掃描裝置` · `開始 edge 遊戲` · `作一段慢曲`——或在 Claude Code 裡用 slash 指令 `/claude-f-me:fuck`、`:edge`、`:morse`、`:safeword`。
 
 > ➡️ 接真機、主人遙控等見 [快速上手](#-快速上手--一步步來)。
 

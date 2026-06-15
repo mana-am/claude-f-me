@@ -1,0 +1,19 @@
+# claude-f-me as an MCP server for Codex CLI.
+# Add this block to ~/.codex/config.toml, then restart Codex and just chat
+# ("scan for devices", "start an edge game", "compose a slow build", …).
+#
+# `npx -y github:mana-am/claude-f-me` builds & runs the server on first use —
+# no manual clone needed (Node >= 18 required).
+
+[mcp_servers.claude-f-me]
+command = "npx"
+args = ["-y", "github:mana-am/claude-f-me"]
+env = { CFM_MODE = "simulated", CFM_CONSOLE_PORT = "8731" }
+# CFM_MODE = "buttplug"   # switch to real hardware via Intiface Central
+
+# --- Alternative: run from a local clone (more reliable, offline-friendly) ---
+# git clone https://github.com/mana-am/claude-f-me && cd claude-f-me && npm install && npm run build
+# [mcp_servers.claude-f-me]
+# command = "node"
+# args = ["/absolute/path/to/claude-f-me/dist/claude-f-me.mjs"]
+# env = { CFM_MODE = "simulated" }

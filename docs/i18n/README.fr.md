@@ -21,6 +21,12 @@ Un **simulateur intégré** permet de tout construire et d'essayer **sans matér
 
 <img src="../pulse-core.gif" alt="console Pulse Core de claude-f-me réagissant en temps réel" width="640" />
 
+<br/>
+
+<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4" controls muted playsinline width="300"></video>
+
+<sub>▶️ <b>Tour des fonctionnalités</b> — tous les modes en un coup d'œil (~25s) · <a href="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4">ouvrir la vidéo</a></sub>
+
 <p><b><a href="https://pages.mana.am/">▶ Essaie la console en direct dans ton navigateur</a></b> — la vraie UI, entièrement jouable, simulée (sans matériel). <sub>Publiée depuis <code>main</code> via GitHub Pages ; s'affiche une fois Pages activé.</sub></p>
 
 </div>
@@ -66,35 +72,32 @@ Un **simulateur intégré** permet de tout construire et d'essayer **sans matér
 |---|---|---|---|
 | <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
-## ▶️ Utilise-le dans Claude Code ou Codex
+## ▶️ Utilise-le dans Claude Code, Codex ou tout client MCP
 
-claude-f-me est un **serveur MCP** : n'importe quel agent compatible MCP le pilote rien qu'en discutant. **Aucun matériel requis** — le simulateur intégré fait tout tourner (**http://localhost:8731**).
+claude-f-me est un **serveur MCP** standard — pilote-le depuis **Claude Code, Codex, Cursor, Cline,
+Claude Desktop** ou tout ce qui parle MCP. **Aucun matériel requis** ; le simulateur intégré fait tout tourner (**http://localhost:8731**). Des configs prêtes à l'emploi sont dans [`examples/`](./examples).
 
-**🟣 Claude Code** — installe-le comme plugin :
+**🟣 Claude Code** — installe-le comme plugin (un clic, avec les commandes slash) :
 
 ```bash
 /plugin marketplace add mana-am/claude-f-me
 /plugin install claude-f-me@claude-f-me
 ```
 
-Ensuite, parle simplement : `scan for devices` · `vibrate at 40% for 3s` · `start an edge game` — ou les commandes slash `/claude-f-me:fuck`, `:edge`, `:morse`, `:safeword`.
+**🟢 Codex / Cursor / Cline / Claude Desktop / …** — pointe le client vers le serveur. Le plus simple est `npx` (Node ≥ 18, sans cloner) :
 
-**🟢 Codex (ou tout client MCP)** — compile-le, puis enregistre le serveur :
-
-```bash
-git clone https://github.com/mana-am/claude-f-me && cd claude-f-me && npm install && npm run build
+```jsonc
+// entrée "mcpServers" (Claude Desktop / Cursor / Cline / Windsurf) — voir examples/mcp.json
+"claude-f-me": {
+  "command": "npx",
+  "args": ["-y", "github:mana-am/claude-f-me"],
+  "env": { "CFM_MODE": "simulated" }
+}
 ```
 
-Ajoute à `~/.codex/config.toml` (Codex CLI) :
+Codex utilise du TOML — place [`examples/codex-config.toml`](./examples/codex-config.toml) dans `~/.codex/config.toml`. Tableau par client dans [`examples/`](./examples).
 
-```toml
-[mcp_servers.claude-f-me]
-command = "node"
-args = ["/absolute/path/to/claude-f-me/dist/claude-f-me.mjs"]
-env = { CFM_MODE = "simulated", CFM_CONSOLE_PORT = "8731" }
-```
-
-Puis discute de la même façon — Codex appelle les mêmes outils (`vibrate`, `start_game`, `compose`…).
+Ensuite discute de la même façon partout — `scan for devices` · `start an edge game` · `compose a slow build` — ou, dans Claude Code, les commandes slash `/claude-f-me:fuck`, `:edge`, `:morse`, `:safeword`.
 
 > ➡️ Connecter un appareil réel, la télécommande master et plus dans [Démarrage](#-démarrage--étape-par-étape).
 
