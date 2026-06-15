@@ -61,8 +61,8 @@ so the chat and the dashboard always share the exact same device state.
   "a thunderstorm", "I love you in morse") and it writes a smooth haptic score and plays it.
   Save scores to a library and replay them. The device becomes an instrument an AI plays.
 - 🎭 **Personas.** Pick *who's in control* — driver personalities themed after SOTA models:
-  🕯️ Slow Burn (Opus), 😈 Brat (GPT-5.5), 🎼 Metronome, ⛈️ Storm, 🔮 Oracle. Each changes the
-  feel (pace, randomness, denial, ceiling). **Blind mode** hides which one — a mystery in control.
+  🕯️ Slow Burn (Opus), 😈 Brat (GPT-5.5), 🎼 Metronome, ⛈️ Storm, 🔮 Oracle, 🍼 Mommy. Each changes
+  the feel (pace, randomness, denial, ceiling). **Blind mode** hides which one — a mystery in control.
 - 💞 **Duet mode.** A room-code link between two consoles over a built-in relay, so a partner's
   input drives your device in real time (mirror / lead / follow), with presence and 👋 touch gestures.
 - ⚡ **Reactive "Pulse Core" UI.** A breathing energy orb and an aurora that glow, scale and
@@ -75,6 +75,12 @@ so the chat and the dashboard always share the exact same device state.
   plus a `game_event` hook so Claude can react inside a text adventure.
 - 🎵 **Audio mode.** Drives the device from your **microphone** or **tab/system audio** in real time.
 - 🥁 **Pattern library.** `pulse`, `wave`, `escalate`, `tease`, `heartbeat`, `staircase`, `sos`, `earthquake`.
+- 🧠 **Memory.** Local-only memory that learns your favourites, persona affinity and soft dislikes
+  (`remember` / `recall` / `forget`) so sessions get more *you* over time — and never leaves your machine.
+- 📜 **Scene prompts.** Ready-made guided scenes as MCP prompts — mommy scene, edging session,
+  story mode, compose-a-vibe, aftercare.
+- 💬 **Chat bridges.** Optional **Telegram** bot — control by message or emoji from a chat you
+  already use (great for long-distance partners).
 - 🌐 **Bilingual.** Console and master remote in **English and 中文**, one-tap toggle (or `?lang=zh`).
 - 🛟 **Safety, built in.** Global max cap, per-command auto-stop, watchdog, emergency stop everywhere, hardware-off on exit.
 
@@ -165,7 +171,7 @@ saved to a library (built-ins included) and replayed with `muse_list` / `muse_pl
 
 **🎭 Personas** — a driver personality that modulates every game/event (pace, randomness, denial,
 ceiling) and, with a matching key, picks which model composes your Muse scores:
-🕯️ `slowburn` (Opus) · 😈 `brat` (GPT-5.5) · 🎼 `metronome` · ⛈️ `storm` · 🔮 `oracle`.
+🕯️ `slowburn` (Opus) · 😈 `brat` (GPT-5.5) · 🎼 `metronome` · ⛈️ `storm` · 🔮 `oracle` · 🍼 `mommy`.
 `set_persona blind` hides the choice until `reveal_persona`.
 
 **💞 Duet** — open the console's **Duet** panel, share a relay URL + room code, and two consoles
@@ -181,6 +187,47 @@ or **follow** (you receive); send a 👋 touch. Incoming levels still pass your 
 **🥁 Patterns** — `pulse` · `wave` · `escalate` · `tease` · `heartbeat` · `staircase` · `sos` · `earthquake`.
 
 **🎵 Audio** — mic or tab/system audio drives intensity by loudness, with a sensitivity slider.
+
+## 🧠 Memory
+
+Optional local memory so claude-f-me **gets to know you**. It records which games and Muse scores
+you reach for, which persona you vibe with, and **soft dislike signals** (things stopped seconds
+after they started), plus any free-form notes. Claude can `recall` it before composing or escalating,
+and `forget` wipes it.
+
+- Tools: `remember "loves heartbeat at 60%"` · `recall` · `forget`
+- Stored at `~/.claude-f-me/memory.json` — **local only, never transmitted**, plain JSON you can read or delete.
+
+## 📜 Scene prompts
+
+Guided scenes ship as **MCP prompts** — run them from Claude Code as `/mcp__claude-f-me__<name>`:
+
+| prompt | what it sets up |
+|---|---|
+| `mommy-scene` | roleplay the 🍼 Mommy persona while driving the device |
+| `edge-session` | a structured tease-and-deny session with check-ins |
+| `story-mode` | an interactive text adventure where choices drive the device |
+| `compose-vibe` | turn a description into a Muse score and play it |
+| `aftercare` | a gentle, soothing wind-down |
+
+## 💬 Chat bridges — Telegram
+
+Control from a chat app you already use — perfect for a long-distance partner. Set a bot token and
+the bridge starts automatically:
+
+```bash
+# from @BotFather; allow-list the chat ids that may control it (strongly recommended)
+export CFM_TELEGRAM_TOKEN=123456:ABC...
+export CFM_TELEGRAM_ALLOW=11111111,22222222
+```
+
+Then message the bot: a number `0–100`, `harder` / `softer`, `stop` / `safeword`, `scan`, or an emoji —
+🔥 edge · 💓 heartbeat · 🌊 ambient · 🎡 wheel · 📈 escalation · 🎲 surprise · 🛑 stop. Replies are
+bilingual (auto-detects Chinese). Without an allow-list, anyone who finds the bot can control it —
+so set one. The safety cap and `safeword` always win.
+
+> **Why not WeChat?** Personal WeChat has no official bot API; only unofficial/grey protocols exist
+> (against ToS, easily banned). See the [Roadmap](#roadmap--ideas).
 
 ## MCP tools
 
@@ -199,10 +246,15 @@ or **follow** (you receive); send a 👋 touch. Incoming levels still pass your 
 | `compose` | you write `keyframes` (`[{at,level}]`) from a `brief` and play them; optional `save_as`, `loop` |
 | `muse_list` · `muse_play` | list / replay saved & built-in Muse scores |
 | `list_personas` · `set_persona` · `reveal_persona` | pick the driver persona (or `blind`) and reveal it |
+| `remember` · `recall` · `forget` | local memory: save a note/preference, recall the profile, wipe it |
 | `stop_mode` | stop the active video/game/muse mode |
 
-> Audio mode and the master remote live in the console (they need a browser for mic capture and
-> hands-on control); everything else is drivable by Claude through the tools above.
+Plus **MCP prompts** (`/mcp__claude-f-me__…`): `mommy-scene`, `edge-session`, `story-mode`,
+`compose-vibe`, `aftercare`.
+
+> Audio mode, the master remote and Duet live in the console (they need a browser for mic capture
+> and hands-on control); the Telegram bridge runs in the background; everything else is drivable by
+> Claude through the tools above.
 
 ## Configuration
 
@@ -214,6 +266,8 @@ or **follow** (you receive); send a 👋 touch. Incoming levels still pass your 
 | `CFM_INTIFACE_URL` | `ws://127.0.0.1:12345` | Intiface server (buttplug mode) |
 | `ANTHROPIC_API_KEY` / `CFM_LLM_API_KEY` | — | *optional* — lets the console's "describe a vibe" box have **Claude** compose Muse scores |
 | `OPENAI_API_KEY` (+ `CFM_OPENAI_BASE_URL`) | — | *optional* — same, via an OpenAI-compatible model (e.g. a GPT persona) |
+| `CFM_TELEGRAM_TOKEN` | — | *optional* — enable the Telegram bridge (token from @BotFather) |
+| `CFM_TELEGRAM_ALLOW` | — | comma-separated chat ids allowed to control via Telegram (set this!) |
 
 > The model keys are **optional**. Without them, Muse still works — just ask Claude in chat to
 > `compose`, and personas still modulate the feel locally. With a key, a persona's `model` decides
@@ -240,6 +294,25 @@ This is intimate hardware on a real body. The design reflects that, but **you** 
 
 Only ever use this with informed, enthusiastic, revocable consent. Don't log or transmit usage data.
 You are responsible for how you use it.
+
+## Roadmap / ideas
+
+Where this is headed — PRs and opinions welcome:
+
+- 🧠 **Memory → behaviour.** Today memory *records* and Claude can *recall* it; next, let it
+  automatically steer persona/Muse choices and avoid disliked combos without being asked.
+- 💬 **More chat bridges.** **Discord** (official bot, the natural next one) and Slack; **WhatsApp**
+  via the Business API. **WeChat** has no official personal-account bot API — only unofficial/grey
+  protocols (against ToS, easily banned), so it's intentionally not shipped; 企业微信 (WeCom) is
+  possible but clunky.
+- 🖥️ **Console panels** for the memory profile, persona picker and Muse library (today they're
+  tool/chat-driven).
+- 👩 **"Boss-key" discretion mode.** A hotkey that instantly silences + disguises the console as
+  something innocent when someone walks in (separate from the 🍼 Mommy *persona*).
+- ⏰ **Scheduled teases.** "Good morning" sessions and timed surprises.
+- 🎲 **Group play.** A shared room where several people collectively control one device (a real
+  wheel-of-fortune).
+- 🗣️ **Voice notes → audio mode.** Drive intensity from a sent voice message, not just a live mic.
 
 ## Credits
 
