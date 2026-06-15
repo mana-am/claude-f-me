@@ -15,7 +15,7 @@
 
 <p align="center"><a href="../../README.md">English</a> · <b>简体中文</b> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a></p>
 
-<img src="../console.png" alt="claude-f-me 控制台" width="760" />
+<img src="../pulse-core.gif" alt="claude-f-me Pulse Core 控制台实时反应" width="640" />
 
 </div>
 

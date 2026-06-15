@@ -16,7 +16,7 @@ Un **simulador integrado** te deja construir y jugar **sin hardware**.
 
 <p align="center"><a href="../../README.md">English</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ja.md">日本語</a> · <b>Español</b> · <a href="README.fr.md">Français</a></p>
 
-<img src="../console.png" alt="consola claude-f-me" width="760" />
+<img src="../pulse-core.gif" alt="consola Pulse Core de claude-f-me reaccionando en tiempo real" width="640" />
 
 </div>
 

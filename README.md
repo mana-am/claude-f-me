@@ -19,7 +19,9 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 
 <p align="center"><b>English</b> · <a href="docs/i18n/README.zh-CN.md">简体中文</a> · <a href="docs/i18n/README.zh-TW.md">繁體中文</a> · <a href="docs/i18n/README.ja.md">日本語</a> · <a href="docs/i18n/README.es.md">Español</a> · <a href="docs/i18n/README.fr.md">Français</a></p>
 
-<img src="./docs/console.png" alt="claude-f-me console" width="760" />
+<img src="./docs/pulse-core.gif" alt="claude-f-me Pulse Core console reacting to the device in real time" width="640" />
+
+<sub>The “Pulse Core” console reacting live — the orb and aurora breathe with intensity. Recorded against the built-in simulator (zero hardware).</sub>
 
 </div>
 

@@ -12,7 +12,8 @@
     "start": "node dist/index.js",
     "console": "node dist/index.js --console-only",
     "dev": "tsx watch src/index.ts",
-    "dev:console": "tsx watch src/index.ts -- --console-only"
+    "dev:console": "tsx watch src/index.ts -- --console-only",
+    "record:demo": "node scripts/record-demo.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
@@ -24,6 +25,7 @@
     "@types/node": "^22.7.0",
     "@types/ws": "^8.5.12",
     "esbuild": "^0.24.0",
+    "puppeteer-core": "^23.11.1",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"
   },

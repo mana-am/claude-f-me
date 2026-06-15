@@ -19,7 +19,7 @@ Un **simulateur intégré** permet de tout construire et d'essayer **sans matér
 
 <p align="center"><a href="../../README.md">English</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <b>Français</b></p>
 
-<img src="../console.png" alt="console claude-f-me" width="760" />
+<img src="../pulse-core.gif" alt="console Pulse Core de claude-f-me réagissant en temps réel" width="640" />
 
 </div>
 
