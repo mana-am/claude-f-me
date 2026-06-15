@@ -80,6 +80,10 @@ Claude Desktop** o cualquier cosa que hable MCP. **Sin hardware**; el simulador 
 /plugin install claude-f-me@claude-f-me
 ```
 
+<p align="center"><img src="../claude-code-loop.jpg" alt="Una sesión de Claude Code controlando claude-f-me — /loop y /goal lo programan hacia un objetivo" width="620" /></p>
+
+<sub>Una sesión real de Claude Code — aquí `/loop` + `/goal` lo ponen en un horario y lo apuntan a un objetivo. Cualquier mensaje o comando slash funciona igual.</sub>
+
 **🟢 Codex / Cursor / Cline / Claude Desktop / …** — apunta el cliente al servidor. Lo más fácil es `npx` (Node ≥ 18, sin clonar):
 
 ```jsonc

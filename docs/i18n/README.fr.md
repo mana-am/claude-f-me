@@ -84,6 +84,10 @@ Claude Desktop** ou tout ce qui parle MCP. **Aucun matériel requis** ; le simul
 /plugin install claude-f-me@claude-f-me
 ```
 
+<p align="center"><img src="../claude-code-loop.jpg" alt="Une session Claude Code pilotant claude-f-me — /loop et /goal le programment vers un objectif" width="620" /></p>
+
+<sub>Une vraie session Claude Code — ici `/loop` + `/goal` le mettent sur un planning et le dirigent vers un objectif. N'importe quel message ou commande slash marche pareil.</sub>
+
 **🟢 Codex / Cursor / Cline / Claude Desktop / …** — pointe le client vers le serveur. Le plus simple est `npx` (Node ≥ 18, sans cloner) :
 
 ```jsonc

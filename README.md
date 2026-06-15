@@ -86,6 +86,10 @@ everything (watch it at **http://localhost:8731**). Copy-paste configs live in [
 /plugin install claude-f-me@claude-f-me
 ```
 
+<p align="center"><img src="./docs/claude-code-loop.jpg" alt="A Claude Code session driving claude-f-me — /loop and /goal scheduling the device toward a goal" width="620" /></p>
+
+<sub>A real Claude Code session — here `/loop` + `/goal` put it on a schedule and aim it at a goal. Any chat line or slash command works just as well.</sub>
+
 **🟢 Codex / Cursor / Cline / Claude Desktop / …** — point the client at the server. Easiest is
 `npx` (Node ≥ 18, nothing to clone):
 

@@ -79,6 +79,10 @@ claude-f-me は標準の **MCP サーバー**——**Claude Code・Codex・Curso
 /plugin install claude-f-me@claude-f-me
 ```
 
+<p align="center"><img src="../claude-code-loop.jpg" alt="Claude Code セッションで claude-f-me を駆動——/loop と /goal でスケジュール化しゴールへ" width="620" /></p>
+
+<sub>実際の Claude Code セッション——ここでは `/loop` + `/goal` でスケジュールに乗せ、ゴールへ向かわせています。どんな会話文やスラッシュコマンドでも同様に動きます。</sub>
+
 **🟢 Codex / Cursor / Cline / Claude Desktop / …** —— クライアントをサーバーに向けるだけ。最も簡単なのは `npx`（Node ≥ 18、クローン不要）：
 
 ```jsonc

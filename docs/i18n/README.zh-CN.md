@@ -77,6 +77,10 @@ claude-f-me 是标准的 **MCP 服务**——可从 **Claude Code、Codex、Curs
 /plugin install claude-f-me@claude-f-me
 ```
 
+<p align="center"><img src="../claude-code-loop.jpg" alt="在 Claude Code 会话里驱动 claude-f-me——用 /loop 和 /goal 定时朝目标推进" width="620" /></p>
+
+<sub>一个真实的 Claude Code 会话——这里用 `/loop` + `/goal` 把它放进定时任务并朝目标推进。任意对话或 slash 命令都一样能用。</sub>
+
 **🟢 Codex / Cursor / Cline / Claude Desktop / …** —— 让客户端指向本服务，最简单用 `npx`（Node ≥ 18，无需 clone）：
 
 ```jsonc
