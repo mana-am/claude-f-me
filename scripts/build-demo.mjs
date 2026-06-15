@@ -21,5 +21,5 @@ html = html.replace(/<title>[^<]*<\/title>/i, "<title>claude·f·me — live dem
 await mkdir("site", { recursive: true });
 await writeFile("site/index.html", html);
 await writeFile("site/.nojekyll", ""); // serve files verbatim, no Jekyll
-await writeFile("site/CNAME", "pages.mana.am\n"); // GitHub Pages custom domain
-console.error(`wrote site/index.html (${(html.length / 1024).toFixed(0)} KB) + CNAME pages.mana.am`);
+await writeFile("site/CNAME", "f.mana.am\n"); // GitHub Pages custom domain
+console.error(`wrote site/index.html (${(html.length / 1024).toFixed(0)} KB) + CNAME f.mana.am`);

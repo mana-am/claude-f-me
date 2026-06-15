@@ -23,7 +23,7 @@
 
 <sub>▶️ <b>功能速覽</b> — 所有玩法一次看完（約 25 秒）· <a href="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-zh.mp4">開啟影片</a></sub>
 
-<p><b><a href="https://pages.mana.am/">▶ 在瀏覽器裡試玩即時主控台</a></b> — 真實介面、完整可玩、模擬（無硬體）。<sub>由 main 經 GitHub Pages 發布；Pages 啟用後即可存取。</sub></p>
+<p><b><a href="https://f.mana.am/">▶ 在瀏覽器裡試玩即時主控台</a></b> — 真實介面、完整可玩、模擬（無硬體）。<sub>由 main 經 GitHub Pages 發布；Pages 啟用後即可存取。</sub></p>
 
 </div>
 
@@ -56,7 +56,7 @@
 
 ## 截圖
 
-🎥 **看主控台即時反應**（或[**在瀏覽器裡試玩 →**](https://pages.mana.am/)）：
+🎥 **看主控台即時反應**（或[**在瀏覽器裡試玩 →**](https://f.mana.am/)）：
 
 <video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
 

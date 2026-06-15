@@ -27,7 +27,7 @@ Un **simulateur intégré** permet de tout construire et d'essayer **sans matér
 
 <sub>▶️ <b>Tour des fonctionnalités</b> — tous les modes en un coup d'œil (~25s) · <a href="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4">ouvrir la vidéo</a></sub>
 
-<p><b><a href="https://pages.mana.am/">▶ Essaie la console en direct dans ton navigateur</a></b> — la vraie UI, entièrement jouable, simulée (sans matériel). <sub>Publiée depuis <code>main</code> via GitHub Pages ; s'affiche une fois Pages activé.</sub></p>
+<p><b><a href="https://f.mana.am/">▶ Essaie la console en direct dans ton navigateur</a></b> — la vraie UI, entièrement jouable, simulée (sans matériel). <sub>Publiée depuis <code>main</code> via GitHub Pages ; s'affiche une fois Pages activé.</sub></p>
 
 </div>
 
@@ -62,7 +62,7 @@ Un **simulateur intégré** permet de tout construire et d'essayer **sans matér
 
 ## Galerie
 
-🎥 **Regarde la console réagir en temps réel** (ou [**essaie-la dans ton navigateur →**](https://pages.mana.am/)) :
+🎥 **Regarde la console réagir en temps réel** (ou [**essaie-la dans ton navigateur →**](https://f.mana.am/)) :
 
 <video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
 
