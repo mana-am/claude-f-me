@@ -17,7 +17,7 @@
 
 <img src="../pulse-core.gif" alt="claude-f-me Pulse Core 控制台实时反应" width="640" />
 
-<p><b><a href="https://mana-am.github.io/claude-f-me/">▶ 在浏览器里试玩实时控制台</a></b> — 真实界面、完整可玩、模拟（无硬件）。<sub>由 main 经 GitHub Pages 发布；Pages 启用后即可访问。</sub></p>
+<p><b><a href="https://pages.mana.am/">▶ 在浏览器里试玩实时控制台</a></b> — 真实界面、完整可玩、模拟（无硬件）。<sub>由 main 经 GitHub Pages 发布；Pages 启用后即可访问。</sub></p>
 
 </div>
 
@@ -50,7 +50,7 @@
 
 ## 截图
 
-🎥 **看控制台实时反应**（或[**在浏览器里试玩 →**](https://mana-am.github.io/claude-f-me/)）：
+🎥 **看控制台实时反应**（或[**在浏览器里试玩 →**](https://pages.mana.am/)）：
 
 <video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
 

@@ -18,7 +18,7 @@
 
 <img src="../pulse-core.gif" alt="claude-f-me Pulse Core コンソールがリアルタイムに反応" width="640" />
 
-<p><b><a href="https://mana-am.github.io/claude-f-me/">▶ ブラウザでライブコンソールを試す</a></b> — 本物の UI、フル操作可能、シミュレート（ハードウェア不要）。<sub>main から GitHub Pages で公開。Pages を有効化すると表示されます。</sub></p>
+<p><b><a href="https://pages.mana.am/">▶ ブラウザでライブコンソールを試す</a></b> — 本物の UI、フル操作可能、シミュレート（ハードウェア不要）。<sub>main から GitHub Pages で公開。Pages を有効化すると表示されます。</sub></p>
 
 </div>
 
@@ -52,7 +52,7 @@
 
 ## スクリーンショット
 
-🎥 **コンソールがリアルタイムに反応する様子**（または[**ブラウザで試す →**](https://mana-am.github.io/claude-f-me/)）：
+🎥 **コンソールがリアルタイムに反応する様子**（または[**ブラウザで試す →**](https://pages.mana.am/)）：
 
 <video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
 
