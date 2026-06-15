@@ -67,6 +67,40 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 |---|---|---|---|
 | <img src="./docs/console.png" width="230" /> | <img src="./docs/console.zh.png" width="230" /> | <img src="./docs/master.png" width="110" /> | <img src="./docs/demo-browser.png" width="230" /> |
 
+## ▶️ Use it in Claude Code or Codex
+
+claude-f-me is an **MCP server**, so any MCP-capable agent can drive it just by chatting.
+**No hardware needed** — the built-in simulator runs everything; watch it at **http://localhost:8731**.
+
+**🟣 Claude Code** — install it as a plugin:
+
+```bash
+/plugin marketplace add mana-am/claude-f-me
+/plugin install claude-f-me@claude-f-me
+```
+
+Then just talk: `scan for devices` · `vibrate at 40% for 3s` · `start an edge game` — or slash
+commands like `/claude-f-me:fuck`, `:edge`, `:morse`, `:safeword`.
+
+**🟢 Codex (or any MCP client)** — build it, then register the server:
+
+```bash
+git clone https://github.com/mana-am/claude-f-me && cd claude-f-me && npm install && npm run build
+```
+
+Add to `~/.codex/config.toml` (Codex CLI):
+
+```toml
+[mcp_servers.claude-f-me]
+command = "node"
+args = ["/absolute/path/to/claude-f-me/dist/claude-f-me.mjs"]
+env = { CFM_MODE = "simulated", CFM_CONSOLE_PORT = "8731" }
+```
+
+Then chat the same way — Codex calls the same tools (`vibrate`, `start_game`, `compose`, …).
+
+> ➡️ Connecting a real device, the master remote and more are in [Getting started](#-getting-started--step-by-step).
+
 ## What it is
 
 ```

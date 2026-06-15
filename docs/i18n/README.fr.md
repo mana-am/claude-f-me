@@ -66,6 +66,38 @@ Un **simulateur intégré** permet de tout construire et d'essayer **sans matér
 |---|---|---|---|
 | <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
+## ▶️ Utilise-le dans Claude Code ou Codex
+
+claude-f-me est un **serveur MCP** : n'importe quel agent compatible MCP le pilote rien qu'en discutant. **Aucun matériel requis** — le simulateur intégré fait tout tourner (**http://localhost:8731**).
+
+**🟣 Claude Code** — installe-le comme plugin :
+
+```bash
+/plugin marketplace add mana-am/claude-f-me
+/plugin install claude-f-me@claude-f-me
+```
+
+Ensuite, parle simplement : `scan for devices` · `vibrate at 40% for 3s` · `start an edge game` — ou les commandes slash `/claude-f-me:fuck`, `:edge`, `:morse`, `:safeword`.
+
+**🟢 Codex (ou tout client MCP)** — compile-le, puis enregistre le serveur :
+
+```bash
+git clone https://github.com/mana-am/claude-f-me && cd claude-f-me && npm install && npm run build
+```
+
+Ajoute à `~/.codex/config.toml` (Codex CLI) :
+
+```toml
+[mcp_servers.claude-f-me]
+command = "node"
+args = ["/absolute/path/to/claude-f-me/dist/claude-f-me.mjs"]
+env = { CFM_MODE = "simulated", CFM_CONSOLE_PORT = "8731" }
+```
+
+Puis discute de la même façon — Codex appelle les mêmes outils (`vibrate`, `start_game`, `compose`…).
+
+> ➡️ Connecter un appareil réel, la télécommande master et plus dans [Démarrage](#-démarrage--étape-par-étape).
+
 ## Qu'est-ce que c'est
 
 ```

@@ -62,6 +62,38 @@
 |---|---|---|---|
 | <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
+## ▶️ Claude Code または Codex で使う
+
+claude-f-me は **MCP サーバー**なので、MCP 対応のエージェントなら会話するだけで駆動できます。**ハードウェア不要**——内蔵シミュレーターがすべてを動かします（**http://localhost:8731**）。
+
+**🟣 Claude Code** —— プラグインとしてインストール：
+
+```bash
+/plugin marketplace add mana-am/claude-f-me
+/plugin install claude-f-me@claude-f-me
+```
+
+あとは話しかけるだけ：`scan for devices` · `vibrate at 40% for 3s` · `start an edge game` —— またはスラッシュコマンド `/claude-f-me:fuck`、`:edge`、`:morse`、`:safeword`。
+
+**🟢 Codex（または任意の MCP クライアント）** —— ビルドしてサーバーを登録：
+
+```bash
+git clone https://github.com/mana-am/claude-f-me && cd claude-f-me && npm install && npm run build
+```
+
+`~/.codex/config.toml`（Codex CLI）に追加：
+
+```toml
+[mcp_servers.claude-f-me]
+command = "node"
+args = ["/absolute/path/to/claude-f-me/dist/claude-f-me.mjs"]
+env = { CFM_MODE = "simulated", CFM_CONSOLE_PORT = "8731" }
+```
+
+あとは同じように会話——Codex も同じツール（`vibrate`、`start_game`、`compose`…）を呼びます。
+
+> ➡️ 実機の接続、マスターリモートなどは [はじめ方](#-はじめ方--ステップバイステップ) を参照。
+
 ## これは何か
 
 ひとつのプロセスが、Claude が話す MCP サーバー**でもあり**、あなたが眺める Web コンソール**でもある**——

@@ -60,6 +60,38 @@
 |---|---|---|---|
 | <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
+## ▶️ 用 Claude Code 或 Codex 使用
+
+claude-f-me 是一個 **MCP 服務**，任何支援 MCP 的 agent 都能靠對話驅動它。**無需硬體**——內建模擬器跑完整體驗，位址 **http://localhost:8731**。
+
+**🟣 Claude Code** —— 作為外掛安裝：
+
+```bash
+/plugin marketplace add mana-am/claude-f-me
+/plugin install claude-f-me@claude-f-me
+```
+
+然後直接說：`掃描裝置` · `以 40% 震動 3 秒` · `開始 edge 遊戲` —— 或 slash 指令 `/claude-f-me:fuck`、`:edge`、`:morse`、`:safeword`。
+
+**🟢 Codex（或任意 MCP 用戶端）** —— 先建置，再註冊服務：
+
+```bash
+git clone https://github.com/mana-am/claude-f-me && cd claude-f-me && npm install && npm run build
+```
+
+在 `~/.codex/config.toml`（Codex CLI）裡加：
+
+```toml
+[mcp_servers.claude-f-me]
+command = "node"
+args = ["/absolute/path/to/claude-f-me/dist/claude-f-me.mjs"]
+env = { CFM_MODE = "simulated", CFM_CONSOLE_PORT = "8731" }
+```
+
+然後照樣對話——Codex 呼叫同一套工具（`vibrate`、`start_game`、`compose`…）。
+
+> ➡️ 接真機、主人遙控等見 [快速上手](#-快速上手--一步步來)。
+
 ## 它是什麼
 
 一個行程**同時**是 Claude 對話用的 MCP 服務，**和**你盯著看的 Web 主控台——所以聊天和面板始終
