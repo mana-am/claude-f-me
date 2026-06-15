@@ -21,9 +21,14 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     background-image:radial-gradient(#fff 1px, transparent 1px); background-size:3px 3px; }
   .wrap { position:relative; z-index:var(--z-content); height:100%; display:flex; flex-direction:column; }
 
-  header { display:flex; align-items:center; gap:10px; padding:14px 18px; flex-wrap:wrap; }
-  .brand { font-size:16px; font-weight:800; letter-spacing:.5px;
+  header { display:flex; align-items:center; gap:8px; padding:12px 18px; flex-wrap:wrap; position:relative;
+    background:linear-gradient(180deg,#0c0813d9,#0c081300); backdrop-filter:blur(12px) saturate(1.1); }
+  header::after { content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
+    background:linear-gradient(90deg,transparent 8%,#ff8ec755,#c9a0ff55,transparent 92%); }
+  .brand { display:inline-flex; align-items:center; gap:8px; font-size:17px; font-weight:800; letter-spacing:.2px; margin-right:2px;
     background:linear-gradient(90deg,#ff8ec7,#c9a0ff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .brand::before { content:""; width:9px; height:9px; border-radius:50%; flex:0 0 auto;
+    background:radial-gradient(circle at 35% 30%,#ffd6ec,#ff5ea6 60%,#a06bff); box-shadow:0 0 10px #ff5ea6aa; }
   .pill { font-size:11px; padding:3px 9px; border-radius:999px; border:1px solid #ffffff1f; color:#d8c8e2;
     background:#ffffff0a; backdrop-filter:blur(8px); white-space:nowrap; flex:0 0 auto; }
   .pill.sim { color:#7fe0c4; border-color:#1f4a3e88; }
@@ -39,8 +44,11 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   .btn.ghost { padding:6px 10px; font-size:12px; }
   .btn.estop { background:linear-gradient(90deg,#d6443b,#b3261e); border:none; color:#fff; font-weight:800; box-shadow:0 4px 24px #b3261e55; }
 
-  .stage { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:6px 16px; min-height:0; }
-  .orb-host { position:relative; width:min(54vh,300px); height:min(54vh,300px); display:flex; align-items:center; justify-content:center; }
+  .stage { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:8px 16px; min-height:0; }
+  .orb-host { position:relative; flex:0 0 auto; width:min(54vh,70vw,300px); aspect-ratio:1; display:flex; align-items:center; justify-content:center; }
+  /* constant soft halo so the hero has presence even at idle */
+  .orb-host::before { content:""; position:absolute; inset:-22%; border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, #ff5ea61f, #a06bff14 45%, transparent 70%); }
   .rings { position:absolute; inset:0; opacity:0; }
   .ring { position:absolute; inset:0; border-radius:50%; border:1.5px solid #ff8ec7; animation:ringPulse var(--rspd,1.4s) ease-out infinite; }
   .ring:nth-child(2){ animation-delay:calc(var(--rspd,1.4s) * .33); }
@@ -77,18 +85,18 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
 
   /* tabbed control panel — one category visible at a time, on a panel that
      floats above the live aurora so it always stays readable */
-  .panel { margin:0 auto 56px; width:max-content; max-width:min(1040px,94vw);
-    background:linear-gradient(180deg,#16101fe6,#0a0711f5); backdrop-filter:blur(24px) saturate(1.2);
-    border:1px solid #ffffff1f; border-radius:26px; box-shadow:0 24px 70px #000000b0, inset 0 1px 0 #ffffff1f;
-    padding:8px 12px; }
+  .panel { margin:0 auto 58px; width:min(720px,94vw);
+    background:linear-gradient(180deg,#171120e8,#0b0712f7); backdrop-filter:blur(24px) saturate(1.2);
+    border:1px solid #ffffff24; border-radius:24px; box-shadow:0 24px 70px #000000b8, 0 0 0 1px #00000040, inset 0 1px 0 #ffffff1f;
+    padding:10px 14px 4px; }
   /* segmented tab bar */
-  .tabs { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; background:#00000040; border-radius:18px; padding:5px; }
+  .tabs { display:flex; gap:3px; justify-content:center; flex-wrap:wrap; background:#00000040; border-radius:16px; padding:4px; }
   .tab { font:inherit; font-weight:700; cursor:pointer; color:#bcaecf; background:transparent; border:none;
-    border-radius:14px; padding:10px 22px; font-size:14.5px; transition:.18s; white-space:nowrap; }
+    border-radius:13px; padding:9px 14px; font-size:13px; transition:.18s; white-space:nowrap; }
   .tab:hover { color:#fff; background:#ffffff12; }
   .tab.sel { background:linear-gradient(135deg,#ff6eb3,#a06bff); color:#fff; box-shadow:0 4px 20px #ff5ea655; }
   .tabbody { min-height:64px; display:flex; align-items:center; justify-content:center; padding:18px 10px; }
-  .tabpane { display:none; flex-wrap:wrap; gap:11px; align-items:center; justify-content:center; max-width:680px; }
+  .tabpane { display:none; flex-wrap:wrap; gap:11px; align-items:center; justify-content:center; width:100%; max-width:680px; margin:0 auto; }
   .tabpane.sel { display:flex; }
   /* a labelled sub-group occupies its own row inside a pane */
   .grp { display:flex; gap:11px; flex-wrap:wrap; align-items:center; justify-content:center; flex-basis:100%; }
@@ -113,10 +121,10 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   .lv-cmd{color:#9ecbff} .lv-safety{color:#ff9e9e} .lv-warn{color:#ffd27f} .lv-info{color:#9a90a6}
 
   /* funscript + duet modals share one overlay (duet had no overlay styles before) */
-  #fsmodal, #duetmodal { position:fixed; inset:0; z-index:var(--z-modal); background:#000a;
-    display:flex; align-items:center; justify-content:center;
+  #fsmodal, #duetmodal, #guidemodal { position:fixed; inset:0; z-index:var(--z-modal); background:#000a;
+    display:flex; align-items:center; justify-content:center; padding:16px;
     opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s var(--ease), visibility .2s; }
-  #fsmodal.open, #duetmodal.open { opacity:1; visibility:visible; pointer-events:auto; }
+  #fsmodal.open, #duetmodal.open, #guidemodal.open { opacity:1; visibility:visible; pointer-events:auto; }
   .modal { width:min(560px,92vw); background:#140d1a; border:1px solid #ffffff22; border-radius:16px; padding:18px;
     transform:translateY(10px) scale(.985); transition:transform .24s var(--ease); }
   #fsmodal.open .modal, #duetmodal.open .modal { transform:none; }
@@ -153,6 +161,28 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     *, *::before, *::after { transition-duration:.01ms !important; }
     .btn:active, .chip:active, .tab:active { transform:none; }
   }
+
+  /* ---- guide modal: how to use from Claude / Codex / standalone ---- */
+  .modal.guide { width:min(640px,94vw); max-height:86vh; overflow:auto; }
+  .modal.guide h3 { display:flex; align-items:center; gap:8px; }
+  .gtabs { display:flex; gap:4px; background:#00000045; border-radius:14px; padding:4px; margin:12px 0 16px; }
+  .gtab { flex:1; font:inherit; font-weight:700; cursor:pointer; color:#bcaecf; background:transparent; border:none;
+    border-radius:10px; padding:9px 8px; font-size:13px; transition:.18s; white-space:nowrap; }
+  .gtab:hover { color:#fff; background:#ffffff10; }
+  .gtab.sel { background:linear-gradient(135deg,#ff6eb3,#a06bff); color:#fff; box-shadow:0 4px 16px #ff5ea644; }
+  .gpane { display:none; }
+  .gpane.sel { display:block; }
+  .gpane p { margin:0 0 10px; color:#d8c8e2; font-size:13px; line-height:1.55; }
+  .gstep { display:flex; gap:10px; align-items:flex-start; margin:0 0 4px; }
+  .gstep .n { flex:0 0 auto; width:20px; height:20px; margin-top:1px; border-radius:50%; font-size:11px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; color:#fff; background:linear-gradient(135deg,#ff6eb3,#a06bff); }
+  .gstep .lbl2 { font-size:13px; font-weight:600; color:#efe6f6; line-height:1.5; }
+  .gpane pre { margin:6px 0 14px 30px; background:#0b0710; border:1px solid #ffffff1f; border-radius:10px;
+    padding:11px 13px; overflow-x:auto; }
+  .gpane pre, .gpane code { font-family:ui-monospace, Menlo, monospace; font-size:12px; }
+  .gpane pre code { color:#9ecbff; white-space:pre; display:block; line-height:1.6; }
+  .gpane .hint { color:#9a90a6; font-size:12px; margin:0 0 8px; }
+  .gpane .hint code, .gpane p code { color:#ffc187; background:#ffffff0f; border-radius:5px; padding:1px 5px; }
 </style>
 </head>
 <body>
@@ -169,6 +199,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     <span id="duetbadge" class="pill act" style="display:none"></span>
     <span id="masters" class="pill act" style="display:none"></span>
     <div class="spacer"></div>
+    <button id="guidebtn" class="btn ghost" data-i18n="guide"></button>
     <button id="lang" class="btn ghost"></button>
     <button id="logbtn" class="btn ghost" data-i18n="log"></button>
     <button id="remote" class="btn" data-i18n="remote"></button>
@@ -313,6 +344,58 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   </div>
 </div></div>
 
+<div id="guidemodal"><div class="modal guide">
+  <h3>📖 <span data-i18n="guideTitle"></span></h3>
+  <div class="gtabs">
+    <button class="gtab sel" data-gtab="claude">Claude Code</button>
+    <button class="gtab" data-gtab="codex">Codex</button>
+    <button class="gtab" data-gtab="cli" data-i18n="guideCli"></button>
+  </div>
+
+  <div class="gpane sel" data-gpane="claude">
+    <p data-i18n="guideClaudeIntro"></p>
+    <div class="gstep"><span class="n">1</span><span class="lbl2" data-i18n="gAddMarket"></span></div>
+    <pre><code>/plugin marketplace add mana-am/claude-f-me</code></pre>
+    <div class="gstep"><span class="n">2</span><span class="lbl2" data-i18n="gInstallPlugin"></span></div>
+    <pre><code>/plugin install claude-f-me@claude-f-me</code></pre>
+    <div class="gstep"><span class="n">3</span><span class="lbl2" data-i18n="gOpenConsole"></span></div>
+    <pre><code>/claude-f-me:console</code></pre>
+    <p class="hint" data-i18n="gChat"></p>
+    <pre><code>scan for devices
+vibrate at 40% for 3 seconds
+run the heartbeat pattern
+start an edge game
+surprise me</code></pre>
+  </div>
+
+  <div class="gpane" data-gpane="codex">
+    <p data-i18n="guideCodexIntro"></p>
+    <div class="gstep"><span class="n">1</span><span class="lbl2" data-i18n="gBuildFirst"></span></div>
+    <pre><code>git clone https://github.com/mana-am/claude-f-me
+cd claude-f-me && npm install && npm run build</code></pre>
+    <div class="gstep"><span class="n">2</span><span class="lbl2" data-i18n="gCodexA"></span></div>
+    <pre><code>codex mcp add claude-f-me -- node "$PWD/dist/index.js"</code></pre>
+    <div class="gstep"><span class="n">3</span><span class="lbl2" data-i18n="gCodexB"></span></div>
+    <pre><code>[mcp_servers.claude-f-me]
+command = "node"
+args = ["/path/to/claude-f-me/dist/index.js"]</code></pre>
+    <p class="hint" data-i18n="gVerify"></p>
+    <p class="hint" data-i18n="gReal"></p>
+  </div>
+
+  <div class="gpane" data-gpane="cli">
+    <p data-i18n="guideCliIntro"></p>
+    <pre><code>git clone https://github.com/mana-am/claude-f-me
+cd claude-f-me && npm install && npm run build
+npm run console</code></pre>
+    <p class="hint"><span data-i18n="gOpenAt"></span> <code>http://localhost:8731</code></p>
+  </div>
+
+  <div class="deckrow" style="margin-top:10px; justify-content:flex-end; border-top:1px solid #ffffff14; padding-top:12px">
+    <button class="btn" id="guideclose" data-i18n="close"></button>
+  </div>
+</div></div>
+
 <script>
   var I18N = {
     en: { remote:"👑 Remote", scan:"Scan", estop:"■ E-STOP", log:"Log",
@@ -344,7 +427,17 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       duetConnect:"Connect", duetLeave:"Leave", duetTouch:"👋 Touch",
       duetWaiting:"waiting for partner…", duetLinked:"partner linked", duetOffline:"not connected",
       duetPeers:"{n} in room", duetBadge:"🔗 Duet",
-      needFs:"Paste a funscript JSON first.", audFail:"Audio capture failed: ", langBtn:"中文" },
+      needFs:"Paste a funscript JSON first.", audFail:"Audio capture failed: ",
+      guide:"📖 Guide", guideTitle:"How to use", guideCli:"Standalone",
+      guideClaudeIntro:"Install it as a Claude Code plugin, then just chat.",
+      guideCodexIntro:"Register it as an MCP (stdio) server in Codex, then chat or use its /mcp tools.",
+      guideCliIntro:"No agent needed — run the web console directly.",
+      gAddMarket:"Add the plugin marketplace", gInstallPlugin:"Install the plugin", gOpenConsole:"Open this console",
+      gChat:"Then just talk in chat:",
+      gBuildFirst:"Build the server", gCodexA:"Add it with the Codex CLI", gCodexB:"…or edit ~/.codex/config.toml",
+      gVerify:"Start Codex and run /mcp to confirm it connected.",
+      gReal:"For a real device, set CFM_MODE=buttplug (see the README).", gOpenAt:"Then open",
+      langBtn:"中文" },
     zh: { remote:"👑 遥控", scan:"扫描", estop:"■ 紧急停止", log:"日志",
       connecting:"连接中", connected:"已连接", reconnecting:"重连中",
       tapScan:"点扫描", allTarget:"全部", motor:"马达", motors:"马达",
@@ -374,7 +467,17 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       duetConnect:"连接", duetLeave:"断开", duetTouch:"👋 触碰",
       duetWaiting:"等待伙伴…", duetLinked:"伙伴已连接", duetOffline:"未连接",
       duetPeers:"房间内 {n} 人", duetBadge:"🔗 双人",
-      needFs:"请先粘贴 funscript JSON。", audFail:"音频采集失败：", langBtn:"EN" }
+      needFs:"请先粘贴 funscript JSON。", audFail:"音频采集失败：",
+      guide:"📖 指南", guideTitle:"使用指南", guideCli:"独立运行",
+      guideClaudeIntro:"作为 Claude Code 插件安装，然后直接对话即可。",
+      guideCodexIntro:"在 Codex 中把它注册为 MCP（stdio）服务，然后对话或使用它的 /mcp 工具。",
+      guideCliIntro:"无需任何 agent —— 直接运行网页控制台。",
+      gAddMarket:"添加插件市场", gInstallPlugin:"安装插件", gOpenConsole:"打开本控制台",
+      gChat:"然后在聊天里直接说：",
+      gBuildFirst:"先构建服务", gCodexA:"用 Codex CLI 添加", gCodexB:"……或编辑 ~/.codex/config.toml",
+      gVerify:"启动 Codex 后运行 /mcp 确认已连接。",
+      gReal:"接真实设备时，设置 CFM_MODE=buttplug（详见 README）。", gOpenAt:"然后打开",
+      langBtn:"EN" }
   };
   var qlang = new URLSearchParams(location.search).get("lang");
   if (qlang) qlang = qlang.indexOf("zh") === 0 ? "zh" : "en";
@@ -494,9 +597,9 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     blobs.forEach(function(b){
       var x = (0.5 + Math.cos(tms*b.sp*(0.4+L*1.6) + b.ph)*0.34*b.s) * W;
       var y = (0.5 + Math.sin(tms*b.sp*(0.5+L*1.4) + b.ph*1.3)*0.34*b.s) * H;
-      var r = (Math.min(W,H) * (0.22 + L*0.26)) * b.s;
+      var r = (Math.min(W,H) * (0.26 + L*0.26)) * b.s;
       var g = actx.createRadialGradient(x,y,0,x,y,r);
-      var a = (0.05 + L*0.20);
+      var a = (0.075 + L*0.19);
       g.addColorStop(0, "hsla("+b.h+",90%,62%,"+a+")");
       g.addColorStop(1, "hsla("+b.h+",90%,50%,0)");
       actx.fillStyle = g; actx.beginPath(); actx.arc(x,y,r,0,6.2832); actx.fill();
@@ -868,6 +971,19 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       document.querySelectorAll(".tabpane").forEach(function(p){ p.classList.toggle("sel", p.getAttribute("data-pane")===name); });
     });
   });
+
+  // ---- guide modal: how to use from Claude / Codex / standalone ----
+  $("#guidebtn").onclick = function(){ $("#guidemodal").classList.add("open"); };
+  $("#guideclose").onclick = function(){ $("#guidemodal").classList.remove("open"); };
+  $("#guidemodal").addEventListener("click", function(e){ if (e.target === $("#guidemodal")) $("#guidemodal").classList.remove("open"); });
+  document.querySelectorAll(".gtab").forEach(function(gt){
+    gt.addEventListener("click", function(){
+      var name = gt.getAttribute("data-gtab");
+      document.querySelectorAll(".gtab").forEach(function(x){ x.classList.toggle("sel", x===gt); });
+      document.querySelectorAll(".gpane").forEach(function(p){ p.classList.toggle("sel", p.getAttribute("data-gpane")===name); });
+    });
+  });
+  addEventListener("keydown", function(e){ if (e.key === "Escape"){ ["#fsmodal","#duetmodal","#guidemodal"].forEach(function(s){ var el=$(s); if (el) el.classList.remove("open"); }); } });
 
   applyI18n();
   $("#connlbl").textContent = t("connecting");
