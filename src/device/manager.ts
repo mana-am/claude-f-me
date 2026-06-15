@@ -22,7 +22,7 @@ export interface LogEntry {
 }
 
 export interface ActiveMode {
-  type: "video" | "game" | "audio" | "muse";
+  type: "video" | "game" | "audio" | "muse" | "bio";
   label: string;
   positionMs?: number;
   durationMs?: number;

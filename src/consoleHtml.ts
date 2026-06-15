@@ -161,11 +161,26 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       <span id="personas"></span>
     </div>
     <div class="deckrow">
+      <span class="lbl" data-i18n="scene"></span>
+      <span id="scenes"></span>
+    </div>
+    <div class="deckrow">
       <span class="lbl" data-i18n="muse"></span>
       <span id="muselib"></span>
       <input id="musebrief" type="text" data-i18n-ph="musePh" style="min-width:200px; flex:1; max-width:340px;
         background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:7px 12px; font:inherit;" />
       <button class="chip" id="musego" data-i18n="museGo"></button>
+    </div>
+    <div class="deckrow">
+      <span class="lbl" data-i18n="live"></span>
+      <button class="chip" id="biobtn" data-i18n="bio"></button>
+      <select id="biomode" style="background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:6px 10px; font:inherit;">
+        <option value="follow" data-i18n="bioFollow"></option>
+        <option value="edge" data-i18n="bioEdge"></option>
+      </select>
+      <span id="bpmout" class="small"></span>
+      <button class="chip" id="pomobtn" data-i18n="pomo"></button>
+      <button class="chip" id="recbtn" data-i18n="rec"></button>
     </div>
     <div class="deckrow">
       <span class="lbl" data-i18n="video"></span>
@@ -198,7 +213,17 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     <button class="btn ghost" id="fsclose" data-i18n="close"></button>
     <button class="btn" id="fsplay" data-i18n="play"></button>
   </div>
+  <div class="deckrow" style="margin-top:12px; justify-content:flex-start; border-top:1px solid #ffffff14; padding-top:12px">
+    <label class="opt"><span data-i18n="pickVideo"></span> <input type="file" id="fsvideo" accept="video/*" /></label>
+    <span class="spacer"></span>
+    <button class="btn" id="fsvideoplay" data-i18n="vsyncPlay"></button>
+  </div>
 </div></div>
+
+<div id="vsync" style="position:fixed; inset:0; z-index:8; background:#000d; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px;">
+  <video id="vsyncvid" controls style="max-width:92vw; max-height:78vh; border-radius:12px; box-shadow:0 0 60px #ff5ea655;"></video>
+  <button class="btn estop" id="vsyncclose" data-i18n="vsyncClose" style="font-weight:700"></button>
+</div>
 
 <div id="duetmodal"><div class="modal">
   <h3 data-i18n="duetTitle"></h3>
@@ -244,7 +269,12 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       muse:"Muse", musePh:"describe a vibe — e.g. 10-min slow burn", museGo:"✨ Compose",
       museNoKey:"No model key set — ask Claude in chat to compose (or set ANTHROPIC_API_KEY).",
       museErr:"Compose failed: ", needBrief:"Describe a vibe first.",
-      persona:"Persona", reveal:"Reveal", blind:"🎭 Blind",
+      persona:"Persona", reveal:"Reveal", blind:"🎭 Blind", scene:"Scene",
+      live:"Live", bio:"💓 Heart rate", bioStop:"■ Heart rate", bioFollow:"follow", bioEdge:"auto-edge",
+      bioFail:"Bluetooth HR failed: ", bioNoBt:"This browser has no Web Bluetooth — use Chrome/Edge over https or localhost.", bpm:"bpm",
+      pomo:"🍅 Focus 25m", pomoStop:"■ Focus", pomoLeft:"🍅 {m}:{s}",
+      rec:"⏺ Record", recStop:"⏹ Save", recName:"Name this recording (blank = auto):", recSaved:"💾 saved as ", recShort:"recording too short",
+      vsync:"🎞️ With video", vsyncPlay:"▶ Play with video", vsyncClose:"✕ Close video", needVid:"Choose a video file first.", pickVideo:"video file",
       duet:"💞 Duet", duetTitle:"💞 Duet — long-distance sync", duetRelay:"relay URL", duetRoom:"room code",
       duetMode:"mode", duetMirror:"mirror", duetLead:"I lead", duetFollow:"I follow",
       duetConnect:"Connect", duetLeave:"Leave", duetTouch:"👋 Touch",
@@ -267,7 +297,12 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       muse:"作曲", musePh:"描述一种感觉 — 例如 10 分钟慢热", museGo:"✨ 作曲",
       museNoKey:"未配置模型 key — 去聊天里让 Claude 作曲（或设置 ANTHROPIC_API_KEY）。",
       museErr:"作曲失败：", needBrief:"请先描述一种感觉。",
-      persona:"人格", reveal:"揭晓", blind:"🎭 盲盒",
+      persona:"人格", reveal:"揭晓", blind:"🎭 盲盒", scene:"剧本",
+      live:"实时", bio:"💓 心率", bioStop:"■ 心率", bioFollow:"跟随", bioEdge:"自动边缘",
+      bioFail:"蓝牙心率连接失败：", bioNoBt:"此浏览器不支持 Web Bluetooth — 请用 Chrome/Edge，且在 https 或 localhost 下。", bpm:"次/分",
+      pomo:"🍅 专注 25 分钟", pomoStop:"■ 专注", pomoLeft:"🍅 {m}:{s}",
+      rec:"⏺ 录制", recStop:"⏹ 保存", recName:"给这段录制起名（留空自动）：", recSaved:"💾 已存为 ", recShort:"录制太短",
+      vsync:"🎞️ 配视频", vsyncPlay:"▶ 配视频播放", vsyncClose:"✕ 关闭视频", needVid:"请先选一个视频文件。", pickVideo:"视频文件",
       duet:"💞 双人", duetTitle:"💞 双人 — 异地同步", duetRelay:"中转地址", duetRoom:"房间码",
       duetMode:"模式", duetMirror:"镜像", duetLead:"我主导", duetFollow:"我跟随",
       duetConnect:"连接", duetLeave:"断开", duetTouch:"👋 触碰",
@@ -284,6 +319,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
     document.querySelectorAll("[data-i18n-ph]").forEach(function(el){ el.placeholder = t(el.getAttribute("data-i18n-ph")); });
     document.getElementById("lang").textContent = t("langBtn");
+    if (typeof renderScenes === "function") renderScenes();
     if (state) render();
   }
 
@@ -308,7 +344,8 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     ws.onclose = function(){ $("#conn").classList.remove("on"); $("#connlbl").textContent = t("reconnecting"); setTimeout(connect, 1000); };
     ws.onmessage = function(e){ var m = JSON.parse(e.data);
       if (m.type === "state") { state = m.state; render(); }
-      else if (m.type === "muse_list") { museScores = m.scores||[]; museLlm = !!m.llm; renderMuse(); }
+      else if (m.type === "muse_list") { museScores = m.scores||[]; museLlm = !!m.llm; renderMuse();
+        if (m.recorded){ alert(m.recorded.saved ? (t("recSaved")+m.recorded.saved) : t("recShort")); } }
       else if (m.type === "muse_error") { alert(t("museErr") + m.message); }
     };
   }
@@ -326,7 +363,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     var mode = $("#mode"); mode.textContent = state.mode; mode.className = "pill " + (state.mode === "buttplug" ? "bp" : "sim");
 
     var act = $("#active"), mEl = $("#masters");
-    if (state.activeMode){ act.style.display=""; var g = state.activeMode.type==="video"?"🎬 ":(state.activeMode.type==="audio"?"🎵 ":"🎮 "); act.textContent = g + state.activeMode.label; }
+    if (state.activeMode){ act.style.display=""; var ic={video:"🎬 ",audio:"🎵 ",muse:"🎼 ",bio:"💓 ",game:"🎮 "}; act.textContent = (ic[state.activeMode.type]||"🎮 ") + state.activeMode.label; }
     else act.style.display="none";
     if (state.masters > 0){ mEl.style.display=""; mEl.textContent = (state.masters>1?t("mastersOnN"):t("mastersOn")).replace("{n}", state.masters); } else mEl.style.display="none";
 
@@ -477,6 +514,59 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     $("#fsmodal").classList.remove("open");
   };
 
+  // ---- video + funscript sync: the browser plays the video and drives the
+  // device from video.currentTime, so pause / seek / speed all stay in sync ----
+  var vsRAF=null, vsActs=null, vsUrl=null, vsLast=0;
+  function parseFsActions(){
+    try {
+      var d = JSON.parse($("#fs").value.trim());
+      var a = (d.actions||[]).map(function(x){return {at:+x.at, pos:+x.pos};})
+        .filter(function(x){return isFinite(x.at)&&isFinite(x.pos);})
+        .sort(function(p,q){return p.at-q.at;});
+      return a.length?a:null;
+    } catch(e){ return null; }
+  }
+  function sampleActs(a, ms){
+    if (ms<=a[0].at) return a[0].pos;
+    var last=a[a.length-1]; if (ms>=last.at) return last.pos;
+    var lo=0,hi=a.length-1; while(lo<hi){var mm=(lo+hi)>>1; if(a[mm].at<=ms)lo=mm+1; else hi=mm;}
+    var b=a[lo],c=a[lo-1],span=b.at-c.at||1,f=(ms-c.at)/span;
+    return c.pos+(b.pos-c.pos)*f;
+  }
+  $("#fsvideoplay").onclick = function(){
+    var f = $("#fsvideo").files && $("#fsvideo").files[0];
+    if (!f){ alert(t("needVid")); return; }
+    vsActs = parseFsActions();
+    if (!vsActs){ alert(t("needFs")); return; }
+    var inv = $("#fsinv").checked;
+    if (vsUrl) URL.revokeObjectURL(vsUrl);
+    vsUrl = URL.createObjectURL(f);
+    var v = $("#vsyncvid"); v.src = vsUrl;
+    $("#fsmodal").classList.remove("open"); $("#vsync").style.display="flex";
+    send({ type:"clientmode", on:true, modeType:"video", label:"🎞️ video sync" });
+    v.play().catch(function(){});
+    (function loop(){
+      vsRAF = requestAnimationFrame(loop);
+      if (v.paused || v.ended) return;
+      var now=(performance&&performance.now)?performance.now():Date.now();
+      if (now - vsLast < 50) return; // ~20Hz
+      vsLast = now;
+      var pos = sampleActs(vsActs, v.currentTime*1000);
+      var iv = Math.max(0, Math.min(1, (inv?100-pos:pos)/100));
+      lvl = iv; send({ type:"drive", target:target, intensity:iv });
+    })();
+  };
+  function vsyncStop(){
+    if (vsRAF) cancelAnimationFrame(vsRAF); vsRAF=null;
+    var v=$("#vsyncvid"); try{ v.pause(); }catch(e){} v.removeAttribute("src"); if (v.load) v.load();
+    if (vsUrl){ URL.revokeObjectURL(vsUrl); vsUrl=null; }
+    $("#vsync").style.display="none";
+    send({ type:"clientmode", on:false, target:target });
+  }
+  $("#vsyncclose").onclick = vsyncStop;
+  $("#vsyncvid").addEventListener("pause", function(){ send({ type:"drive", target:target, intensity:0 }); });
+  $("#vsyncvid").addEventListener("ended", function(){ send({ type:"drive", target:target, intensity:0 }); });
+
   // keyboard shortcuts: 0-9 set level, space=stop, s=scan
   addEventListener("keydown", function(e){
     if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
@@ -540,6 +630,24 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     host.appendChild(b);
   }
   $("#revealbtn").onclick = function(){ send({ type:"reveal_persona" }); };
+
+  // ---- scenes: one tap = set a persona + play its themed score ----
+  var SCENES = [
+    { emoji:"🍼", en:"Mommy", zh:"妈咪", persona:"mommy", score:"slow-build" },
+    { emoji:"🕯️", en:"Slow Burn", zh:"慢炖", persona:"slowburn", score:"slow-build" },
+    { emoji:"🎢", en:"Rollercoaster", zh:"过山车", persona:"brat", score:"rollercoaster" },
+    { emoji:"⛈️", en:"Storm", zh:"风暴", persona:"storm", score:"storm" },
+    { emoji:"💌", en:"Love note", zh:"情话", persona:"oracle", score:"ily-morse" }
+  ];
+  function renderScenes(){
+    var host = $("#scenes"); if (!host) return; host.innerHTML = "";
+    SCENES.forEach(function(sc){
+      var c = document.createElement("button"); c.className = "chip";
+      c.textContent = sc.emoji + " " + (lang==="zh"?sc.zh:sc.en);
+      c.onclick = function(){ send({ type:"set_persona", id:sc.persona }); send({ type:"play_score", name:sc.score, target:target }); };
+      host.appendChild(c);
+    });
+  }
 
   // ---- muse ----
   function renderMuse(){
@@ -608,6 +716,72 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     else duetConnect();
   };
   $("#duettouch").onclick = function(){ duetSend({ k:"touch" }); };
+
+  // ---- biofeedback: Web Bluetooth heart-rate → intensity / auto-edge ----
+  var bioOn=false, bioDev=null, bioChar=null, hr=0, hrMin=999, hrMax=0, bioTick=null, bioDeny=0;
+  function parseHR(dv){ var flags=dv.getUint8(0); return (flags&1) ? dv.getUint16(1,true) : dv.getUint8(1); }
+  async function bioStart(){
+    if (!navigator.bluetooth){ alert(t("bioNoBt")); return; }
+    try {
+      bioDev = await navigator.bluetooth.requestDevice({ filters:[{ services:["heart_rate"] }] });
+      var server = await bioDev.gatt.connect();
+      var svc = await server.getPrimaryService("heart_rate");
+      bioChar = await svc.getCharacteristic("heart_rate_measurement");
+      await bioChar.startNotifications();
+      bioChar.addEventListener("characteristicvaluechanged", function(e){
+        hr = parseHR(e.target.value);
+        if (hr>30 && hr<240){ hrMin=Math.min(hrMin,hr); hrMax=Math.max(hrMax,hr); }
+        $("#bpmout").textContent = hr + " " + t("bpm");
+      });
+      bioOn=true; bioDeny=0; hrMin=999; hrMax=0;
+      send({ type:"bio_start", label:"💓 HR" });
+      $("#biobtn").textContent = t("bioStop"); $("#biobtn").classList.add("sel");
+      bioTick = setInterval(bioDrive, 150);
+    } catch(e){ alert(t("bioFail") + (e&&e.message||e)); }
+  }
+  function bioDrive(){
+    if (!bioOn || hr<=0 || hrMax-hrMin < 4) return; // need a little range first
+    var norm = Math.max(0, Math.min(1, (hr - hrMin) / (hrMax - hrMin)));
+    var v;
+    if ($("#biomode").value === "edge"){
+      var now = Date.now();
+      if (bioDeny > now){ v = 0; }
+      else if (norm > 0.82){ bioDeny = now + 4000; v = 0; } // too close → deny + rest
+      else { v = norm; }
+    } else { v = norm; } // follow
+    send({ type:"drive", target:target, intensity:v });
+  }
+  function bioStop(){
+    if (!bioOn && !bioDev) return;
+    bioOn=false; if (bioTick) clearInterval(bioTick);
+    try { if (bioChar) bioChar.stopNotifications(); } catch(e){}
+    try { if (bioDev && bioDev.gatt.connected) bioDev.gatt.disconnect(); } catch(e){}
+    bioDev=bioChar=null; $("#bpmout").textContent="";
+    send({ type:"bio_stop", target:target });
+    $("#biobtn").textContent = t("bio"); $("#biobtn").classList.remove("sel");
+  }
+  $("#biobtn").onclick = function(){ bioOn ? bioStop() : bioStart(); };
+
+  // ---- pomodoro: focus timer → reward on completion (dev trigger) ----
+  var pomoEnd=0, pomoTick=null;
+  function pomoStop(){ if (pomoTick) clearInterval(pomoTick); pomoTick=null; pomoEnd=0; $("#pomobtn").textContent=t("pomo"); $("#pomobtn").classList.remove("sel"); }
+  $("#pomobtn").onclick = function(){
+    if (pomoTick){ pomoStop(); return; }
+    pomoEnd = Date.now() + 25*60*1000; $("#pomobtn").classList.add("sel");
+    pomoTick = setInterval(function(){
+      var left = Math.max(0, pomoEnd - Date.now());
+      if (left <= 0){ pomoStop(); fetch("/dev",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:"event=focus_done"}).catch(function(){}); return; }
+      var m=Math.floor(left/60000), s=Math.floor((left%60000)/1000);
+      $("#pomobtn").textContent = t("pomoLeft").replace("{m}",m).replace("{s}",(s<10?"0":"")+s);
+    }, 500);
+  };
+
+  // ---- session recorder ----
+  var recOn=false;
+  $("#recbtn").onclick = function(){
+    if (!recOn){ recOn=true; send({ type:"rec_start" }); $("#recbtn").textContent=t("recStop"); $("#recbtn").classList.add("sel"); }
+    else { recOn=false; var name=prompt(t("recName"))||""; send({ type:"rec_stop", name:name }); $("#recbtn").textContent=t("rec"); $("#recbtn").classList.remove("sel"); }
+  };
 
   applyI18n();
   $("#connlbl").textContent = t("connecting");

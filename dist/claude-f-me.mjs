@@ -2287,7 +2287,7 @@ var require_websocket = __commonJS({
     var http2 = __require("http");
     var net = __require("net");
     var tls = __require("tls");
-    var { randomBytes, createHash } = __require("crypto");
+    var { randomBytes, createHash: createHash2 } = __require("crypto");
     var { Duplex, Readable } = __require("stream");
     var { URL: URL2 } = __require("url");
     var PerMessageDeflate2 = require_permessage_deflate();
@@ -2955,7 +2955,7 @@ var require_websocket = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash("sha1").update(key + GUID).digest("base64");
+        const digest = createHash2("sha1").update(key + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -3324,7 +3324,7 @@ var require_websocket_server = __commonJS({
     var EventEmitter2 = __require("events");
     var http2 = __require("http");
     var { Duplex } = __require("stream");
-    var { createHash } = __require("crypto");
+    var { createHash: createHash2 } = __require("crypto");
     var extension2 = require_extension();
     var PerMessageDeflate2 = require_permessage_deflate();
     var subprotocol2 = require_subprotocol();
@@ -3631,7 +3631,7 @@ var require_websocket_server = __commonJS({
           );
         }
         if (this._state > RUNNING) return abortHandshake(socket, 503);
-        const digest = createHash("sha1").update(key + GUID).digest("base64");
+        const digest = createHash2("sha1").update(key + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -14048,7 +14048,7 @@ var require_discriminator = __commonJS({
     var util_1 = require_util();
     var error2 = {
       message: ({ params: { discrError, tagName } }) => discrError === types_1.DiscrError.Tag ? `tag "${tagName}" must be string` : `value of tag "${tagName}" must be in oneOf`,
-      params: ({ params: { discrError, tag, tagName } }) => (0, codegen_1._)`{error: ${discrError}, tag: ${tagName}, tagValue: ${tag}}`
+      params: ({ params: { discrError, tag: tag2, tagName } }) => (0, codegen_1._)`{error: ${discrError}, tag: ${tagName}, tagValue: ${tag2}}`
     };
     var def = {
       keyword: "discriminator",
@@ -14069,18 +14069,18 @@ var require_discriminator = __commonJS({
         if (!oneOf)
           throw new Error("discriminator: requires oneOf keyword");
         const valid = gen.let("valid", false);
-        const tag = gen.const("tag", (0, codegen_1._)`${data}${(0, codegen_1.getProperty)(tagName)}`);
-        gen.if((0, codegen_1._)`typeof ${tag} == "string"`, () => validateMapping(), () => cxt.error(false, { discrError: types_1.DiscrError.Tag, tag, tagName }));
+        const tag2 = gen.const("tag", (0, codegen_1._)`${data}${(0, codegen_1.getProperty)(tagName)}`);
+        gen.if((0, codegen_1._)`typeof ${tag2} == "string"`, () => validateMapping(), () => cxt.error(false, { discrError: types_1.DiscrError.Tag, tag: tag2, tagName }));
         cxt.ok(valid);
         function validateMapping() {
           const mapping = getMapping();
           gen.if(false);
           for (const tagValue in mapping) {
-            gen.elseIf((0, codegen_1._)`${tag} === ${tagValue}`);
+            gen.elseIf((0, codegen_1._)`${tag2} === ${tagValue}`);
             gen.assign(valid, applyTagSchema(mapping[tagValue]));
           }
           gen.else();
-          cxt.error(false, { discrError: types_1.DiscrError.Mapping, tag, tagName });
+          cxt.error(false, { discrError: types_1.DiscrError.Mapping, tag: tag2, tagName });
           gen.endIf();
         }
         function applyTagSchema(schemaProp) {
@@ -15205,11 +15205,26 @@ var CONSOLE_HTML = (
       <span id="personas"></span>
     </div>
     <div class="deckrow">
+      <span class="lbl" data-i18n="scene"></span>
+      <span id="scenes"></span>
+    </div>
+    <div class="deckrow">
       <span class="lbl" data-i18n="muse"></span>
       <span id="muselib"></span>
       <input id="musebrief" type="text" data-i18n-ph="musePh" style="min-width:200px; flex:1; max-width:340px;
         background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:7px 12px; font:inherit;" />
       <button class="chip" id="musego" data-i18n="museGo"></button>
+    </div>
+    <div class="deckrow">
+      <span class="lbl" data-i18n="live"></span>
+      <button class="chip" id="biobtn" data-i18n="bio"></button>
+      <select id="biomode" style="background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:6px 10px; font:inherit;">
+        <option value="follow" data-i18n="bioFollow"></option>
+        <option value="edge" data-i18n="bioEdge"></option>
+      </select>
+      <span id="bpmout" class="small"></span>
+      <button class="chip" id="pomobtn" data-i18n="pomo"></button>
+      <button class="chip" id="recbtn" data-i18n="rec"></button>
     </div>
     <div class="deckrow">
       <span class="lbl" data-i18n="video"></span>
@@ -15288,7 +15303,11 @@ var CONSOLE_HTML = (
       muse:"Muse", musePh:"describe a vibe \u2014 e.g. 10-min slow burn", museGo:"\u2728 Compose",
       museNoKey:"No model key set \u2014 ask Claude in chat to compose (or set ANTHROPIC_API_KEY).",
       museErr:"Compose failed: ", needBrief:"Describe a vibe first.",
-      persona:"Persona", reveal:"Reveal", blind:"\u{1F3AD} Blind",
+      persona:"Persona", reveal:"Reveal", blind:"\u{1F3AD} Blind", scene:"Scene",
+      live:"Live", bio:"\u{1F493} Heart rate", bioStop:"\u25A0 Heart rate", bioFollow:"follow", bioEdge:"auto-edge",
+      bioFail:"Bluetooth HR failed: ", bioNoBt:"This browser has no Web Bluetooth \u2014 use Chrome/Edge over https or localhost.", bpm:"bpm",
+      pomo:"\u{1F345} Focus 25m", pomoStop:"\u25A0 Focus", pomoLeft:"\u{1F345} {m}:{s}",
+      rec:"\u23FA Record", recStop:"\u23F9 Save", recName:"Name this recording (blank = auto):", recSaved:"\u{1F4BE} saved as ", recShort:"recording too short",
       duet:"\u{1F49E} Duet", duetTitle:"\u{1F49E} Duet \u2014 long-distance sync", duetRelay:"relay URL", duetRoom:"room code",
       duetMode:"mode", duetMirror:"mirror", duetLead:"I lead", duetFollow:"I follow",
       duetConnect:"Connect", duetLeave:"Leave", duetTouch:"\u{1F44B} Touch",
@@ -15311,7 +15330,11 @@ var CONSOLE_HTML = (
       muse:"\u4F5C\u66F2", musePh:"\u63CF\u8FF0\u4E00\u79CD\u611F\u89C9 \u2014 \u4F8B\u5982 10 \u5206\u949F\u6162\u70ED", museGo:"\u2728 \u4F5C\u66F2",
       museNoKey:"\u672A\u914D\u7F6E\u6A21\u578B key \u2014 \u53BB\u804A\u5929\u91CC\u8BA9 Claude \u4F5C\u66F2\uFF08\u6216\u8BBE\u7F6E ANTHROPIC_API_KEY\uFF09\u3002",
       museErr:"\u4F5C\u66F2\u5931\u8D25\uFF1A", needBrief:"\u8BF7\u5148\u63CF\u8FF0\u4E00\u79CD\u611F\u89C9\u3002",
-      persona:"\u4EBA\u683C", reveal:"\u63ED\u6653", blind:"\u{1F3AD} \u76F2\u76D2",
+      persona:"\u4EBA\u683C", reveal:"\u63ED\u6653", blind:"\u{1F3AD} \u76F2\u76D2", scene:"\u5267\u672C",
+      live:"\u5B9E\u65F6", bio:"\u{1F493} \u5FC3\u7387", bioStop:"\u25A0 \u5FC3\u7387", bioFollow:"\u8DDF\u968F", bioEdge:"\u81EA\u52A8\u8FB9\u7F18",
+      bioFail:"\u84DD\u7259\u5FC3\u7387\u8FDE\u63A5\u5931\u8D25\uFF1A", bioNoBt:"\u6B64\u6D4F\u89C8\u5668\u4E0D\u652F\u6301 Web Bluetooth \u2014 \u8BF7\u7528 Chrome/Edge\uFF0C\u4E14\u5728 https \u6216 localhost \u4E0B\u3002", bpm:"\u6B21/\u5206",
+      pomo:"\u{1F345} \u4E13\u6CE8 25 \u5206\u949F", pomoStop:"\u25A0 \u4E13\u6CE8", pomoLeft:"\u{1F345} {m}:{s}",
+      rec:"\u23FA \u5F55\u5236", recStop:"\u23F9 \u4FDD\u5B58", recName:"\u7ED9\u8FD9\u6BB5\u5F55\u5236\u8D77\u540D\uFF08\u7559\u7A7A\u81EA\u52A8\uFF09\uFF1A", recSaved:"\u{1F4BE} \u5DF2\u5B58\u4E3A ", recShort:"\u5F55\u5236\u592A\u77ED",
       duet:"\u{1F49E} \u53CC\u4EBA", duetTitle:"\u{1F49E} \u53CC\u4EBA \u2014 \u5F02\u5730\u540C\u6B65", duetRelay:"\u4E2D\u8F6C\u5730\u5740", duetRoom:"\u623F\u95F4\u7801",
       duetMode:"\u6A21\u5F0F", duetMirror:"\u955C\u50CF", duetLead:"\u6211\u4E3B\u5BFC", duetFollow:"\u6211\u8DDF\u968F",
       duetConnect:"\u8FDE\u63A5", duetLeave:"\u65AD\u5F00", duetTouch:"\u{1F44B} \u89E6\u78B0",
@@ -15328,6 +15351,7 @@ var CONSOLE_HTML = (
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
     document.querySelectorAll("[data-i18n-ph]").forEach(function(el){ el.placeholder = t(el.getAttribute("data-i18n-ph")); });
     document.getElementById("lang").textContent = t("langBtn");
+    if (typeof renderScenes === "function") renderScenes();
     if (state) render();
   }
 
@@ -15352,7 +15376,8 @@ var CONSOLE_HTML = (
     ws.onclose = function(){ $("#conn").classList.remove("on"); $("#connlbl").textContent = t("reconnecting"); setTimeout(connect, 1000); };
     ws.onmessage = function(e){ var m = JSON.parse(e.data);
       if (m.type === "state") { state = m.state; render(); }
-      else if (m.type === "muse_list") { museScores = m.scores||[]; museLlm = !!m.llm; renderMuse(); }
+      else if (m.type === "muse_list") { museScores = m.scores||[]; museLlm = !!m.llm; renderMuse();
+        if (m.recorded){ alert(m.recorded.saved ? (t("recSaved")+m.recorded.saved) : t("recShort")); } }
       else if (m.type === "muse_error") { alert(t("museErr") + m.message); }
     };
   }
@@ -15370,7 +15395,7 @@ var CONSOLE_HTML = (
     var mode = $("#mode"); mode.textContent = state.mode; mode.className = "pill " + (state.mode === "buttplug" ? "bp" : "sim");
 
     var act = $("#active"), mEl = $("#masters");
-    if (state.activeMode){ act.style.display=""; var g = state.activeMode.type==="video"?"\u{1F3AC} ":(state.activeMode.type==="audio"?"\u{1F3B5} ":"\u{1F3AE} "); act.textContent = g + state.activeMode.label; }
+    if (state.activeMode){ act.style.display=""; var ic={video:"\u{1F3AC} ",audio:"\u{1F3B5} ",muse:"\u{1F3BC} ",bio:"\u{1F493} ",game:"\u{1F3AE} "}; act.textContent = (ic[state.activeMode.type]||"\u{1F3AE} ") + state.activeMode.label; }
     else act.style.display="none";
     if (state.masters > 0){ mEl.style.display=""; mEl.textContent = (state.masters>1?t("mastersOnN"):t("mastersOn")).replace("{n}", state.masters); } else mEl.style.display="none";
 
@@ -15585,6 +15610,24 @@ var CONSOLE_HTML = (
   }
   $("#revealbtn").onclick = function(){ send({ type:"reveal_persona" }); };
 
+  // ---- scenes: one tap = set a persona + play its themed score ----
+  var SCENES = [
+    { emoji:"\u{1F37C}", en:"Mommy", zh:"\u5988\u54AA", persona:"mommy", score:"slow-build" },
+    { emoji:"\u{1F56F}\uFE0F", en:"Slow Burn", zh:"\u6162\u7096", persona:"slowburn", score:"slow-build" },
+    { emoji:"\u{1F3A2}", en:"Rollercoaster", zh:"\u8FC7\u5C71\u8F66", persona:"brat", score:"rollercoaster" },
+    { emoji:"\u26C8\uFE0F", en:"Storm", zh:"\u98CE\u66B4", persona:"storm", score:"storm" },
+    { emoji:"\u{1F48C}", en:"Love note", zh:"\u60C5\u8BDD", persona:"oracle", score:"ily-morse" }
+  ];
+  function renderScenes(){
+    var host = $("#scenes"); if (!host) return; host.innerHTML = "";
+    SCENES.forEach(function(sc){
+      var c = document.createElement("button"); c.className = "chip";
+      c.textContent = sc.emoji + " " + (lang==="zh"?sc.zh:sc.en);
+      c.onclick = function(){ send({ type:"set_persona", id:sc.persona }); send({ type:"play_score", name:sc.score, target:target }); };
+      host.appendChild(c);
+    });
+  }
+
   // ---- muse ----
   function renderMuse(){
     var host = $("#muselib"); if (!host) return;
@@ -15652,6 +15695,72 @@ var CONSOLE_HTML = (
     else duetConnect();
   };
   $("#duettouch").onclick = function(){ duetSend({ k:"touch" }); };
+
+  // ---- biofeedback: Web Bluetooth heart-rate \u2192 intensity / auto-edge ----
+  var bioOn=false, bioDev=null, bioChar=null, hr=0, hrMin=999, hrMax=0, bioTick=null, bioDeny=0;
+  function parseHR(dv){ var flags=dv.getUint8(0); return (flags&1) ? dv.getUint16(1,true) : dv.getUint8(1); }
+  async function bioStart(){
+    if (!navigator.bluetooth){ alert(t("bioNoBt")); return; }
+    try {
+      bioDev = await navigator.bluetooth.requestDevice({ filters:[{ services:["heart_rate"] }] });
+      var server = await bioDev.gatt.connect();
+      var svc = await server.getPrimaryService("heart_rate");
+      bioChar = await svc.getCharacteristic("heart_rate_measurement");
+      await bioChar.startNotifications();
+      bioChar.addEventListener("characteristicvaluechanged", function(e){
+        hr = parseHR(e.target.value);
+        if (hr>30 && hr<240){ hrMin=Math.min(hrMin,hr); hrMax=Math.max(hrMax,hr); }
+        $("#bpmout").textContent = hr + " " + t("bpm");
+      });
+      bioOn=true; bioDeny=0; hrMin=999; hrMax=0;
+      send({ type:"bio_start", label:"\u{1F493} HR" });
+      $("#biobtn").textContent = t("bioStop"); $("#biobtn").classList.add("sel");
+      bioTick = setInterval(bioDrive, 150);
+    } catch(e){ alert(t("bioFail") + (e&&e.message||e)); }
+  }
+  function bioDrive(){
+    if (!bioOn || hr<=0 || hrMax-hrMin < 4) return; // need a little range first
+    var norm = Math.max(0, Math.min(1, (hr - hrMin) / (hrMax - hrMin)));
+    var v;
+    if ($("#biomode").value === "edge"){
+      var now = Date.now();
+      if (bioDeny > now){ v = 0; }
+      else if (norm > 0.82){ bioDeny = now + 4000; v = 0; } // too close \u2192 deny + rest
+      else { v = norm; }
+    } else { v = norm; } // follow
+    send({ type:"drive", target:target, intensity:v });
+  }
+  function bioStop(){
+    if (!bioOn && !bioDev) return;
+    bioOn=false; if (bioTick) clearInterval(bioTick);
+    try { if (bioChar) bioChar.stopNotifications(); } catch(e){}
+    try { if (bioDev && bioDev.gatt.connected) bioDev.gatt.disconnect(); } catch(e){}
+    bioDev=bioChar=null; $("#bpmout").textContent="";
+    send({ type:"bio_stop", target:target });
+    $("#biobtn").textContent = t("bio"); $("#biobtn").classList.remove("sel");
+  }
+  $("#biobtn").onclick = function(){ bioOn ? bioStop() : bioStart(); };
+
+  // ---- pomodoro: focus timer \u2192 reward on completion (dev trigger) ----
+  var pomoEnd=0, pomoTick=null;
+  function pomoStop(){ if (pomoTick) clearInterval(pomoTick); pomoTick=null; pomoEnd=0; $("#pomobtn").textContent=t("pomo"); $("#pomobtn").classList.remove("sel"); }
+  $("#pomobtn").onclick = function(){
+    if (pomoTick){ pomoStop(); return; }
+    pomoEnd = Date.now() + 25*60*1000; $("#pomobtn").classList.add("sel");
+    pomoTick = setInterval(function(){
+      var left = Math.max(0, pomoEnd - Date.now());
+      if (left <= 0){ pomoStop(); fetch("/dev",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:"event=focus_done"}).catch(function(){}); return; }
+      var m=Math.floor(left/60000), s=Math.floor((left%60000)/1000);
+      $("#pomobtn").textContent = t("pomoLeft").replace("{m}",m).replace("{s}",(s<10?"0":"")+s);
+    }, 500);
+  };
+
+  // ---- session recorder ----
+  var recOn=false;
+  $("#recbtn").onclick = function(){
+    if (!recOn){ recOn=true; send({ type:"rec_start" }); $("#recbtn").textContent=t("recStop"); $("#recbtn").classList.add("sel"); }
+    else { recOn=false; var name=prompt(t("recName"))||""; send({ type:"rec_stop", name:name }); $("#recbtn").textContent=t("rec"); $("#recbtn").classList.remove("sel"); }
+  };
 
   applyI18n();
   $("#connlbl").textContent = t("connecting");
@@ -16007,10 +16116,303 @@ async function callOpenAI(model, prompt) {
   return data.choices?.[0]?.message?.content ?? "";
 }
 
+// src/wechat.ts
+import { createHash } from "node:crypto";
+function isWechatEnabled() {
+  return !!process.env.CFM_WECHAT_TOKEN;
+}
+var allowList = () => (process.env.CFM_WECHAT_ALLOW ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+async function handleWechat(req, res, manager2, modes2) {
+  const token = process.env.CFM_WECHAT_TOKEN ?? "";
+  if (!token) return false;
+  const url = new URL(req.url ?? "/", "http://localhost");
+  const q = url.searchParams;
+  const signature = q.get("signature") ?? "";
+  const timestamp = q.get("timestamp") ?? "";
+  const nonce = q.get("nonce") ?? "";
+  const ok = verify(token, timestamp, nonce, signature);
+  if (req.method === "GET") {
+    res.writeHead(ok ? 200 : 403, { "content-type": "text/plain" });
+    res.end(ok ? q.get("echostr") ?? "" : "invalid signature");
+    return true;
+  }
+  if (req.method === "POST") {
+    if (!ok) {
+      res.writeHead(403);
+      res.end("invalid signature");
+      return true;
+    }
+    const body = await readBody(req);
+    const msg = parseXml(body);
+    const from = msg.FromUserName;
+    const to = msg.ToUserName;
+    let replyText = "";
+    const allow = allowList();
+    if (allow.length && from && !allow.includes(from)) {
+      replyText = "\u26D4 \u672A\u6388\u6743 / not authorised";
+    } else if (msg.MsgType === "text") {
+      replyText = await route(String(msg.Content ?? ""), manager2, modes2);
+    } else if (msg.MsgType === "voice") {
+      await manager2.pattern("all", PRESETS.heartbeat, 3);
+      replyText = "\u{1F493} \u6536\u5230\u4F60\u7684\u58F0\u97F3";
+    } else if (msg.MsgType === "event" && msg.Event === "subscribe") {
+      replyText = "claude-f-me \u{1F495} \u53D1 0\u2013100\u3001harder/softer\u3001stop\uFF0C\u6216 \u{1F525}\u{1F493}\u{1F30A}\u{1F3A1}\u{1F4C8}\u{1F3B2}";
+    } else {
+      replyText = "\u53D1\u6587\u5B57\uFF1A0\u2013100 / harder / softer / stop\uFF0C\u6216\u8868\u60C5 \u{1F525}\u{1F493}\u{1F30A}\u{1F3A1}\u{1F4C8}\u{1F3B2}";
+    }
+    res.writeHead(200, { "content-type": "application/xml" });
+    res.end(replyText ? passiveText(from, to, replyText) : "success");
+    return true;
+  }
+  res.writeHead(405);
+  res.end("method not allowed");
+  return true;
+}
+function verify(token, timestamp, nonce, signature) {
+  const hash = createHash("sha1").update([token, timestamp, nonce].sort().join("")).digest("hex");
+  return hash === signature && !!signature;
+}
+var tag = (xml, name) => {
+  const m = xml.match(new RegExp("<" + name + "><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></" + name + ">")) || xml.match(new RegExp("<" + name + ">([\\s\\S]*?)</" + name + ">"));
+  return m ? m[1] : void 0;
+};
+function parseXml(xml) {
+  return {
+    ToUserName: tag(xml, "ToUserName"),
+    FromUserName: tag(xml, "FromUserName"),
+    MsgType: tag(xml, "MsgType"),
+    Content: tag(xml, "Content"),
+    Event: tag(xml, "Event")
+  };
+}
+function passiveText(toUser, fromUser, content) {
+  const now = Math.floor(Date.now() / 1e3);
+  return `<xml><ToUserName><![CDATA[${toUser ?? ""}]]></ToUserName><FromUserName><![CDATA[${fromUser ?? ""}]]></FromUserName><CreateTime>${now}</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[${content}]]></Content></xml>`;
+}
+function readBody(req) {
+  return new Promise((resolve) => {
+    let data = "";
+    req.on("data", (c) => {
+      data += c;
+      if (data.length > 64 * 1024) req.destroy();
+    });
+    req.on("end", () => resolve(data));
+    req.on("error", () => resolve(data));
+  });
+}
+var curMax = (manager2) => manager2.snapshot().devices.reduce((a, x) => Math.max(a, x.intensity), 0);
+async function route(text2, manager2, modes2) {
+  const s = text2.trim();
+  const low = s.toLowerCase();
+  const game = (t) => modes2.startGame("all", t);
+  if (/(safeword|^stop$|🛑|停|住手)/.test(low)) {
+    modes2.stop();
+    await manager2.stopAll();
+    return "\u{1F6D1} \u5DF2\u5168\u90E8\u505C\u6B62\uFF0C\u4F60\u662F\u5B89\u5168\u7684\u3002";
+  }
+  if (low === "scan" || s === "\u626B\u63CF") {
+    await manager2.scan(4e3);
+    return "\u{1F50D} \u626B\u63CF\u4E2D\u2026";
+  }
+  if (/(harder|more|\+|更|强|用力)/.test(low)) {
+    const v = Math.min(1, curMax(manager2) + 0.2);
+    await manager2.vibrate("all", v);
+    return "\u{1F525} \u52A0\u5230 " + Math.round(v * 100) + "%";
+  }
+  if (/(softer|less|-|轻|温柔|慢)/.test(low)) {
+    const v = Math.max(0, curMax(manager2) - 0.2);
+    await manager2.vibrate("all", v);
+    return "\u{1FAE6} \u964D\u5230 " + Math.round(v * 100) + "%";
+  }
+  if (low.includes("\u{1F525}") || low.includes("edge") || s.includes("\u8FB9\u7F18")) {
+    await game("edge");
+    return "\u{1F525} \u8FB9\u7F18\u63A7\u5236\u5F00\u59CB";
+  }
+  if (low.includes("\u{1F4C8}") || s.includes("\u9012\u589E")) {
+    await game("escalation");
+    return "\u{1F4C8} \u9012\u589E\u4E2D";
+  }
+  if (low.includes("\u{1F30A}") || s.includes("\u73AF\u5883")) {
+    await game("ambient");
+    return "\u{1F30A} \u73AF\u5883\u6CE2\u52A8";
+  }
+  if (low.includes("\u{1F3A1}") || s.includes("\u8F6C\u76D8")) {
+    await game("wheel");
+    return "\u{1F3A1} \u8F6C\u76D8\u65CB\u8F6C";
+  }
+  if (low.includes("\u{1F493}") || s.includes("\u5FC3\u8DF3")) {
+    await manager2.pattern("all", PRESETS.heartbeat, 3);
+    return "\u{1F493} \u5FC3\u8DF3\u8282\u594F";
+  }
+  if (low.includes("\u{1F3B2}") || s.includes("\u968F\u673A") || s.includes("\u60CA\u559C")) {
+    const g = ["roulette", "ambient", "edge", "wheel"];
+    await game(g[Math.floor(Math.random() * g.length)]);
+    return "\u{1F3B2} \u7ED9\u4F60\u4E2A\u60CA\u559C\u2026";
+  }
+  const num = low.match(/^(\d{1,3})\s*%?$/);
+  if (num) {
+    const v = Math.max(0, Math.min(1, parseInt(num[1], 10) / 100));
+    await manager2.vibrate("all", v, 6e4);
+    return "\u8BBE\u5230 " + Math.round(v * 100) + "%";
+  }
+  return "\u6CA1\u542C\u61C2\uFF5E\u8BD5\u8BD5 harder / softer / stop \u6216 \u{1F525}\u{1F493}\u{1F3B2}";
+}
+
+// src/dev.ts
+async function handleDev(req, res, manager2, modes2) {
+  const url = new URL(req.url ?? "/", "http://localhost");
+  let params = url.searchParams;
+  if (req.method === "POST") {
+    const body = await readBody2(req);
+    const bp = new URLSearchParams(body);
+    for (const [k, v] of bp) params.set(k, v);
+  }
+  const secret = process.env.CFM_DEV_SECRET ?? "";
+  if (secret && params.get("secret") !== secret) {
+    res.writeHead(403, { "content-type": "text/plain" });
+    res.end("forbidden");
+    return true;
+  }
+  const event = params.get("event") || "pulse";
+  const mag = clamp012(Number(params.get("magnitude")) || NaN);
+  const reaction = await react(event, Number.isFinite(mag) ? mag : void 0, manager2, modes2);
+  res.writeHead(200, { "content-type": "application/json" });
+  res.end(JSON.stringify({ ok: true, event, reaction }));
+  return true;
+}
+async function react(event, mag, manager2, modes2) {
+  switch (event) {
+    case "ci_pass":
+    case "merge":
+    case "focus_done":
+      await modes2.gameEvent("all", "reward", mag ?? 0.85);
+      manager2.log_("cmd", `dev:${event} \u2192 reward \u{1F389}`);
+      return "reward";
+    case "commit":
+    case "push":
+      await modes2.gameEvent("all", "pulse", mag ?? 0.5);
+      manager2.log_("cmd", `dev:${event} \u2192 pulse`);
+      return "pulse";
+    case "ci_fail":
+      await manager2.pattern("all", PRESETS.sos, 1);
+      manager2.log_("cmd", "dev:ci_fail \u2192 sos buzz");
+      return "sos";
+    case "distracted":
+      await manager2.stop("all");
+      manager2.log_("cmd", "dev:distracted \u2192 stop");
+      return "stop";
+    default:
+      await modes2.gameEvent("all", "pulse", mag ?? 0.6);
+      return "pulse";
+  }
+}
+var clamp012 = (n) => Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : NaN;
+function readBody2(req) {
+  return new Promise((resolve) => {
+    let data = "";
+    req.on("data", (c) => {
+      data += c;
+      if (data.length > 8192) req.destroy();
+    });
+    req.on("end", () => resolve(data));
+    req.on("error", () => resolve(data));
+  });
+}
+
+// src/recorder.ts
+var MAX_KEYFRAMES = 4e3;
+var MIN_DELTA = 0.02;
+var HEARTBEAT_MS = 2e3;
+var Recorder = class {
+  constructor(manager2, modes2) {
+    this.manager = manager2;
+    this.modes = modes2;
+  }
+  recording = false;
+  startAt = 0;
+  kf = [];
+  lastLevel = -1;
+  lastAt = 0;
+  timer = null;
+  onState = () => this.sample();
+  isRecording() {
+    return this.recording;
+  }
+  begin() {
+    if (this.recording) return { recording: true };
+    this.recording = true;
+    this.startAt = Date.now();
+    this.lastLevel = -1;
+    this.lastAt = 0;
+    this.kf = [];
+    this.sample();
+    this.manager.on("state", this.onState);
+    this.timer = setInterval(() => this.sample(true), HEARTBEAT_MS);
+    this.manager.log_("cmd", "recording session\u2026");
+    return { recording: true };
+  }
+  /** Stop and (if long enough) save to the Muse library. Returns the result. */
+  async end(name) {
+    if (!this.recording) return { saved: null, keyframes: 0, durationMs: 0 };
+    this.recording = false;
+    this.manager.off("state", this.onState);
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
+    this.sample(true);
+    const kf = this.kf;
+    const durationMs = kf.length ? kf[kf.length - 1].at : 0;
+    if (kf.length < 2 || durationMs < 1e3) {
+      this.manager.log_("warn", "recording too short to save");
+      return { saved: null, keyframes: kf.length, durationMs };
+    }
+    const finalName = name && name.trim() || `session-${new Date(this.startAt).toISOString().slice(11, 19).replace(/:/g, "")}`;
+    await this.modes.saveScore(finalName, { name: finalName, brief: "recorded session", by: "recorder", keyframes: kf });
+    return { saved: finalName, keyframes: kf.length, durationMs };
+  }
+  peak() {
+    const d = this.manager.snapshot().devices;
+    return d.reduce((a, x) => Math.max(a, x.intensity), 0);
+  }
+  sample(force = false) {
+    if (!this.recording) return;
+    const level = this.peak();
+    const at = Date.now() - this.startAt;
+    if (!force && this.lastLevel >= 0 && Math.abs(level - this.lastLevel) < MIN_DELTA) return;
+    if (this.kf.length >= MAX_KEYFRAMES) return;
+    if (this.kf.length && at - this.lastAt < 30 && !force) {
+      this.kf[this.kf.length - 1].level = level;
+    } else {
+      this.kf.push({ at, level });
+    }
+    this.lastLevel = level;
+    this.lastAt = at;
+  }
+};
+
 // src/console.ts
 function startConsole(manager2, modes2, port2) {
   const httpServer = http.createServer((req, res) => {
     const path = (req.url ?? "/").split("?")[0];
+    if (path === "/wechat") {
+      void handleWechat(req, res, manager2, modes2).catch((e) => {
+        logErr(`wechat: ${e}`);
+        if (!res.headersSent) {
+          res.writeHead(500);
+          res.end("error");
+        }
+      });
+      return;
+    }
+    if (path === "/dev") {
+      void handleDev(req, res, manager2, modes2).catch((e) => {
+        logErr(`dev: ${e}`);
+        if (!res.headersSent) {
+          res.writeHead(500);
+          res.end("error");
+        }
+      });
+      return;
+    }
     if (path === "/" || path.startsWith("/index")) {
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       res.end(CONSOLE_HTML);
@@ -16034,6 +16436,7 @@ function startConsole(manager2, modes2, port2) {
     else socket.destroy();
   });
   const masters = /* @__PURE__ */ new Set();
+  const recorder = new Recorder(manager2, modes2);
   const rooms = /* @__PURE__ */ new Map();
   const announce = (room) => {
     const set = rooms.get(room);
@@ -16164,6 +16567,21 @@ function startConsole(manager2, modes2, port2) {
           case "reveal_persona":
             modes2.reveal();
             break;
+          case "bio_start":
+            manager2.setActiveMode({ type: "bio", label: String(m.label ?? "heart rate") });
+            break;
+          case "bio_stop":
+            await manager2.stop(m.target ?? "all");
+            manager2.setActiveMode(null);
+            break;
+          case "rec_start":
+            recorder.begin();
+            break;
+          case "rec_stop": {
+            const r = await recorder.end(m.name ? String(m.name) : void 0);
+            reply({ type: "muse_list", scores: modes2.listScores(), llm: isLlmConfigured(), recorded: r });
+            break;
+          }
         }
       } catch (e) {
         logErr(`console command error: ${e}`);
@@ -16181,6 +16599,7 @@ function startConsole(manager2, modes2, port2) {
     });
     httpServer.listen(port2, () => {
       logErr(`console: http://localhost:${port2}  (master remote: /master)`);
+      if (isWechatEnabled()) logErr(`console: wechat \u516C\u4F17\u53F7 endpoint at /wechat`);
       resolve();
     });
   });
@@ -31335,13 +31754,13 @@ function startTelegram(manager2, modes2, token, allowCsv) {
   });
   const send = (chat, text2) => api("sendMessage", { chat_id: chat, text: text2 }).catch(() => {
   });
-  const curMax = () => {
+  const curMax2 = () => {
     const d = manager2.snapshot().devices;
     return d.reduce((a, x) => Math.max(a, x.intensity), 0);
   };
   const game = (t) => modes2.startGame("all", t);
   const pat = (p) => manager2.pattern("all", PRESETS[p] ?? PRESETS.pulse, 3);
-  async function route(text2) {
+  async function route2(text2) {
     const s = text2.trim();
     const low = s.toLowerCase();
     const zh = /[一-鿿]/.test(s);
@@ -31358,12 +31777,12 @@ function startTelegram(manager2, modes2, token, allowCsv) {
       return zh ? "\u{1F50D} \u626B\u63CF\u4E2D\u2026" : "\u{1F50D} scanning\u2026";
     }
     if (/(harder|more|\+|更|强|用力)/.test(low)) {
-      const v = Math.min(1, curMax() + 0.2);
+      const v = Math.min(1, curMax2() + 0.2);
       await manager2.vibrate("all", v);
       return (zh ? "\u{1F525} \u52A0\u5230 " : "\u{1F525} up to ") + Math.round(v * 100) + "%";
     }
     if (/(softer|less|-|轻|温柔|慢)/.test(low)) {
-      const v = Math.max(0, curMax() - 0.2);
+      const v = Math.max(0, curMax2() - 0.2);
       await manager2.vibrate("all", v);
       return (zh ? "\u{1FAE6} \u964D\u5230 " : "\u{1FAE6} down to ") + Math.round(v * 100) + "%";
     }
@@ -31409,7 +31828,7 @@ function startTelegram(manager2, modes2, token, allowCsv) {
       return;
     }
     try {
-      const reply = await route(msg.text);
+      const reply = await route2(msg.text);
       if (reply) await send(chat, reply);
     } catch (e) {
       logErr(`telegram: route error ${e}`);

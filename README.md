@@ -14,6 +14,8 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 [![Buttplug](https://img.shields.io/badge/Buttplug-Intiface-ff4d8d)](https://buttplug.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A518-339933)](https://nodejs.org)
+[![Stars](https://img.shields.io/github/stars/mana-am/claude-f-me?style=flat&color=gold)](https://github.com/mana-am/claude-f-me/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/mana-am/claude-f-me?style=flat)](https://github.com/mana-am/claude-f-me/commits)
 
 <p align="center"><b>English</b> · <a href="docs/i18n/README.zh-CN.md">简体中文</a> · <a href="docs/i18n/README.zh-TW.md">繁體中文</a> · <a href="docs/i18n/README.ja.md">日本語</a> · <a href="docs/i18n/README.ko.md">한국어</a> · <a href="docs/i18n/README.es.md">Español</a> · <a href="docs/i18n/README.fr.md">Français</a> · <a href="docs/i18n/README.de.md">Deutsch</a></p>
 
@@ -77,10 +79,18 @@ so the chat and the dashboard always share the exact same device state.
 - 🥁 **Pattern library.** `pulse`, `wave`, `escalate`, `tease`, `heartbeat`, `staircase`, `sos`, `earthquake`.
 - 🧠 **Memory.** Local-only memory that learns your favourites, persona affinity and soft dislikes
   (`remember` / `recall` / `forget`) so sessions get more *you* over time — and never leaves your machine.
+- 💓 **Biofeedback.** Pair a Bluetooth heart-rate strap/watch (Web Bluetooth, right in the console)
+  and let your pulse drive the intensity — or **auto-edge**: when your heart races past the brink it
+  cuts to nothing and lets you come back down. A real closed loop with your body.
+- 🎬 **Session recording.** Record whatever the device actually does — manual, Duet, audio, bio, games —
+  as a Muse score you can name, replay and share. One ⏺ button turns a moment into a keepsake.
+- 🧑‍💻 **Developer triggers.** The most "Claude Code plugin" feature there is: drive it from your dev
+  loop. A `/dev` endpoint + a built-in 🍅 Pomodoro reward, so CI passing, a commit, a merge or 25
+  focused minutes can buzz you. (You can guess what a red build feels like.)
 - 📜 **Scene prompts.** Ready-made guided scenes as MCP prompts — mommy scene, edging session,
   story mode, compose-a-vibe, aftercare.
-- 💬 **Chat bridges.** Optional **Telegram** bot — control by message or emoji from a chat you
-  already use (great for long-distance partners).
+- 💬 **Chat bridges.** Optional **Telegram** bot and **WeChat Official Account** (公众号) endpoint —
+  control by message or emoji from a chat you already use (great for long-distance partners).
 - 🌐 **Bilingual.** Console and master remote in **English and 中文**, one-tap toggle (or `?lang=zh`).
 - 🛟 **Safety, built in.** Global max cap, per-command auto-stop, watchdog, emergency stop everywhere, hardware-off on exit.
 
@@ -188,6 +198,21 @@ or **follow** (you receive); send a 👋 touch. Incoming levels still pass your 
 
 **🎵 Audio** — mic or tab/system audio drives intensity by loudness, with a sensitivity slider.
 
+**💓 Biofeedback (heart rate)** — click **💓 Heart rate** in the console to pair a standard
+Bluetooth HR strap/watch (Web Bluetooth — Chrome/Edge over `localhost` or HTTPS). The range
+auto-calibrates, then **follow** maps your pulse to intensity, or **auto-edge** cuts to nothing
+whenever your heart races past the brink and resumes as you settle. A real closed loop.
+
+**🎬 Session recording** — hit **⏺ Record** to capture whatever the device does (from any driver —
+slider, Duet, audio, bio, games) as a Muse score; name it on stop and it lands in your library to
+replay or share. (Recordings under ~1s are dropped.)
+
+## 💓🎬🧑‍💻 Body, recordings & dev triggers
+
+**Biofeedback** and **session recording** live in the console (above) — both need a browser
+(Bluetooth, capture). **Developer triggers** drive the device from your dev loop via a tiny
+local endpoint — see [Developer triggers](#-developer-triggers).
+
 ## 🧠 Memory
 
 Optional local memory so claude-f-me **gets to know you**. It records which games and Muse scores
@@ -226,8 +251,46 @@ Then message the bot: a number `0–100`, `harder` / `softer`, `stop` / `safewor
 bilingual (auto-detects Chinese). Without an allow-list, anyone who finds the bot can control it —
 so set one. The safety cap and `safeword` always win.
 
-> **Why not WeChat?** Personal WeChat has no official bot API; only unofficial/grey protocols exist
-> (against ToS, easily banned). See the [Roadmap](#roadmap--ideas).
+## 💬 Chat bridges — WeChat (公众号)
+
+Two-way control from WeChat **the compliant way** — via an official **Official Account (公众号)**
+message callback. We deliberately avoid personal-WeChat web protocols (itchat/wechaty): those break
+WeChat's ToS and get accounts banned.
+
+```bash
+export CFM_WECHAT_TOKEN=the_token_you_set_in_公众号后台
+export CFM_WECHAT_ALLOW=openid1,openid2   # optional: restrict who can drive, by OpenID
+```
+
+Then in **公众号后台 → 设置与开发 → 基本配置 → 服务器配置**, point the URL at
+`https://<your-public-host>/wechat` (this runs locally, so use a tunnel/反向代理 like cloudflared).
+The endpoint handles the GET signature handshake and replies to text/emoji messages passively
+(`0–100`, `harder`/`softer`, `stop`, `扫描`, 🔥💓🌊🎡📈🎲); a voice note returns a heartbeat buzz.
+
+> **Personal WeChat** still has no official bot API — don't use grey web protocols. For
+> send-only/team alerts, **企业微信 group-robot webhooks** are simpler but can't receive replies;
+> the 公众号 path above is what enables two-way control.
+
+## 🧑‍💻 Developer triggers
+
+Drive the device from your dev loop — a local HTTP endpoint at `/dev` that a git hook, CI step,
+Pomodoro or shell alias can hit. Events map to reactions (all still pass the safety cap):
+`commit`/`push` → pulse · `ci_pass`/`merge`/`focus_done` → reward 🎉 · `ci_fail` → SOS buzz ·
+`distracted` → stop. Set `CFM_DEV_SECRET` to require `secret=` if the port isn't localhost-only.
+
+```bash
+# one-off
+curl -fsS localhost:8731/dev -d event=ci_pass
+
+# git: .git/hooks/post-commit  (chmod +x)
+curl -fsS localhost:8731/dev -d 'event=commit&magnitude=0.5' >/dev/null 2>&1 || true
+
+# GitHub Actions (reach your machine via a tunnel; gate with a secret)
+- run: curl -fsS "$CFM_URL/dev" -d "event=ci_pass&secret=$CFM_DEV_SECRET" || true
+```
+
+The console also has a built-in **🍅 Focus 25m** Pomodoro that fires `focus_done` (a reward) when
+the timer completes.
 
 ## MCP tools
 
@@ -252,9 +315,10 @@ so set one. The safety cap and `safeword` always win.
 Plus **MCP prompts** (`/mcp__claude-f-me__…`): `mommy-scene`, `edge-session`, `story-mode`,
 `compose-vibe`, `aftercare`.
 
-> Audio mode, the master remote and Duet live in the console (they need a browser for mic capture
-> and hands-on control); the Telegram bridge runs in the background; everything else is drivable by
-> Claude through the tools above.
+> Audio, biofeedback, session recording, the master remote and Duet live in the console (they need
+> a browser for mic/Bluetooth capture and hands-on control); the Telegram bridge, the WeChat `/wechat`
+> callback and the `/dev` developer-trigger endpoint run on the server; everything else is drivable
+> by Claude through the tools above.
 
 ## Configuration
 
@@ -268,6 +332,9 @@ Plus **MCP prompts** (`/mcp__claude-f-me__…`): `mommy-scene`, `edge-session`, 
 | `OPENAI_API_KEY` (+ `CFM_OPENAI_BASE_URL`) | — | *optional* — same, via an OpenAI-compatible model (e.g. a GPT persona) |
 | `CFM_TELEGRAM_TOKEN` | — | *optional* — enable the Telegram bridge (token from @BotFather) |
 | `CFM_TELEGRAM_ALLOW` | — | comma-separated chat ids allowed to control via Telegram (set this!) |
+| `CFM_WECHAT_TOKEN` | — | *optional* — enable the WeChat 公众号 endpoint at `/wechat` (token from 公众号后台) |
+| `CFM_WECHAT_ALLOW` | — | comma-separated OpenIDs allowed to control via WeChat |
+| `CFM_DEV_SECRET` | — | *optional* — require `secret=` on the `/dev` developer-trigger endpoint |
 
 > The model keys are **optional**. Without them, Muse still works — just ask Claude in chat to
 > `compose`, and personas still modulate the feel locally. With a key, a persona's `model` decides
@@ -299,6 +366,24 @@ You are responsible for how you use it.
 
 Where this is headed — PRs and opinions welcome:
 
+- 🏆 **Leaderboards, achievements & challenges.** Personal stats (sessions, total time, **longest edge
+  held**, best streaks), unlockable achievements, and **opt-in, anonymous** community boards + daily/
+  weekly challenges (e.g. "survive a 5-minute edge"). Couple streaks for long-distance partners.
+  Privacy-first: opt-in only, no content, anonymous handles.
+- 🌍 **Public control mode.** A shareable public room (the master remote, opened to many) where an
+  audience or a stream chat collectively drives the device — cam-style "tip / vote to control",
+  a live crowd dial, queued turns. With hard guard-rails: a low forced cap, a host **kick / pause /
+  lock**, per-viewer cooldowns, an always-on safeword, and a one-tap "go private". Consent and
+  moderation first — public means *the wearer opted in*, and can revoke instantly.
+- 🧩 **Share scores & patterns.** Export/import Muse scores and funscripts by a short code — a little
+  community library of vibes.
+- 🗣️ **Persona voice.** Optional TTS so the persona actually *speaks* its lines (🍼 "good girl…").
+- 🎮 **Game & stream integration.** React to events in games or streams (a death, a win, a donation).
+- 🐾 **Pet mode (agent throughput).** Hook a coding agent — **Codex** or Claude Code — and let its
+  *live output rate* drive intensity: tokens flying = turned up, a stall or a red build = it drops.
+  Productivity as a reward loop. Extends 🧑‍💻 Developer triggers from discrete events to a continuous
+  signal (tail the agent's stream → tokens/sec → intensity, through the safety cap of course).
+- 🔐 **Encrypted, PIN-locked memory.** Lock the local memory and console behind a code.
 - 🧠 **Memory → behaviour.** Today memory *records* and Claude can *recall* it; next, let it
   automatically steer persona/Muse choices and avoid disliked combos without being asked.
 - 💬 **More chat bridges.** **Discord** (official bot, the natural next one) and Slack; **WhatsApp**
@@ -313,6 +398,16 @@ Where this is headed — PRs and opinions welcome:
 - 🎲 **Group play.** A shared room where several people collectively control one device (a real
   wheel-of-fortune).
 - 🗣️ **Voice notes → audio mode.** Drive intensity from a sent voice message, not just a live mic.
+
+## ⭐ Stargazers & contributors
+
+If this made you smile (or something), drop a ⭐ — it genuinely helps.
+
+[![Star History Chart](https://api.star-history.com/svg?repos=mana-am/claude-f-me&type=Date)](https://star-history.com/#mana-am/claude-f-me&Date)
+
+[![Contributors](https://contrib.rocks/image?repo=mana-am/claude-f-me)](https://github.com/mana-am/claude-f-me/graphs/contributors)
+
+> The Star-History chart and contributor map render once the repository is **public**.
 
 ## Credits
 

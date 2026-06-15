@@ -6,6 +6,9 @@ import { CONSOLE_HTML } from "./consoleHtml.js";
 import { MASTER_HTML } from "./masterHtml.js";
 import { PRESETS } from "./presets.js";
 import { isLlmConfigured } from "./llm.js";
+import { handleWechat, isWechatEnabled } from "./wechat.js";
+import { handleDev } from "./dev.js";
+import { Recorder } from "./recorder.js";
 import { logErr } from "./util.js";
 
 /**
@@ -27,6 +30,22 @@ export function startConsole(
 ): Promise<void> {
   const httpServer = http.createServer((req, res) => {
     const path = (req.url ?? "/").split("?")[0];
+    if (path === "/wechat") {
+      // WeChat Official Account callback (compliant two-way control). Async.
+      void handleWechat(req, res, manager, modes).catch((e) => {
+        logErr(`wechat: ${e}`);
+        if (!res.headersSent) { res.writeHead(500); res.end("error"); }
+      });
+      return;
+    }
+    if (path === "/dev") {
+      // Developer-native triggers (CI / git hook / Pomodoro). Async.
+      void handleDev(req, res, manager, modes).catch((e) => {
+        logErr(`dev: ${e}`);
+        if (!res.headersSent) { res.writeHead(500); res.end("error"); }
+      });
+      return;
+    }
     if (path === "/" || path.startsWith("/index")) {
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       res.end(CONSOLE_HTML);
@@ -54,6 +73,7 @@ export function startConsole(
     else socket.destroy();
   });
   const masters = new Set<WebSocket>();
+  const recorder = new Recorder(manager, modes);
 
   // ---- Duet relay hub: a tiny in-memory room switch on the same server, so any
   // claude-f-me instance (even --console-only) can relay two consoles to each
@@ -190,6 +210,25 @@ export function startConsole(
           case "reveal_persona":
             modes.reveal();
             break;
+          case "bio_start":
+            manager.setActiveMode({ type: "bio", label: String(m.label ?? "heart rate") });
+            break;
+          case "bio_stop":
+            await manager.stop(m.target ?? "all");
+            manager.setActiveMode(null);
+            break;
+          case "clientmode": // a browser-driven mode (e.g. video sync) sets its own badge
+            if (m.on) manager.setActiveMode({ type: (m.modeType ?? "video"), label: String(m.label ?? "") });
+            else { await manager.stop(m.target ?? "all"); manager.setActiveMode(null); }
+            break;
+          case "rec_start":
+            recorder.begin();
+            break;
+          case "rec_stop": {
+            const r = await recorder.end(m.name ? String(m.name) : undefined);
+            reply({ type: "muse_list", scores: modes.listScores(), llm: isLlmConfigured(), recorded: r });
+            break;
+          }
         }
       } catch (e) {
         logErr(`console command error: ${e}`);
@@ -208,6 +247,7 @@ export function startConsole(
     });
     httpServer.listen(port, () => {
       logErr(`console: http://localhost:${port}  (master remote: /master)`);
+      if (isWechatEnabled()) logErr(`console: wechat 公众号 endpoint at /wechat`);
       resolve();
     });
   });
