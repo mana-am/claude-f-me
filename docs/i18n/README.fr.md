@@ -24,7 +24,9 @@ Un **simulateur intégré** permet de tout construire et d'essayer **sans matér
 <br/>
 
 
-<sub>▶️ <b>Tour des fonctionnalités</b> — tous les modes en un coup d'œil (~25s) · <a href="https://github.com/mana-am/claude-f-me/blob/main/docs/promo-en.mp4">ouvrir la vidéo</a></sub>
+<video src="https://github.com/user-attachments/assets/d8d89c0c-fdf1-4cd9-83ce-20a021308f0a" controls muted playsinline width="640"></video>
+
+<sub>▶️ <b>Tour des fonctionnalités</b> — tous les modes en un coup d'œil (~25s).</sub>
 
 <p><b><a href="https://f.mana.am/">▶ Essaie la console en direct dans ton navigateur</a></b> — la vraie UI, entièrement jouable, simulée (sans matériel). <sub>Publiée depuis <code>main</code> via GitHub Pages ; s'affiche une fois Pages activé.</sub></p>
 

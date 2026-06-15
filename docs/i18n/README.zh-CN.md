@@ -20,7 +20,9 @@
 <br/>
 
 
-<sub>▶️ <b>功能速览</b> — 所有玩法一次看完（约 25 秒）· <a href="https://github.com/mana-am/claude-f-me/blob/main/docs/promo-zh.mp4">打开视频</a></sub>
+<video src="https://github.com/user-attachments/assets/d8d89c0c-fdf1-4cd9-83ce-20a021308f0a" controls muted playsinline width="640"></video>
+
+<sub>▶️ <b>功能速览</b> — 所有玩法一次看完（约 25 秒）。</sub>
 
 <p><b><a href="https://f.mana.am/">▶ 在浏览器里试玩实时控制台</a></b> — 真实界面、完整可玩、模拟（无硬件）。<sub>由 main 经 GitHub Pages 发布；Pages 启用后即可访问。</sub></p>
 

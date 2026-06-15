@@ -21,7 +21,9 @@ Un **simulador integrado** te deja construir y jugar **sin hardware**.
 <br/>
 
 
-<sub>▶️ <b>Tour de funciones</b> — todos los modos de un vistazo (~25s) · <a href="https://github.com/mana-am/claude-f-me/blob/main/docs/promo-en.mp4">abrir vídeo</a></sub>
+<video src="https://github.com/user-attachments/assets/d8d89c0c-fdf1-4cd9-83ce-20a021308f0a" controls muted playsinline width="640"></video>
+
+<sub>▶️ <b>Tour de funciones</b> — todos los modos de un vistazo (~25s).</sub>
 
 <p><b><a href="https://f.mana.am/">▶ Prueba la consola en vivo en tu navegador</a></b> — la UI real, totalmente jugable, simulada (sin hardware). <sub>Publicada desde <code>main</code> vía GitHub Pages; se muestra una vez activado Pages.</sub></p>
 

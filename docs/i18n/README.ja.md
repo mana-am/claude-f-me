@@ -21,7 +21,9 @@
 <br/>
 
 
-<sub>▶️ <b>機能ツアー</b> — すべてのモードを一望（約25秒）· <a href="https://github.com/mana-am/claude-f-me/blob/main/docs/promo-en.mp4">動画を開く</a></sub>
+<video src="https://github.com/user-attachments/assets/d8d89c0c-fdf1-4cd9-83ce-20a021308f0a" controls muted playsinline width="640"></video>
+
+<sub>▶️ <b>機能ツアー</b> — すべてのモードを一望（約25秒）。</sub>
 
 <p><b><a href="https://f.mana.am/">▶ ブラウザでライブコンソールを試す</a></b> — 本物の UI、フル操作可能、シミュレート（ハードウェア不要）。<sub>main から GitHub Pages で公開。Pages を有効化すると表示されます。</sub></p>
 

@@ -24,7 +24,9 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 <br/>
 
 
-<sub>▶️ <b>Feature tour</b> — every mode at a glance (~25s) · <a href="https://github.com/mana-am/claude-f-me/blob/main/docs/promo-en.mp4">open video</a></sub>
+<video src="https://github.com/user-attachments/assets/d8d89c0c-fdf1-4cd9-83ce-20a021308f0a" controls muted playsinline width="640"></video>
+
+<sub>▶️ <b>Feature tour</b> — every mode at a glance (~25s).</sub>
 
 <sub>The “Pulse Core” console reacting live — the orb and aurora breathe with intensity. Recorded against the built-in simulator (zero hardware).</sub>
 
