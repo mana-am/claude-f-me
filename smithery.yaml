@@ -1,0 +1,48 @@
+# Smithery configuration — https://smithery.ai/docs/config#smitheryyaml
+# claude-f-me is a stdio MCP server. Smithery launches it via `npx` from GitHub
+# (Node >= 18, nothing to clone). See docs/publishing/SMITHERY.md.
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema for the (optional) configuration Smithery collects from the user.
+    type: object
+    properties:
+      mode:
+        type: string
+        title: Mode
+        description: "'simulated' runs with no hardware; 'buttplug' drives a real device via Intiface Central."
+        enum: ["simulated", "buttplug"]
+        default: "simulated"
+      consolePort:
+        type: integer
+        title: Console port
+        description: Port for the live web console.
+        default: 8731
+      maxIntensity:
+        type: number
+        title: Max intensity (safety cap)
+        description: Hard cap on output intensity, 0 to 1.
+        minimum: 0
+        maximum: 1
+        default: 1
+      intifaceUrl:
+        type: string
+        title: Intiface URL
+        description: Intiface Central WebSocket URL (only used when mode = buttplug).
+        default: "ws://127.0.0.1:12345"
+  commandFunction: |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', 'github:mana-am/claude-f-me'],
+      env: {
+        CFM_MODE: config.mode || 'simulated',
+        CFM_CONSOLE_PORT: String(config.consolePort || 8731),
+        CFM_MAX_INTENSITY: String(config.maxIntensity ?? 1),
+        CFM_INTIFACE_URL: config.intifaceUrl || 'ws://127.0.0.1:12345'
+      }
+    })
+  exampleConfig:
+    mode: "simulated"
+    consolePort: 8731
+    maxIntensity: 1
+    intifaceUrl: "ws://127.0.0.1:12345"
