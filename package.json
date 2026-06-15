@@ -13,7 +13,8 @@
     "console": "node dist/index.js --console-only",
     "dev": "tsx watch src/index.ts",
     "dev:console": "tsx watch src/index.ts -- --console-only",
-    "record:demo": "node scripts/record-demo.mjs"
+    "record:demo": "node scripts/record-demo.mjs",
+    "build:demo": "node scripts/build-demo.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",

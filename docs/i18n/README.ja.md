@@ -18,6 +18,8 @@
 
 <img src="../pulse-core.gif" alt="claude-f-me Pulse Core コンソールがリアルタイムに反応" width="640" />
 
+<p><b><a href="https://mana-am.github.io/claude-f-me/">▶ ブラウザでライブコンソールを試す</a></b> — 本物の UI、フル操作可能、シミュレート（ハードウェア不要）。<sub>main から GitHub Pages で公開。Pages を有効化すると表示されます。</sub></p>
+
 </div>
 
 ---

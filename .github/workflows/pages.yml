@@ -1,0 +1,57 @@
+name: Deploy demo to GitHub Pages
+
+# Builds the static "Pulse Core" console demo (real UI + in-browser mock backend,
+# zero hardware) and deploys it to GitHub Pages.
+#
+# First-time setup: Settings → Pages → Source = "GitHub Actions" (the configure
+# step below also tries to enable it automatically). On a PRIVATE repo, the
+# published site is only reachable by collaborators unless you're on a plan that
+# allows public Pages, or you make the repo public.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/consoleHtml.ts"
+      - "scripts/build-demo.mjs"
+      - "scripts/demo-mock.js"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build
+      - run: npm run build:demo
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

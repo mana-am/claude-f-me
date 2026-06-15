@@ -18,6 +18,8 @@ Un **simulador integrado** te deja construir y jugar **sin hardware**.
 
 <img src="../pulse-core.gif" alt="consola Pulse Core de claude-f-me reaccionando en tiempo real" width="640" />
 
+<p><b><a href="https://mana-am.github.io/claude-f-me/">▶ Prueba la consola en vivo en tu navegador</a></b> — la UI real, totalmente jugable, simulada (sin hardware). <sub>Publicada desde <code>main</code> vía GitHub Pages; se muestra una vez activado Pages.</sub></p>
+
 </div>
 
 ---

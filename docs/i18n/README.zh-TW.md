@@ -17,6 +17,8 @@
 
 <img src="../pulse-core.gif" alt="claude-f-me Pulse Core 主控台即時反應" width="640" />
 
+<p><b><a href="https://mana-am.github.io/claude-f-me/">▶ 在瀏覽器裡試玩即時主控台</a></b> — 真實介面、完整可玩、模擬（無硬體）。<sub>由 main 經 GitHub Pages 發布；Pages 啟用後即可存取。</sub></p>
+
 </div>
 
 ---
