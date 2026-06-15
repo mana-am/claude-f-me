@@ -20,9 +20,8 @@ Un **simulador integrado** te deja construir y jugar **sin hardware**.
 
 <br/>
 
-<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4" controls muted playsinline width="300"></video>
 
-<sub>▶️ <b>Tour de funciones</b> — todos los modos de un vistazo (~25s) · <a href="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4">abrir vídeo</a></sub>
+<sub>▶️ <b>Tour de funciones</b> — todos los modos de un vistazo (~25s) · <a href="https://github.com/mana-am/claude-f-me/blob/main/docs/promo-en.mp4">abrir vídeo</a></sub>
 
 <p><b><a href="https://f.mana.am/">▶ Prueba la consola en vivo en tu navegador</a></b> — la UI real, totalmente jugable, simulada (sin hardware). <sub>Publicada desde <code>main</code> vía GitHub Pages; se muestra una vez activado Pages.</sub></p>
 
@@ -60,7 +59,6 @@ Un **simulador integrado** te deja construir y jugar **sin hardware**.
 
 🎥 **Mira la consola reaccionar en tiempo real** (o [**pruébala en tu navegador →**](https://f.mana.am/)):
 
-<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
 
 <sub>Si el vídeo no se reproduce en línea, [ábrelo aquí](../pulse-core.mp4), o mira la vista previa en bucle de arriba.</sub>
 

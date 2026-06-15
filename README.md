@@ -23,9 +23,8 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 
 <br/>
 
-<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4" controls muted playsinline width="300"></video>
 
-<sub>▶️ <b>Feature tour</b> — every mode at a glance (~25s) · <a href="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4">open video</a></sub>
+<sub>▶️ <b>Feature tour</b> — every mode at a glance (~25s) · <a href="https://github.com/mana-am/claude-f-me/blob/main/docs/promo-en.mp4">open video</a></sub>
 
 <sub>The “Pulse Core” console reacting live — the orb and aurora breathe with intensity. Recorded against the built-in simulator (zero hardware).</sub>
 
@@ -65,7 +64,6 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 
 🎥 **Watch the console react in real time** (or [**try it live in your browser →**](https://f.mana.am/)):
 
-<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
 
 <sub>If the video doesn't play inline, [open it here](./docs/pulse-core.mp4) — or see the looping preview at the top.</sub>
 

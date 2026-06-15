@@ -20,9 +20,8 @@
 
 <br/>
 
-<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4" controls muted playsinline width="300"></video>
 
-<sub>▶️ <b>機能ツアー</b> — すべてのモードを一望（約25秒）· <a href="https://github.com/mana-am/claude-f-me/raw/main/docs/promo-en.mp4">動画を開く</a></sub>
+<sub>▶️ <b>機能ツアー</b> — すべてのモードを一望（約25秒）· <a href="https://github.com/mana-am/claude-f-me/blob/main/docs/promo-en.mp4">動画を開く</a></sub>
 
 <p><b><a href="https://f.mana.am/">▶ ブラウザでライブコンソールを試す</a></b> — 本物の UI、フル操作可能、シミュレート（ハードウェア不要）。<sub>main から GitHub Pages で公開。Pages を有効化すると表示されます。</sub></p>
 
@@ -60,7 +59,6 @@
 
 🎥 **コンソールがリアルタイムに反応する様子**（または[**ブラウザで試す →**](https://f.mana.am/)）：
 
-<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
 
 <sub>動画がインラインで再生されない場合は[こちらで開く](../pulse-core.mp4)、または上部のループプレビューを参照。</sub>
 
