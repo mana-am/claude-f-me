@@ -521,4 +521,4 @@ npm run bundle       # プラグイン用の自己完結 dist/claude-f-me.mjs（
 
 ## ライセンス
 
-[MIT](../../LICENSE) © SimonAKing
+[MIT](../../LICENSE) © [Mana](https://mana.am)

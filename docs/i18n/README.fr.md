@@ -682,4 +682,4 @@ Construit sur le protocole ouvert [Buttplug](https://github.com/buttplugio/buttp
 
 ## Licence
 
-[MIT](../../LICENSE) © SimonAKing
+[MIT](../../LICENSE) © [Mana](https://mana.am)

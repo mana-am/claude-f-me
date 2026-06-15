@@ -518,4 +518,4 @@ npm run bundle       # 自包含 dist/claude-f-me.mjs（esbuild，给插件用�
 
 ## 许可
 
-[MIT](../../LICENSE) © SimonAKing
+[MIT](../../LICENSE) © [Mana](https://mana.am)

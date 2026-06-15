@@ -667,4 +667,4 @@ Built on the open-source [Buttplug](https://github.com/buttplugio/buttplug) prot
 
 ## License
 
-[MIT](./LICENSE) © SimonAKing
+[MIT](./LICENSE) © [Mana](https://mana.am)

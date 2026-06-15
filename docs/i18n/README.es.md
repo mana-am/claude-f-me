@@ -523,4 +523,4 @@ Construido sobre el protocolo de código abierto [Buttplug](https://github.com/b
 
 ## Licencia
 
-[MIT](../../LICENSE) © SimonAKing
+[MIT](../../LICENSE) © [Mana](https://mana.am)
