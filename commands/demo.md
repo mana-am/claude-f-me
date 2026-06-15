@@ -1,8 +1,8 @@
 ---
-description: Run a short opendick demo on the simulated device
+description: Run a short claude-f-me demo on the simulated device
 ---
 
-Run a quick demo with the opendick MCP tools so the user can watch it in the console.
+Run a quick demo with the claude-f-me MCP tools so the user can watch it in the console.
 Keep narration to one short line per step:
 
 1. `scan_devices`

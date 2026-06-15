@@ -1,13 +1,13 @@
 {
-  "name": "opendick",
+  "name": "claude-f-me",
   "owner": {
-    "name": "SimonAKing",
-    "url": "https://github.com/SimonAKing"
+    "name": "mana-am",
+    "url": "https://github.com/mana-am"
   },
   "plugins": [
     {
-      "name": "opendick",
-      "description": "Control intimate hardware by chatting in Claude Code — live console, built-in simulator, video (funscript) + game modes, safety caps.",
+      "name": "claude-f-me",
+      "description": "Control intimate hardware by chatting in Claude Code — reactive console, simulator, master remote, video + game + audio modes, safety caps.",
       "source": "./",
       "version": "0.1.0"
     }

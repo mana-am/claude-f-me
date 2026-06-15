@@ -35,7 +35,7 @@ export class ButtplugBackend implements DeviceBackend {
       /* ignore */
     }
 
-    this.client = new bp.ButtplugClient("opendick");
+    this.client = new bp.ButtplugClient("claude-f-me");
     this.client.addListener("deviceadded", (d: any) => {
       this.devices.set(String(d.index), d);
       this.cb();

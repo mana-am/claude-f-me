@@ -14969,7 +14969,7 @@ var ButtplugBackend = class {
       }
     } catch {
     }
-    this.client = new bp.ButtplugClient("opendick");
+    this.client = new bp.ButtplugClient("claude-f-me");
     this.client.addListener("deviceadded", (d) => {
       this.devices.set(String(d.index), d);
       this.cb();
@@ -15044,7 +15044,7 @@ var CONSOLE_HTML = (
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>opendick</title>
+<title>claude-f-me</title>
 <style>
   :root { color-scheme: dark; --lvl: 0; }
   * { box-sizing: border-box; }
@@ -15143,7 +15143,7 @@ var CONSOLE_HTML = (
 <div class="grain"></div>
 <div class="wrap">
   <header>
-    <span class="brand">opendick</span>
+    <span class="brand">claude\xB7f\xB7me</span>
     <span id="mode" class="pill">\u2026</span>
     <span class="pill dot"><span id="conn" class="dot"></span><span id="connlbl"></span></span>
     <span id="active" class="pill act" style="display:none"></span>
@@ -15238,7 +15238,7 @@ var CONSOLE_HTML = (
       mastersOn:"\u{1F451} {n} \u4F4D\u4E3B\u4EBA", mastersOnN:"\u{1F451} {n} \u4F4D\u4E3B\u4EBA",
       needFs:"\u8BF7\u5148\u7C98\u8D34 funscript JSON\u3002", audFail:"\u97F3\u9891\u91C7\u96C6\u5931\u8D25\uFF1A", langBtn:"EN" }
   };
-  var lang = localStorage.getItem("opendick_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  var lang = localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
   function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
@@ -15370,7 +15370,7 @@ var CONSOLE_HTML = (
   $("#scan").onclick = function(){ send({ type:"scan", ms:4000 }); };
   $("#stopall").onclick = function(){ stopAudio(); send({ type:"stop_all" }); };
   $("#remote").onclick = function(){ window.open("/master","_blank"); };
-  $("#lang").onclick = function(){ lang = (lang==="en"?"zh":"en"); localStorage.setItem("opendick_lang", lang); applyI18n(); };
+  $("#lang").onclick = function(){ lang = (lang==="en"?"zh":"en"); localStorage.setItem("cfm_lang", lang); applyI18n(); };
   $("#logbtn").onclick = function(){ $("#logdrawer").classList.toggle("open"); };
 
   var maxEl = $("#max");
@@ -15447,7 +15447,7 @@ var MASTER_HTML = (
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>opendick \xB7 master remote</title>
+<title>claude\xB7f\xB7me \xB7 master remote</title>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing:border-box; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
@@ -15525,7 +15525,7 @@ var MASTER_HTML = (
       inControl:"\u63A7\u5236\u4E2D", connecting:"\u8FDE\u63A5\u4E2D\u2026", reconnecting:"\u91CD\u8FDE\u4E2D\u2026",
       noDev:"\u6682\u65E0\u8BBE\u5907", devN:"{n} \u4E2A\u8BBE\u5907", devNs:"{n} \u4E2A\u8BBE\u5907" }
   };
-  var lang = localStorage.getItem("opendick_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  var lang = localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
   function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
@@ -15578,7 +15578,7 @@ var MASTER_HTML = (
   max.addEventListener("input", function(){ $("#maxval").textContent = Math.round(max.value*100)+"%"; send({ type:"set_max", value: parseFloat(max.value) }); });
 
   $("#stop").addEventListener("click", function(){ dial.value = 0; $("#lvl").textContent = "0"; send({ type:"stop_all" }); });
-  $("#lang").addEventListener("click", function(){ lang = (lang === "en" ? "zh" : "en"); localStorage.setItem("opendick_lang", lang); applyI18n(); });
+  $("#lang").addEventListener("click", function(){ lang = (lang === "en" ? "zh" : "en"); localStorage.setItem("cfm_lang", lang); applyI18n(); });
 
   applyI18n();
   $("#status").textContent = t("connecting");
@@ -29950,7 +29950,7 @@ var text = (obj) => ({
   content: [{ type: "text", text: JSON.stringify(obj, null, 2) }]
 });
 async function startMcp(manager2, modes2) {
-  const server = new McpServer({ name: "opendick", version: "0.1.0" });
+  const server = new McpServer({ name: "claude-f-me", version: "0.1.0" });
   server.registerTool(
     "list_devices",
     {
@@ -30275,10 +30275,10 @@ if (!consoleOnly) {
   console.debug = toErr;
   console.warn = toErr;
 }
-var mode = (process.env.OPENDICK_MODE ?? "simulated").toLowerCase();
-var port = Number(process.env.OPENDICK_CONSOLE_PORT ?? 8731);
-var maxIntensity = Number(process.env.OPENDICK_MAX_INTENSITY ?? 1);
-var intifaceUrl = process.env.OPENDICK_INTIFACE_URL ?? "ws://127.0.0.1:12345";
+var mode = (process.env.CFM_MODE ?? "simulated").toLowerCase();
+var port = Number(process.env.CFM_CONSOLE_PORT ?? 8731);
+var maxIntensity = Number(process.env.CFM_MAX_INTENSITY ?? 1);
+var intifaceUrl = process.env.CFM_INTIFACE_URL ?? "ws://127.0.0.1:12345";
 var backend = mode === "buttplug" ? new ButtplugBackend(intifaceUrl) : new SimulatedBackend();
 var manager = new DeviceManager(backend, {
   maxIntensity,
@@ -30295,10 +30295,10 @@ try {
 }
 await startConsole(manager, modes, port);
 if (consoleOnly) {
-  logErr(`opendick: console-only mode \u2014 open http://localhost:${port}`);
+  logErr(`claude-f-me: console-only mode \u2014 open http://localhost:${port}`);
 } else {
   await startMcp(manager, modes);
-  logErr(`opendick: ready (MCP stdio + console at http://localhost:${port})`);
+  logErr(`claude-f-me: ready (MCP stdio + console at http://localhost:${port})`);
 }
 var cleanup = () => {
   void manager.stopAll().finally(() => process.exit(0));

@@ -1,13 +1,13 @@
 {
   "mcpServers": {
-    "opendick": {
+    "claude-f-me": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/opendick.mjs"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/claude-f-me.mjs"],
       "env": {
-        "OPENDICK_MODE": "simulated",
-        "OPENDICK_CONSOLE_PORT": "8731",
-        "OPENDICK_MAX_INTENSITY": "1.0",
-        "OPENDICK_INTIFACE_URL": "ws://127.0.0.1:12345"
+        "CFM_MODE": "simulated",
+        "CFM_CONSOLE_PORT": "8731",
+        "CFM_MAX_INTENSITY": "1.0",
+        "CFM_INTIFACE_URL": "ws://127.0.0.1:12345"
       }
     }
   }

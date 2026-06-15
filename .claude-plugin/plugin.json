@@ -1,13 +1,13 @@
 {
-  "name": "opendick",
+  "name": "claude-f-me",
   "version": "0.1.0",
-  "description": "Control intimate hardware (Buttplug/Intiface) by chatting in Claude Code. Live web console, built-in simulator, video (funscript) + game modes, and safety caps.",
+  "description": "Control intimate hardware (Buttplug/Intiface) by chatting in Claude Code. Reactive web console, built-in simulator, master remote, video (funscript) + game + audio modes, safety caps.",
   "author": {
     "name": "SimonAKing",
     "url": "https://github.com/SimonAKing"
   },
-  "homepage": "https://github.com/SimonAKing/opendick",
-  "repository": "https://github.com/SimonAKing/opendick",
+  "homepage": "https://github.com/mana-am/claude-f-me",
+  "repository": "https://github.com/mana-am/claude-f-me",
   "license": "MIT",
   "keywords": ["mcp", "buttplug", "intiface", "hardware", "console", "funscript"],
   "mcpServers": "./.mcp.json",

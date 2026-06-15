@@ -21,10 +21,10 @@ if (!consoleOnly) {
   console.warn = toErr as typeof console.warn;
 }
 
-const mode = (process.env.OPENDICK_MODE ?? "simulated").toLowerCase();
-const port = Number(process.env.OPENDICK_CONSOLE_PORT ?? 8731);
-const maxIntensity = Number(process.env.OPENDICK_MAX_INTENSITY ?? 1);
-const intifaceUrl = process.env.OPENDICK_INTIFACE_URL ?? "ws://127.0.0.1:12345";
+const mode = (process.env.CFM_MODE ?? "simulated").toLowerCase();
+const port = Number(process.env.CFM_CONSOLE_PORT ?? 8731);
+const maxIntensity = Number(process.env.CFM_MAX_INTENSITY ?? 1);
+const intifaceUrl = process.env.CFM_INTIFACE_URL ?? "ws://127.0.0.1:12345";
 
 const backend: DeviceBackend =
   mode === "buttplug" ? new ButtplugBackend(intifaceUrl) : new SimulatedBackend();
@@ -47,10 +47,10 @@ try {
 await startConsole(manager, modes, port);
 
 if (consoleOnly) {
-  logErr(`opendick: console-only mode — open http://localhost:${port}`);
+  logErr(`claude-f-me: console-only mode — open http://localhost:${port}`);
 } else {
   await startMcp(manager, modes);
-  logErr(`opendick: ready (MCP stdio + console at http://localhost:${port})`);
+  logErr(`claude-f-me: ready (MCP stdio + console at http://localhost:${port})`);
 }
 
 // Best-effort: make sure hardware is left off on exit.

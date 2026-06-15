@@ -10,7 +10,7 @@ const text = (obj: unknown) => ({
 });
 
 export async function startMcp(manager: DeviceManager, modes: ModeController): Promise<void> {
-  const server = new McpServer({ name: "opendick", version: "0.1.0" });
+  const server = new McpServer({ name: "claude-f-me", version: "0.1.0" });
 
   server.registerTool(
     "list_devices",

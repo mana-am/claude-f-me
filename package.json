@@ -1,14 +1,14 @@
 {
-  "name": "opendick",
+  "name": "claude-f-me",
   "version": "0.1.0",
-  "description": "An installable Claude Code plugin to control intimate hardware (Buttplug/Intiface) by chatting — with a live web console, a built-in simulator, plus video (funscript) and game modes.",
+  "description": "An installable Claude Code plugin to control intimate hardware (Buttplug/Intiface) by chatting — with a reactive web console, a built-in simulator, master remote, plus video (funscript), game and audio modes.",
   "type": "module",
   "bin": {
-    "opendick": "dist/index.js"
+    "claude-f-me": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
-    "bundle": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node18 --outfile=dist/opendick.mjs --banner:js=\"import{createRequire}from'node:module';const require=createRequire(import.meta.url);\"",
+    "bundle": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node18 --outfile=dist/claude-f-me.mjs --banner:js=\"import{createRequire}from'node:module';const require=createRequire(import.meta.url);\"",
     "start": "node dist/index.js",
     "console": "node dist/index.js --console-only",
     "dev": "tsx watch src/index.ts",

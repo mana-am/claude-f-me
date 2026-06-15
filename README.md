@@ -1,6 +1,6 @@
 <div align="center">
 
-# opendick
+# claude-f-me
 
 **Control intimate hardware by *chatting* in Claude Code.**
 
@@ -15,7 +15,7 @@ conversation into real device control — backed by the open
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A518-339933)](https://nodejs.org)
 
-<img src="./docs/console.png" alt="opendick console" width="720" />
+<img src="./docs/console.png" alt="claude-f-me console" width="720" />
 
 </div>
 
@@ -30,7 +30,7 @@ conversation into real device control — backed by the open
 
 ```
   ┌──────────────┐   MCP (stdio)    ┌───────────────────────────┐
-  │  Claude Code │ ───────────────► │          opendick         │
+  │  Claude Code │ ───────────────► │          claude-f-me         │
   └──────────────┘                  │  (one process)            │
   ┌──────────────┐   WebSocket      │   ┌─────────────────────┐ │
   │  Web console │ ◄──────────────► │   │   DeviceManager     │ │  safety cap · watchdog
@@ -69,10 +69,10 @@ so the chat and the dashboard always share the exact same device state.
 
 ```bash
 # 1. add this repo as a plugin marketplace
-/plugin marketplace add SimonAKing/opendick
+/plugin marketplace add mana-am/claude-f-me
 
 # 2. install the plugin
-/plugin install opendick@opendick
+/plugin install claude-f-me@claude-f-me
 ```
 
 The MCP server (a self-contained bundle, no `node_modules` needed) and the slash commands are
@@ -87,39 +87,39 @@ set the safety max to 60%
 stop everything
 ```
 
-The console comes up at **http://localhost:8731** — run `/opendick:console` to open it.
+The console comes up at **http://localhost:8731** — run `/claude-f-me:console` to open it.
 
 ### Slash commands
 
 | command | what it does |
 |---|---|
-| `/opendick:console` | open the live web console in your browser |
-| `/opendick:demo` | run a short scan → vibrate → pattern → game demo |
-| `/opendick:panic` | emergency stop — everything off, now |
+| `/claude-f-me:console` | open the live web console in your browser |
+| `/claude-f-me:demo` | run a short scan → vibrate → pattern → game demo |
+| `/claude-f-me:panic` | emergency stop — everything off, now |
 
 ## Connect a real device
 
-opendick is built for real hardware first; the simulator is just a preview.
+claude-f-me is built for real hardware first; the simulator is just a preview.
 
 1. Install and open **[Intiface Central](https://intiface.com)** → press **Start Server**
    (default `ws://127.0.0.1:12345`).
 2. Pair your toy in Intiface and confirm it appears (this verifies the hardware end-to-end).
    Lovense is the easiest to buy and best supported; almost anything on the
    [device list](https://iostindex.com) works.
-3. Set **`OPENDICK_MODE=buttplug`**. For the plugin, edit the `env` block in
+3. Set **`CFM_MODE=buttplug`**. For the plugin, edit the `env` block in
    [`.mcp.json`](./.mcp.json); standalone, export the env var before launching.
 
 > The plugin ships defaulting to `simulated` so it runs out of the box even before Intiface is
 > set up — flip it to `buttplug` once your device shows up in Intiface.
 >
-> Node 22+ ships a global `WebSocket`; on older Node, opendick polyfills it from `ws`,
+> Node 22+ ships a global `WebSocket`; on older Node, claude-f-me polyfills it from `ws`,
 > so real-hardware mode works on Node 18+.
 
 ### No hardware yet? Preview mode
 
 ```bash
-git clone https://github.com/SimonAKing/opendick
-cd opendick && npm install && npm run build
+git clone https://github.com/mana-am/claude-f-me
+cd claude-f-me && npm install && npm run build
 npm run console        # open http://localhost:8731
 ```
 
@@ -144,7 +144,7 @@ tunnel (e.g. `cloudflared tunnel --url http://localhost:8731` or `ngrok http 873
 
 ## 🎵 Audio mode
 
-In the console's **Audio** panel, pick **🎤 Microphone** or **🔊 Tab audio**. opendick reads the
+In the console's **Audio** panel, pick **🎤 Microphone** or **🔊 Tab audio**. claude-f-me reads the
 live signal in the browser, computes its loudness each frame, and drives the device in real time —
 so the toy pulses to music, a voice, or a video's soundtrack. The **sensitivity** slider scales
 it; the safety cap still applies.
@@ -173,10 +173,10 @@ it; the safety cap still applies.
 
 | env var | default | meaning |
 |---|---|---|
-| `OPENDICK_MODE` | `simulated` | `simulated` or `buttplug` |
-| `OPENDICK_CONSOLE_PORT` | `8731` | web console port (also serves `/master`) |
-| `OPENDICK_MAX_INTENSITY` | `1.0` | initial safety cap (0..1) |
-| `OPENDICK_INTIFACE_URL` | `ws://127.0.0.1:12345` | Intiface server (buttplug mode) |
+| `CFM_MODE` | `simulated` | `simulated` or `buttplug` |
+| `CFM_CONSOLE_PORT` | `8731` | web console port (also serves `/master`) |
+| `CFM_MAX_INTENSITY` | `1.0` | initial safety cap (0..1) |
+| `CFM_INTIFACE_URL` | `ws://127.0.0.1:12345` | Intiface server (buttplug mode) |
 
 ## Development
 
@@ -184,7 +184,7 @@ it; the safety cap still applies.
 npm run dev          # MCP + console, watch mode (tsx)
 npm run dev:console  # console only, watch mode
 npm run build        # type-check + emit dist/ (tsc)
-npm run bundle       # self-contained dist/opendick.mjs for the plugin (esbuild)
+npm run bundle       # self-contained dist/claude-f-me.mjs for the plugin (esbuild)
 ```
 
 ```
@@ -212,7 +212,7 @@ last line of defense:
 - Every `vibrate` arms an **auto-stop**; even with no `duration_ms` there's a hard 5-minute
   ceiling per command, and continuous drivers (patterns/video/game/audio) have a watchdog that
   stops the motor within seconds if their loop dies.
-- `emergency_stop` / `/opendick:panic` / the red console button / the master's STOP all halt
+- `emergency_stop` / `/claude-f-me:panic` / the red console button / the master's STOP all halt
   everything instantly.
 - Hardware is turned off when the process exits.
 

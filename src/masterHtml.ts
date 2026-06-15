@@ -7,7 +7,7 @@ export const MASTER_HTML = /* html */ `<!doctype html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>opendick · master remote</title>
+<title>claude·f·me · master remote</title>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing:border-box; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
@@ -85,7 +85,7 @@ export const MASTER_HTML = /* html */ `<!doctype html>
       inControl:"控制中", connecting:"连接中…", reconnecting:"重连中…",
       noDev:"暂无设备", devN:"{n} 个设备", devNs:"{n} 个设备" }
   };
-  var lang = localStorage.getItem("opendick_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  var lang = localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
   function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
@@ -138,7 +138,7 @@ export const MASTER_HTML = /* html */ `<!doctype html>
   max.addEventListener("input", function(){ $("#maxval").textContent = Math.round(max.value*100)+"%"; send({ type:"set_max", value: parseFloat(max.value) }); });
 
   $("#stop").addEventListener("click", function(){ dial.value = 0; $("#lvl").textContent = "0"; send({ type:"stop_all" }); });
-  $("#lang").addEventListener("click", function(){ lang = (lang === "en" ? "zh" : "en"); localStorage.setItem("opendick_lang", lang); applyI18n(); });
+  $("#lang").addEventListener("click", function(){ lang = (lang === "en" ? "zh" : "en"); localStorage.setItem("cfm_lang", lang); applyI18n(); });
 
   applyI18n();
   $("#status").textContent = t("connecting");

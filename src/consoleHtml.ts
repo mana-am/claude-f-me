@@ -7,7 +7,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>opendick</title>
+<title>claude-f-me</title>
 <style>
   :root { color-scheme: dark; --lvl: 0; }
   * { box-sizing: border-box; }
@@ -106,7 +106,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
 <div class="grain"></div>
 <div class="wrap">
   <header>
-    <span class="brand">opendick</span>
+    <span class="brand">claude·f·me</span>
     <span id="mode" class="pill">…</span>
     <span class="pill dot"><span id="conn" class="dot"></span><span id="connlbl"></span></span>
     <span id="active" class="pill act" style="display:none"></span>
@@ -201,7 +201,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       mastersOn:"👑 {n} 位主人", mastersOnN:"👑 {n} 位主人",
       needFs:"请先粘贴 funscript JSON。", audFail:"音频采集失败：", langBtn:"EN" }
   };
-  var lang = localStorage.getItem("opendick_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  var lang = localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
   function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
@@ -333,7 +333,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   $("#scan").onclick = function(){ send({ type:"scan", ms:4000 }); };
   $("#stopall").onclick = function(){ stopAudio(); send({ type:"stop_all" }); };
   $("#remote").onclick = function(){ window.open("/master","_blank"); };
-  $("#lang").onclick = function(){ lang = (lang==="en"?"zh":"en"); localStorage.setItem("opendick_lang", lang); applyI18n(); };
+  $("#lang").onclick = function(){ lang = (lang==="en"?"zh":"en"); localStorage.setItem("cfm_lang", lang); applyI18n(); };
   $("#logbtn").onclick = function(){ $("#logdrawer").classList.toggle("open"); };
 
   var maxEl = $("#max");
