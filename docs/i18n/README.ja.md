@@ -114,9 +114,18 @@ surprise me
 | `/claude-f-me:fuck` | 開始（自動スキャンしてから盛り上げる） |
 | `/claude-f-me:harder` / `:softer` | 強める / 弱める（±20%） |
 | `/claude-f-me:edge` / `:tease` | 寸止めゲーム / やさしいオンオフ |
+| `/claude-f-me:roulette` 🎰 | ランダムな間隔のランダムな噴出——次がいつ来るか分からない |
+| `/claude-f-me:wheel` 🎡 | レベルを回してランダムな位置で止まって保持 |
+| `/claude-f-me:dice` 🎲 | サイコロでランダムな dare（強度/時間/モード） |
+| `/claude-f-me:countdown` ⏳ | 寸止めからカウントダウン、ゼロで解放（または焦らし） |
 | `/claude-f-me:muse` | vibe からカスタム触覚スコアを作曲 |
+| `/claude-f-me:morse` 💌 | 秘密のメッセージをモールス信号の振動で伝える |
+| `/claude-f-me:market` 📈 | 株/暗号資産のライブな値動きを振動で感じる |
+| `/claude-f-me:story` 📖 | 選択がデバイスを駆動するインタラクティブな物語 |
 | `/claude-f-me:persona` | 誰が支配するかを選ぶ（スローバーン / ブラット / …） |
+| `/claude-f-me:blind` 🎭 | ランダムな隠しペルソナに支配を委ねる——謎の支配者 |
 | `/claude-f-me:surprise` | ランダムなモードを選ぶ |
+| `/claude-f-me:aftercare` 🛁 | やさしく落ち着かせるクールダウン |
 | `/claude-f-me:safeword` · `:panic` | **すべて即座に停止** |
 
 ## 🚀 はじめ方 — ステップ・バイ・ステップ

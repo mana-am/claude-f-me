@@ -114,9 +114,18 @@ La consola aparece en **http://localhost:8731** — ejecuta `/claude-f-me:consol
 | `/claude-f-me:fuck` | empieza la diversión (autoescaneo y luego sube) |
 | `/claude-f-me:harder` / `:softer` | sube / baja (±20%) |
 | `/claude-f-me:edge` / `:tease` | juego de provocar y negar / patrón suave on-off |
+| `/claude-f-me:roulette` 🎰 | ráfagas aleatorias a intervalos aleatorios — nunca sabes cuándo |
+| `/claude-f-me:wheel` 🎡 | gira por niveles y cae en uno al azar y lo mantiene |
+| `/claude-f-me:dice` 🎲 | tira el dado para un reto al azar (intensidad/duración/modo) |
+| `/claude-f-me:countdown` ⏳ | al borde y luego una cuenta atrás hablada hasta liberar (o negar) |
 | `/claude-f-me:muse` | compone una partitura háptica a partir de una vibra |
+| `/claude-f-me:morse` 💌 | siente un mensaje secreto en código Morse |
+| `/claude-f-me:market` 📈 | siente el movimiento en vivo de una acción/cripto como vibración |
+| `/claude-f-me:story` 📖 | una aventura interactiva donde tus decisiones controlan el dispositivo |
 | `/claude-f-me:persona` | elige quién manda (Slow Burn / Brat / …) |
+| `/claude-f-me:blind` 🎭 | cede el control a una persona oculta al azar — un misterio al mando |
 | `/claude-f-me:surprise` | elige un modo al azar |
+| `/claude-f-me:aftercare` 🛁 | un descenso suave y reconfortante |
 | `/claude-f-me:safeword` · `:panic` | **detén todo de inmediato** |
 
 ## 🚀 Primeros pasos — paso a paso

@@ -162,9 +162,18 @@ La console est accessible sur **http://localhost:8731** — lancez `/claude-f-me
 | `/claude-f-me:softer` | diminuer (−20%) |
 | `/claude-f-me:edge` | jeu de taquiner-refuser |
 | `/claude-f-me:tease` | motif doux en va-et-vient |
+| `/claude-f-me:roulette` 🎰 | salves aléatoires à intervalles aléatoires — on ne sait jamais quand |
+| `/claude-f-me:wheel` 🎡 | tourne à travers les niveaux puis s'arrête sur un niveau au hasard |
+| `/claude-f-me:dice` 🎲 | lance le dé pour un gage aléatoire (intensité/durée/mode) |
+| `/claude-f-me:countdown` ⏳ | au bord, puis un compte à rebours parlé jusqu'à la libération (ou le refus) |
 | `/claude-f-me:muse` | composer une partition haptique depuis une ambiance |
+| `/claude-f-me:morse` 💌 | ressentir un message secret en code Morse |
+| `/claude-f-me:market` 📈 | ressentir le mouvement en direct d'une action/crypto en vibration |
+| `/claude-f-me:story` 📖 | une aventure interactive où tes choix pilotent l'appareil |
 | `/claude-f-me:persona` | choisir qui commande (Slow Burn / Brat / …) |
+| `/claude-f-me:blind` 🎭 | confie le contrôle à une persona cachée au hasard — un mystère aux commandes |
 | `/claude-f-me:surprise` | choisir un mode au hasard |
+| `/claude-f-me:aftercare` 🛁 | une fin de séance douce et réconfortante |
 | `/claude-f-me:safeword` · `/claude-f-me:panic` | **tout arrêter immédiatement** |
 
 ## 🚀 Démarrage — étape par étape

@@ -111,9 +111,18 @@
 | `/claude-f-me:fuck` | 開始（自動掃描，然後逐漸升強） |
 | `/claude-f-me:harder` / `:softer` | 增強 / 減弱（±20%） |
 | `/claude-f-me:edge` / `:tease` | 邊緣控制 / 挑逗節奏 |
+| `/claude-f-me:roulette` 🎰 | 隨機間隔的隨機突發——永遠猜不到下一下 |
+| `/claude-f-me:wheel` 🎡 | 旋轉各檔位後隨機停留保持 |
+| `/claude-f-me:dice` 🎲 | 擲骰子領隨機 dare（強度/時長/模式） |
+| `/claude-f-me:countdown` ⏳ | 帶倒數的邊緣控制，數到 0 才釋放（或拒絕） |
 | `/claude-f-me:muse` | 從一個 vibe 作一段自訂觸感曲子 |
+| `/claude-f-me:morse` 💌 | 把一句悄悄話用摩斯電碼震動「說」出來 |
+| `/claude-f-me:market` 📈 | 把股票/加密的即時漲跌變成震動 |
+| `/claude-f-me:story` 📖 | 互動文字冒險，你的選擇驅動裝置 |
 | `/claude-f-me:persona` | 選擇由誰掌控（慢燉 / 小惡魔 / …） |
+| `/claude-f-me:blind` 🎭 | 把控制權隨機交給一個隱藏人格——神秘掌控者 |
 | `/claude-f-me:surprise` | 隨機來一個 |
+| `/claude-f-me:aftercare` 🛁 | 溫柔漸弱的事後收尾 |
 | `/claude-f-me:safeword` · `:panic` | **立即全部停止** |
 
 ## 🚀 快速上手 — 一步步來

@@ -155,13 +155,21 @@ The console comes up at **http://localhost:8731** — run `/claude-f-me:console`
 | `/claude-f-me:console` | open the live web console in your browser |
 | `/claude-f-me:demo` | run a short scan → vibrate → pattern → game demo |
 | `/claude-f-me:fuck` | start the fun (auto-scan, then build up) |
-| `/claude-f-me:harder` | turn it up (+20%) |
-| `/claude-f-me:softer` | ease off (−20%) |
+| `/claude-f-me:harder` · `:softer` | turn it up / ease off (±20%) |
 | `/claude-f-me:edge` | tease-and-deny game |
 | `/claude-f-me:tease` | gentle on-off pattern |
+| `/claude-f-me:roulette` 🎰 | random bursts at random intervals — never know when |
+| `/claude-f-me:wheel` 🎡 | spin through levels, then land & hold on a random one |
+| `/claude-f-me:dice` 🎲 | roll for a random dare (intensity, duration & mode) |
+| `/claude-f-me:countdown` ⏳ | edge to the brink, then a spoken countdown to release (or denial) |
 | `/claude-f-me:muse` | compose a custom haptic score from a vibe |
+| `/claude-f-me:morse` 💌 | feel a secret message buzzed in Morse code |
+| `/claude-f-me:market` 📈 | feel a live stock/crypto move as vibration |
+| `/claude-f-me:story` 📖 | an interactive adventure where your choices drive the device |
 | `/claude-f-me:persona` | pick who's in control (Slow Burn / Brat / …) |
+| `/claude-f-me:blind` 🎭 | hand control to a random hidden persona — a mystery in control |
 | `/claude-f-me:surprise` | pick a random mode |
+| `/claude-f-me:aftercare` 🛁 | a gentle, soothing wind-down |
 | `/claude-f-me:safeword` · `/claude-f-me:panic` | **stop everything immediately** |
 
 ## 🚀 Getting started — step by step
