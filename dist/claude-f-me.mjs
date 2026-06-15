@@ -15257,7 +15257,17 @@ var CONSOLE_HTML = (
     <button class="btn ghost" id="fsclose" data-i18n="close"></button>
     <button class="btn" id="fsplay" data-i18n="play"></button>
   </div>
+  <div class="deckrow" style="margin-top:12px; justify-content:flex-start; border-top:1px solid #ffffff14; padding-top:12px">
+    <label class="opt"><span data-i18n="pickVideo"></span> <input type="file" id="fsvideo" accept="video/*" /></label>
+    <span class="spacer"></span>
+    <button class="btn" id="fsvideoplay" data-i18n="vsyncPlay"></button>
+  </div>
 </div></div>
+
+<div id="vsync" style="position:fixed; inset:0; z-index:8; background:#000d; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px;">
+  <video id="vsyncvid" controls style="max-width:92vw; max-height:78vh; border-radius:12px; box-shadow:0 0 60px #ff5ea655;"></video>
+  <button class="btn estop" id="vsyncclose" data-i18n="vsyncClose" style="font-weight:700"></button>
+</div>
 
 <div id="duetmodal"><div class="modal">
   <h3 data-i18n="duetTitle"></h3>
@@ -15308,6 +15318,7 @@ var CONSOLE_HTML = (
       bioFail:"Bluetooth HR failed: ", bioNoBt:"This browser has no Web Bluetooth \u2014 use Chrome/Edge over https or localhost.", bpm:"bpm",
       pomo:"\u{1F345} Focus 25m", pomoStop:"\u25A0 Focus", pomoLeft:"\u{1F345} {m}:{s}",
       rec:"\u23FA Record", recStop:"\u23F9 Save", recName:"Name this recording (blank = auto):", recSaved:"\u{1F4BE} saved as ", recShort:"recording too short",
+      vsync:"\u{1F39E}\uFE0F With video", vsyncPlay:"\u25B6 Play with video", vsyncClose:"\u2715 Close video", needVid:"Choose a video file first.", pickVideo:"video file",
       duet:"\u{1F49E} Duet", duetTitle:"\u{1F49E} Duet \u2014 long-distance sync", duetRelay:"relay URL", duetRoom:"room code",
       duetMode:"mode", duetMirror:"mirror", duetLead:"I lead", duetFollow:"I follow",
       duetConnect:"Connect", duetLeave:"Leave", duetTouch:"\u{1F44B} Touch",
@@ -15335,6 +15346,7 @@ var CONSOLE_HTML = (
       bioFail:"\u84DD\u7259\u5FC3\u7387\u8FDE\u63A5\u5931\u8D25\uFF1A", bioNoBt:"\u6B64\u6D4F\u89C8\u5668\u4E0D\u652F\u6301 Web Bluetooth \u2014 \u8BF7\u7528 Chrome/Edge\uFF0C\u4E14\u5728 https \u6216 localhost \u4E0B\u3002", bpm:"\u6B21/\u5206",
       pomo:"\u{1F345} \u4E13\u6CE8 25 \u5206\u949F", pomoStop:"\u25A0 \u4E13\u6CE8", pomoLeft:"\u{1F345} {m}:{s}",
       rec:"\u23FA \u5F55\u5236", recStop:"\u23F9 \u4FDD\u5B58", recName:"\u7ED9\u8FD9\u6BB5\u5F55\u5236\u8D77\u540D\uFF08\u7559\u7A7A\u81EA\u52A8\uFF09\uFF1A", recSaved:"\u{1F4BE} \u5DF2\u5B58\u4E3A ", recShort:"\u5F55\u5236\u592A\u77ED",
+      vsync:"\u{1F39E}\uFE0F \u914D\u89C6\u9891", vsyncPlay:"\u25B6 \u914D\u89C6\u9891\u64AD\u653E", vsyncClose:"\u2715 \u5173\u95ED\u89C6\u9891", needVid:"\u8BF7\u5148\u9009\u4E00\u4E2A\u89C6\u9891\u6587\u4EF6\u3002", pickVideo:"\u89C6\u9891\u6587\u4EF6",
       duet:"\u{1F49E} \u53CC\u4EBA", duetTitle:"\u{1F49E} \u53CC\u4EBA \u2014 \u5F02\u5730\u540C\u6B65", duetRelay:"\u4E2D\u8F6C\u5730\u5740", duetRoom:"\u623F\u95F4\u7801",
       duetMode:"\u6A21\u5F0F", duetMirror:"\u955C\u50CF", duetLead:"\u6211\u4E3B\u5BFC", duetFollow:"\u6211\u8DDF\u968F",
       duetConnect:"\u8FDE\u63A5", duetLeave:"\u65AD\u5F00", duetTouch:"\u{1F44B} \u89E6\u78B0",
@@ -15545,6 +15557,59 @@ var CONSOLE_HTML = (
     send({ type:"play_video", target:target, source:source, loop:$("#fsloop").checked, speed:parseFloat($("#fsspeed").value)||1, invert:$("#fsinv").checked });
     $("#fsmodal").classList.remove("open");
   };
+
+  // ---- video + funscript sync: the browser plays the video and drives the
+  // device from video.currentTime, so pause / seek / speed all stay in sync ----
+  var vsRAF=null, vsActs=null, vsUrl=null, vsLast=0;
+  function parseFsActions(){
+    try {
+      var d = JSON.parse($("#fs").value.trim());
+      var a = (d.actions||[]).map(function(x){return {at:+x.at, pos:+x.pos};})
+        .filter(function(x){return isFinite(x.at)&&isFinite(x.pos);})
+        .sort(function(p,q){return p.at-q.at;});
+      return a.length?a:null;
+    } catch(e){ return null; }
+  }
+  function sampleActs(a, ms){
+    if (ms<=a[0].at) return a[0].pos;
+    var last=a[a.length-1]; if (ms>=last.at) return last.pos;
+    var lo=0,hi=a.length-1; while(lo<hi){var mm=(lo+hi)>>1; if(a[mm].at<=ms)lo=mm+1; else hi=mm;}
+    var b=a[lo],c=a[lo-1],span=b.at-c.at||1,f=(ms-c.at)/span;
+    return c.pos+(b.pos-c.pos)*f;
+  }
+  $("#fsvideoplay").onclick = function(){
+    var f = $("#fsvideo").files && $("#fsvideo").files[0];
+    if (!f){ alert(t("needVid")); return; }
+    vsActs = parseFsActions();
+    if (!vsActs){ alert(t("needFs")); return; }
+    var inv = $("#fsinv").checked;
+    if (vsUrl) URL.revokeObjectURL(vsUrl);
+    vsUrl = URL.createObjectURL(f);
+    var v = $("#vsyncvid"); v.src = vsUrl;
+    $("#fsmodal").classList.remove("open"); $("#vsync").style.display="flex";
+    send({ type:"clientmode", on:true, modeType:"video", label:"\u{1F39E}\uFE0F video sync" });
+    v.play().catch(function(){});
+    (function loop(){
+      vsRAF = requestAnimationFrame(loop);
+      if (v.paused || v.ended) return;
+      var now=(performance&&performance.now)?performance.now():Date.now();
+      if (now - vsLast < 50) return; // ~20Hz
+      vsLast = now;
+      var pos = sampleActs(vsActs, v.currentTime*1000);
+      var iv = Math.max(0, Math.min(1, (inv?100-pos:pos)/100));
+      lvl = iv; send({ type:"drive", target:target, intensity:iv });
+    })();
+  };
+  function vsyncStop(){
+    if (vsRAF) cancelAnimationFrame(vsRAF); vsRAF=null;
+    var v=$("#vsyncvid"); try{ v.pause(); }catch(e){} v.removeAttribute("src"); if (v.load) v.load();
+    if (vsUrl){ URL.revokeObjectURL(vsUrl); vsUrl=null; }
+    $("#vsync").style.display="none";
+    send({ type:"clientmode", on:false, target:target });
+  }
+  $("#vsyncclose").onclick = vsyncStop;
+  $("#vsyncvid").addEventListener("pause", function(){ send({ type:"drive", target:target, intensity:0 }); });
+  $("#vsyncvid").addEventListener("ended", function(){ send({ type:"drive", target:target, intensity:0 }); });
 
   // keyboard shortcuts: 0-9 set level, space=stop, s=scan
   addEventListener("keydown", function(e){
@@ -16036,6 +16101,8 @@ var OPENAI_KEY = () => process.env.OPENAI_API_KEY || "";
 var OPENAI_BASE = () => process.env.CFM_OPENAI_BASE_URL || "https://api.openai.com/v1";
 var DEFAULT_ANTHROPIC_MODEL = "claude-opus-4-8";
 var DEFAULT_OPENAI_MODEL = "gpt-5.5";
+var MIN_COMPOSE_GAP_MS = 8e3;
+var lastComposeAt = 0;
 function isLlmConfigured() {
   return !!(ANTHROPIC_KEY() || OPENAI_KEY());
 }
@@ -16063,6 +16130,11 @@ var SYSTEM = [
 async function composeWithModel(brief, model) {
   const pick2 = pickProvider(model);
   if (!pick2) throw new Error("no LLM API key configured (set ANTHROPIC_API_KEY or OPENAI_API_KEY)");
+  const gap = Date.now() - lastComposeAt;
+  if (lastComposeAt && gap < MIN_COMPOSE_GAP_MS) {
+    throw new Error(`composing too fast \u2014 wait ${Math.ceil((MIN_COMPOSE_GAP_MS - gap) / 1e3)}s (rate-limit etiquette for Claude/Codex/OpenAI quotas)`);
+  }
+  lastComposeAt = Date.now();
   const prompt = "Brief: " + brief.trim();
   const raw = pick2.provider === "anthropic" ? await callAnthropic(pick2.model, prompt) : await callOpenAI(pick2.model, prompt);
   const keyframes = parseKeyframes(raw);
@@ -16319,6 +16391,71 @@ function readBody2(req) {
   });
 }
 
+// src/events.ts
+async function handleEvent(req, res, manager2, modes2) {
+  const url = new URL(req.url ?? "/", "http://localhost");
+  const p = url.searchParams;
+  if (req.method === "POST") {
+    for (const [k, v] of new URLSearchParams(await readBody3(req))) p.set(k, v);
+  }
+  const secret = process.env.CFM_EVENT_SECRET ?? process.env.CFM_DEV_SECRET ?? "";
+  if (secret && p.get("secret") !== secret) {
+    res.writeHead(403, { "content-type": "text/plain" });
+    res.end("forbidden");
+    return true;
+  }
+  const action = (p.get("action") || "vibrate").toLowerCase();
+  const target = p.get("target") || "all";
+  let result = { ok: true, action };
+  try {
+    switch (action) {
+      case "vibrate": {
+        const intensity = clamp013(Number(p.get("intensity")));
+        const dur = p.get("duration_ms") ? Number(p.get("duration_ms")) : void 0;
+        await manager2.vibrate(target, Number.isFinite(intensity) ? intensity : 0.5, dur);
+        break;
+      }
+      case "pattern":
+        await manager2.pattern(target, PRESETS[p.get("name") || "pulse"] ?? PRESETS.pulse, Number(p.get("loops")) || 2);
+        break;
+      case "game":
+        await modes2.startGame(target, p.get("type") || "ambient", {
+          durationMs: p.get("duration_ms") ? Number(p.get("duration_ms")) : void 0
+        });
+        break;
+      case "event":
+        await modes2.gameEvent(target, p.get("kind") || "pulse", Number(p.get("magnitude")) || 0.7);
+        break;
+      case "stop":
+        await manager2.stop(target);
+        break;
+      case "scan":
+        await manager2.scan(Number(p.get("duration_ms")) || 4e3);
+        break;
+      default:
+        result = { ok: false, error: `unknown action "${action}"` };
+    }
+  } catch (e) {
+    result = { ok: false, error: String(e instanceof Error ? e.message : e) };
+  }
+  manager2.log_("cmd", `event: ${action}`);
+  res.writeHead(200, { "content-type": "application/json" });
+  res.end(JSON.stringify(result));
+  return true;
+}
+var clamp013 = (n) => Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : NaN;
+function readBody3(req) {
+  return new Promise((resolve) => {
+    let data = "";
+    req.on("data", (c) => {
+      data += c;
+      if (data.length > 8192) req.destroy();
+    });
+    req.on("end", () => resolve(data));
+    req.on("error", () => resolve(data));
+  });
+}
+
 // src/recorder.ts
 var MAX_KEYFRAMES = 4e3;
 var MIN_DELTA = 0.02;
@@ -16406,6 +16543,16 @@ function startConsole(manager2, modes2, port2) {
     if (path === "/dev") {
       void handleDev(req, res, manager2, modes2).catch((e) => {
         logErr(`dev: ${e}`);
+        if (!res.headersSent) {
+          res.writeHead(500);
+          res.end("error");
+        }
+      });
+      return;
+    }
+    if (path === "/event") {
+      void handleEvent(req, res, manager2, modes2).catch((e) => {
+        logErr(`event: ${e}`);
         if (!res.headersSent) {
           res.writeHead(500);
           res.end("error");
@@ -16573,6 +16720,13 @@ function startConsole(manager2, modes2, port2) {
           case "bio_stop":
             await manager2.stop(m.target ?? "all");
             manager2.setActiveMode(null);
+            break;
+          case "clientmode":
+            if (m.on) manager2.setActiveMode({ type: m.modeType ?? "video", label: String(m.label ?? "") });
+            else {
+              await manager2.stop(m.target ?? "all");
+              manager2.setActiveMode(null);
+            }
             break;
           case "rec_start":
             recorder.begin();
@@ -31856,6 +32010,138 @@ function startTelegram(manager2, modes2, token, allowCsv) {
   } };
 }
 
+// src/discord.ts
+init_wrapper();
+var GATEWAY = "wss://gateway.discord.gg/?v=10&encoding=json";
+var API = "https://discord.com/api/v10";
+var INTENTS = 1 << 9 | 1 << 12 | 1 << 15;
+function startDiscord(manager2, modes2, token, allowCsv) {
+  const allow = allowCsv.split(",").map((s) => s.trim()).filter(Boolean);
+  if (allow.length === 0) {
+    logErr("discord: \u26A0 no CFM_DISCORD_ALLOW set \u2014 anyone who can message the bot can control the device");
+  }
+  let ws = null;
+  let hb = null;
+  let seq = null;
+  let selfId = "";
+  let running = true;
+  const reply = (channelId, content) => fetch(`${API}/channels/${channelId}/messages`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bot ${token}` },
+    body: JSON.stringify({ content })
+  }).catch(() => {
+  });
+  const curMax2 = () => manager2.snapshot().devices.reduce((a, x) => Math.max(a, x.intensity), 0);
+  async function route2(text2) {
+    const s = text2.trim();
+    const low = s.toLowerCase();
+    const game = (t) => modes2.startGame("all", t);
+    if (low === "!help" || low === "help") {
+      return "claude-f-me \u{1F495} \u2014 send `0\u2013100`, `harder`/`softer`, `stop`/`safeword`, `scan`, or \u{1F525}\u{1F493}\u{1F30A}\u{1F3A1}\u{1F4C8}\u{1F3B2}";
+    }
+    if (/(safeword|^stop$|^!stop$|🛑)/.test(low)) {
+      modes2.stop();
+      await manager2.stopAll();
+      return "\u{1F6D1} stopped \u2014 you're safe.";
+    }
+    if (low === "scan" || low === "!scan") {
+      await manager2.scan(4e3);
+      return "\u{1F50D} scanning\u2026";
+    }
+    if (/(harder|more|\+)/.test(low)) {
+      const v = Math.min(1, curMax2() + 0.2);
+      await manager2.vibrate("all", v);
+      return "\u{1F525} up to " + Math.round(v * 100) + "%";
+    }
+    if (/(softer|less|-)/.test(low)) {
+      const v = Math.max(0, curMax2() - 0.2);
+      await manager2.vibrate("all", v);
+      return "\u{1FAE6} down to " + Math.round(v * 100) + "%";
+    }
+    if (low.includes("\u{1F525}") || low.includes("edge")) {
+      await game("edge");
+      return "\u{1F525} edging";
+    }
+    if (low.includes("\u{1F4C8}") || low.includes("escalat")) {
+      await game("escalation");
+      return "\u{1F4C8} escalating";
+    }
+    if (low.includes("\u{1F30A}") || low.includes("ambient")) {
+      await game("ambient");
+      return "\u{1F30A} ambient";
+    }
+    if (low.includes("\u{1F3A1}") || low.includes("wheel")) {
+      await game("wheel");
+      return "\u{1F3A1} wheel";
+    }
+    if (low.includes("\u{1F493}") || low.includes("heart")) {
+      await manager2.pattern("all", PRESETS.heartbeat, 3);
+      return "\u{1F493} heartbeat";
+    }
+    if (low.includes("\u{1F3B2}") || low.includes("surprise")) {
+      const g = ["roulette", "ambient", "edge", "wheel"];
+      await game(g[Math.floor(Math.random() * g.length)]);
+      return "\u{1F3B2} surprise\u2026";
+    }
+    const num = low.match(/^!?(\d{1,3})\s*%?$/);
+    if (num) {
+      const v = Math.max(0, Math.min(1, parseInt(num[1], 10) / 100));
+      await manager2.vibrate("all", v, 6e4);
+      return "set to " + Math.round(v * 100) + "%";
+    }
+    return "";
+  }
+  function connect() {
+    if (!running) return;
+    ws = new wrapper_default(GATEWAY);
+    ws.on("message", async (raw) => {
+      let m;
+      try {
+        m = JSON.parse(String(raw));
+      } catch {
+        return;
+      }
+      if (m.s != null) seq = m.s;
+      if (m.op === 10) {
+        const interval = m.d.heartbeat_interval;
+        hb = setInterval(() => ws?.send(JSON.stringify({ op: 1, d: seq })), interval);
+        ws?.send(JSON.stringify({
+          op: 2,
+          d: { token, intents: INTENTS, properties: { os: "linux", browser: "claude-f-me", device: "claude-f-me" } }
+        }));
+      } else if (m.op === 0) {
+        if (m.t === "READY") {
+          selfId = m.d?.user?.id ?? "";
+          logErr("discord: bridge ready");
+        } else if (m.t === "MESSAGE_CREATE") {
+          const d = m.d;
+          if (!d || d.author?.bot || d.author?.id === selfId) return;
+          if (allow.length && !allow.includes(String(d.author?.id)) && !allow.includes(String(d.channel_id))) return;
+          const out = await route2(String(d.content ?? ""));
+          if (out) await reply(d.channel_id, out);
+        }
+      }
+    });
+    ws.on("close", () => {
+      if (hb) clearInterval(hb);
+      hb = null;
+      if (running) setTimeout(connect, 3e3);
+    });
+    ws.on("error", (e) => logErr(`discord: ws error ${e}`));
+  }
+  connect();
+  return {
+    stop() {
+      running = false;
+      if (hb) clearInterval(hb);
+      try {
+        ws?.close();
+      } catch {
+      }
+    }
+  };
+}
+
 // src/index.ts
 var args = process.argv.slice(2);
 var consoleOnly = args.includes("--console-only");
@@ -31890,6 +32176,8 @@ try {
 await startConsole(manager, modes, port);
 var tgToken = process.env.CFM_TELEGRAM_TOKEN ?? "";
 if (tgToken) startTelegram(manager, modes, tgToken, process.env.CFM_TELEGRAM_ALLOW ?? "");
+var dcToken = process.env.CFM_DISCORD_TOKEN ?? "";
+if (dcToken) startDiscord(manager, modes, dcToken, process.env.CFM_DISCORD_ALLOW ?? "");
 if (consoleOnly) {
   logErr(`claude-f-me: console-only mode \u2014 open http://localhost:${port}`);
 } else {

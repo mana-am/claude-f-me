@@ -8,6 +8,7 @@ import { PRESETS } from "./presets.js";
 import { isLlmConfigured } from "./llm.js";
 import { handleWechat, isWechatEnabled } from "./wechat.js";
 import { handleDev } from "./dev.js";
+import { handleEvent } from "./events.js";
 import { Recorder } from "./recorder.js";
 import { logErr } from "./util.js";
 
@@ -42,6 +43,14 @@ export function startConsole(
       // Developer-native triggers (CI / git hook / Pomodoro). Async.
       void handleDev(req, res, manager, modes).catch((e) => {
         logErr(`dev: ${e}`);
+        if (!res.headersSent) { res.writeHead(500); res.end("error"); }
+      });
+      return;
+    }
+    if (path === "/event") {
+      // Universal event webhook (Stream Deck / IFTTT / Home Assistant / overlays). Async.
+      void handleEvent(req, res, manager, modes).catch((e) => {
+        logErr(`event: ${e}`);
         if (!res.headersSent) { res.writeHead(500); res.end("error"); }
       });
       return;

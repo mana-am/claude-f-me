@@ -23,6 +23,30 @@ const OPENAI_BASE = () => process.env.CFM_OPENAI_BASE_URL || "https://api.openai
 const DEFAULT_ANTHROPIC_MODEL = "claude-opus-4-8";
 const DEFAULT_OPENAI_MODEL = "gpt-5.5";
 
+// --- rate-limit etiquette ----------------------------------------------------
+// Be a good citizen of Claude / Codex / OpenAI quotas. Composition is strictly
+// on-demand (never looped or polled); we enforce a minimum gap between calls and
+// back off politely on HTTP 429 (honouring Retry-After) so a play session can't
+// chew through your weekly/daily model limits. Pet mode never calls an API — it
+// samples a local output stream — so it costs zero quota by design.
+const MIN_COMPOSE_GAP_MS = 8000;
+let lastComposeAt = 0;
+
+async function rateLimitedFetch(url: string, init: RequestInit): Promise<Response> {
+  let res = await fetch(url, init);
+  if (res.status === 429) {
+    const ra = Number(res.headers.get("retry-after"));
+    const waitMs = Math.min(30000, (Number.isFinite(ra) && ra > 0 ? ra : 5) * 1000);
+    logErr(`[muse] rate limited (429) — backing off ${waitMs}ms once`);
+    await new Promise((r) => setTimeout(r, waitMs));
+    res = await fetch(url, init);
+  }
+  if (res.status === 429) {
+    throw new Error("model rate limit reached — wait a bit before composing again (respecting your weekly/daily quota)");
+  }
+  return res;
+}
+
 export function isLlmConfigured(): boolean {
   return !!(ANTHROPIC_KEY() || OPENAI_KEY());
 }
@@ -58,6 +82,11 @@ const SYSTEM = [
 export async function composeWithModel(brief: string, model?: string): Promise<Score> {
   const pick = pickProvider(model);
   if (!pick) throw new Error("no LLM API key configured (set ANTHROPIC_API_KEY or OPENAI_API_KEY)");
+  const gap = Date.now() - lastComposeAt;
+  if (lastComposeAt && gap < MIN_COMPOSE_GAP_MS) {
+    throw new Error(`composing too fast — wait ${Math.ceil((MIN_COMPOSE_GAP_MS - gap) / 1000)}s (rate-limit etiquette for Claude/Codex/OpenAI quotas)`);
+  }
+  lastComposeAt = Date.now();
   const prompt = "Brief: " + brief.trim();
   const raw =
     pick.provider === "anthropic"

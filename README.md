@@ -17,7 +17,7 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 [![Stars](https://img.shields.io/github/stars/mana-am/claude-f-me?style=flat&color=gold)](https://github.com/mana-am/claude-f-me/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/mana-am/claude-f-me?style=flat)](https://github.com/mana-am/claude-f-me/commits)
 
-<p align="center"><b>English</b> · <a href="docs/i18n/README.zh-CN.md">简体中文</a> · <a href="docs/i18n/README.zh-TW.md">繁體中文</a> · <a href="docs/i18n/README.ja.md">日本語</a> · <a href="docs/i18n/README.ko.md">한국어</a> · <a href="docs/i18n/README.es.md">Español</a> · <a href="docs/i18n/README.fr.md">Français</a> · <a href="docs/i18n/README.de.md">Deutsch</a></p>
+<p align="center"><b>English</b> · <a href="docs/i18n/README.zh-CN.md">简体中文</a> · <a href="docs/i18n/README.zh-TW.md">繁體中文</a> · <a href="docs/i18n/README.ja.md">日本語</a> · <a href="docs/i18n/README.es.md">Español</a> · <a href="docs/i18n/README.fr.md">Français</a></p>
 
 <img src="./docs/console.png" alt="claude-f-me console" width="760" />
 
@@ -72,7 +72,10 @@ so the chat and the dashboard always share the exact same device state.
 - 👑 **Master remote.** A phone-friendly page (`/master`) so another person can take control
   in real time — big dial, hold-to-buzz, presets, emergency stop. Every page shows when a master is in control.
 - 🎬 **Video mode.** Plays a [Funscript](https://github.com/FredTungsten/ScriptPlayer/wiki/Funscript)
-  timeline in real time (position `0..100` → intensity). One-click built-in sample to try it instantly.
+  timeline in real time (position `0..100` → intensity). One-click built-in sample, **or load a local
+  video + script and watch them play in perfect sync** — pause, seek and speed all just work.
+- 🔌 **Universal event webhook.** A `POST /event` endpoint so anything — Stream Deck, IFTTT, Home
+  Assistant, a game overlay, a CV script — can drive the device (`vibrate`/`pattern`/`game`/`stop`…).
 - 🎮 **Game mode.** `roulette`, `escalation`, `ambient`, `edge` (tease-and-deny) and `wheel` (spin & land),
   plus a `game_event` hook so Claude can react inside a text adventure.
 - 🎵 **Audio mode.** Drives the device from your **microphone** or **tab/system audio** in real time.
@@ -89,8 +92,8 @@ so the chat and the dashboard always share the exact same device state.
   focused minutes can buzz you. (You can guess what a red build feels like.)
 - 📜 **Scene prompts.** Ready-made guided scenes as MCP prompts — mommy scene, edging session,
   story mode, compose-a-vibe, aftercare.
-- 💬 **Chat bridges.** Optional **Telegram** bot and **WeChat Official Account** (公众号) endpoint —
-  control by message or emoji from a chat you already use (great for long-distance partners).
+- 💬 **Chat bridges.** Optional **Telegram** bot, **Discord** bot and **WeChat Official Account**
+  (公众号) endpoint — control by message or emoji from a chat you already use (long-distance partners).
 - 🌐 **Bilingual.** Console and master remote in **English and 中文**, one-tap toggle (or `?lang=zh`).
 - 🛟 **Safety, built in.** Global max cap, per-command auto-stop, watchdog, emergency stop everywhere, hardware-off on exit.
 
@@ -134,6 +137,64 @@ The console comes up at **http://localhost:8731** — run `/claude-f-me:console`
 | `/claude-f-me:persona` | pick who's in control (Slow Burn / Brat / …) |
 | `/claude-f-me:surprise` | pick a random mode |
 | `/claude-f-me:safeword` · `/claude-f-me:panic` | **stop everything immediately** |
+
+## 🚀 Getting started — step by step
+
+### 0. Prerequisites
+- **[Claude Code](https://claude.com/claude-code)** to use it as a plugin — or just **Node ≥ 18** for the standalone console.
+- A **browser** (Chrome/Edge recommended; the mic and heart-rate features need a modern browser).
+- **Hardware is optional** — the built-in **simulator** runs everything with nothing plugged in.
+
+### 1. Install
+
+**A) As a Claude Code plugin (recommended)**
+
+```bash
+/plugin marketplace add mana-am/claude-f-me
+/plugin install claude-f-me@claude-f-me
+```
+
+The MCP server is a self-contained bundle — no `node_modules`, no build. (Repo private? Make sure your
+GitHub account has access, or use the from-source path below.)
+
+**B) Standalone / from source**
+
+```bash
+git clone https://github.com/mana-am/claude-f-me
+cd claude-f-me
+npm install
+npm run build
+npm run console                                   # console only, no Claude needed
+# …or register the built server with Claude Code manually:
+claude mcp add claude-f-me -- node "$(pwd)/dist/index.js"
+```
+
+### 2. First run (no hardware)
+1. Open the console at **http://localhost:8731** (or run `/claude-f-me:console`).
+2. Click **Scan** → two **simulated** devices appear.
+3. Drag the orb / scrubber and watch it glow & pulse. Try a **pattern** chip (heartbeat, edge…) and a **game**.
+4. Hit the red **STOP** any time (or press `space`). Keyboard: `0–9` set level, `S` scan.
+
+### 3. Drive it from Claude
+In a Claude Code chat, just talk:
+
+```
+scan for devices
+vibrate at 30% for 5 seconds
+run the heartbeat pattern
+start an edge game, then stop after a minute
+become the mommy persona and compose a gentle 3-minute build
+```
+
+…or use the slash commands: `/claude-f-me:fuck`, `:edge`, `:harder`, `:softer`, `:surprise`, `:safeword`.
+
+### 4. Connect a real device (optional)
+Install Intiface, pair your toy, set `CFM_MODE=buttplug` — full steps just below.
+
+### 5. Go further (all optional)
+- 👑 **Hand someone the remote** — open `/master` (or the 👑 Remote button) and share it over a tunnel.
+- 💬 **Control from chat** — set `CFM_TELEGRAM_TOKEN` / `CFM_DISCORD_TOKEN` ([Chat bridges](#-chat-bridges--telegram)).
+- 🎼 **Let a model compose (Muse)** — set `ANTHROPIC_API_KEY`, but read [rate-limit etiquette](#️-respecting-model--agent-rate-limits) first.
 
 ## Connect a real device
 
@@ -189,7 +250,10 @@ link through the built-in `/relay` hub. Pick **mirror** (both feel each other), 
 or **follow** (you receive); send a 👋 touch. Incoming levels still pass your local safety cap.
 
 **🎬 Video (funscript)** — plays a `{at,pos}` timeline, interpolated to intensity in real time
-(`loop`, `speed`, `invert`). Use the **Load sample** button to try it with no file.
+(`loop`, `speed`, `invert`). Use the **Load sample** button to try it with no file. Or open the
+**🎬 Funscript** dialog, paste/load a script, pick a **local video file** and hit **▶ Play with
+video** — the browser plays the video and drives the device from `video.currentTime`, so pause,
+seek and playback speed stay perfectly in sync (nothing is uploaded; it's all local).
 
 **🎮 Games** — `roulette` (random bursts) · `escalation` (ramp & hold) · `ambient` (organic waves) ·
 `edge` (ramp to the brink, deny, peak creeps up) · `wheel` (spin through levels, land & hold).
@@ -251,6 +315,19 @@ Then message the bot: a number `0–100`, `harder` / `softer`, `stop` / `safewor
 bilingual (auto-detects Chinese). Without an allow-list, anyone who finds the bot can control it —
 so set one. The safety cap and `safeword` always win.
 
+## 💬 Chat bridges — Discord
+
+A Discord bot (minimal Gateway client, no `discord.js` dependency) — DM it or use it in a channel.
+
+```bash
+# bot token from the Developer Portal → Bot (enable the "Message Content Intent")
+export CFM_DISCORD_TOKEN=...
+export CFM_DISCORD_ALLOW=<your-user-id>,<channel-id>   # allow-list (set this!)
+```
+
+Same vocabulary as Telegram: `0–100`, `harder`/`softer`, `stop`/`safeword`, `scan`, or 🔥💓🌊🎡📈🎲.
+It stays quiet on unrelated chatter and ignores its own / other bots' messages.
+
 ## 💬 Chat bridges — WeChat (公众号)
 
 Two-way control from WeChat **the compliant way** — via an official **Official Account (公众号)**
@@ -292,6 +369,23 @@ curl -fsS localhost:8731/dev -d 'event=commit&magnitude=0.5' >/dev/null 2>&1 || 
 The console also has a built-in **🍅 Focus 25m** Pomodoro that fires `focus_done` (a reward) when
 the timer completes.
 
+## 🔌 Universal event webhook
+
+One endpoint the whole world can poke — point a Stream Deck button, an IFTTT / Home Assistant
+automation, a Tasker task, a game overlay or a computer-vision script at `POST /event`:
+
+```bash
+curl -fsS localhost:8731/event -d 'action=vibrate&intensity=0.6&duration_ms=3000'
+curl -fsS localhost:8731/event -d 'action=pattern&name=heartbeat'
+curl -fsS localhost:8731/event -d 'action=game&type=edge'
+curl -fsS localhost:8731/event -d 'action=event&kind=reward&magnitude=0.8'
+curl -fsS localhost:8731/event -d 'action=stop'
+```
+
+Actions: `vibrate` (`intensity`, `duration_ms`) · `pattern` (`name`, `loops`) · `game` (`type`) ·
+`event` (`kind` reward/penalty/tease/pulse, `magnitude`) · `stop` · `scan`. Optional shared secret
+`CFM_EVENT_SECRET` (falls back to `CFM_DEV_SECRET`). Everything still passes the safety cap.
+
 ## MCP tools
 
 | tool | description |
@@ -315,10 +409,10 @@ the timer completes.
 Plus **MCP prompts** (`/mcp__claude-f-me__…`): `mommy-scene`, `edge-session`, `story-mode`,
 `compose-vibe`, `aftercare`.
 
-> Audio, biofeedback, session recording, the master remote and Duet live in the console (they need
-> a browser for mic/Bluetooth capture and hands-on control); the Telegram bridge, the WeChat `/wechat`
-> callback and the `/dev` developer-trigger endpoint run on the server; everything else is drivable
-> by Claude through the tools above.
+> Audio, biofeedback, session recording, video-sync, the master remote and Duet live in the console
+> (they need a browser for mic/Bluetooth/file capture and hands-on control); the Telegram & Discord
+> bridges, the WeChat `/wechat` callback and the `/dev` + `/event` endpoints run on the server;
+> everything else is drivable by Claude through the tools above.
 
 ## Configuration
 
@@ -332,9 +426,12 @@ Plus **MCP prompts** (`/mcp__claude-f-me__…`): `mommy-scene`, `edge-session`, 
 | `OPENAI_API_KEY` (+ `CFM_OPENAI_BASE_URL`) | — | *optional* — same, via an OpenAI-compatible model (e.g. a GPT persona) |
 | `CFM_TELEGRAM_TOKEN` | — | *optional* — enable the Telegram bridge (token from @BotFather) |
 | `CFM_TELEGRAM_ALLOW` | — | comma-separated chat ids allowed to control via Telegram (set this!) |
+| `CFM_DISCORD_TOKEN` | — | *optional* — enable the Discord bridge (bot token; enable Message Content Intent) |
+| `CFM_DISCORD_ALLOW` | — | comma-separated user/channel ids allowed to control via Discord (set this!) |
 | `CFM_WECHAT_TOKEN` | — | *optional* — enable the WeChat 公众号 endpoint at `/wechat` (token from 公众号后台) |
 | `CFM_WECHAT_ALLOW` | — | comma-separated OpenIDs allowed to control via WeChat |
 | `CFM_DEV_SECRET` | — | *optional* — require `secret=` on the `/dev` developer-trigger endpoint |
+| `CFM_EVENT_SECRET` | — | *optional* — require `secret=` on the `/event` webhook (falls back to `CFM_DEV_SECRET`) |
 
 > The model keys are **optional**. Without them, Muse still works — just ask Claude in chat to
 > `compose`, and personas still modulate the feel locally. With a key, a persona's `model` decides
@@ -348,6 +445,36 @@ npm run dev          # MCP + console, watch mode (tsx)
 npm run build        # type-check + emit dist/ (tsc)
 npm run bundle       # self-contained dist/claude-f-me.mjs for the plugin (esbuild)
 ```
+
+## ⏱️ Respecting model & agent rate limits
+
+Anything that touches **Claude / Codex / OpenAI** is built to be a polite citizen of your **weekly
+and daily usage limits** — never indulgent:
+
+- **Muse composition is on-demand only** — never looped or polled. A minimum gap is enforced between
+  compose calls, and on HTTP **429** it backs off once (honouring `Retry-After`) then fails cleanly
+  with a "wait a bit" message instead of hammering the API.
+- **Pet mode costs zero quota by design.** It reads your coding agent's *local output stream*
+  (tokens/sec) to set intensity — it does **not** call any model API itself.
+- **Developer triggers & webhooks** react to events *you* send; they generate no model traffic.
+- Bring-your-own keys are read from the environment, used only when you explicitly compose, and
+  **never written to disk**. With no key, Muse just asks the Claude you're already chatting with.
+
+> Rule of thumb: claude-f-me should never be the reason you hit a model limit. If you get close, it
+> backs off and tells you — it will not keep retrying.
+
+## 🩹 Troubleshooting
+
+- **Console won't open / "port in use".** Another instance holds `8731` — stop it
+  (`lsof -ti tcp:8731 | xargs kill`) or set `CFM_CONSOLE_PORT` to a free port.
+- **"No devices" after Scan (real hardware).** Ensure Intiface Central is running with **Start Server**
+  pressed, your toy is paired there, and `CFM_MODE=buttplug` is set. The simulator always shows devices.
+- **Microphone / heart-rate won't start.** Browsers only allow them on a secure context — use
+  `http://localhost` (treated as secure) or serve over HTTPS (a tunnel works), in Chrome/Edge.
+- **Plugin won't install.** The repo is private — make sure your GitHub login has access, or use the
+  from-source path.
+- **"composing too fast".** That's the rate-limit guard — wait a few seconds.
+- **Orb moves but nothing buzzes.** You're in `simulated` mode (the default) — switch to `buttplug` for real hardware.
 
 ## 🛟 Safety & consent
 

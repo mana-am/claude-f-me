@@ -13,7 +13,7 @@
 [![Buttplug](https://img.shields.io/badge/Buttplug-Intiface-ff4d8d)](https://buttplug.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../../LICENSE)
 
-<p align="center"><a href="../../README.md">English</a> · <b>简体中文</b> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a></p>
+<p align="center"><a href="../../README.md">English</a> · <b>简体中文</b> · <a href="README.zh-TW.md">繁體中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a></p>
 
 <img src="../console.png" alt="claude-f-me 控制台" width="760" />
 
@@ -42,7 +42,8 @@
 - 💞 **双人模式**：两台控制台用房间码通过内置中继连起来，伴侣的输入实时驱动你的设备（镜像/主导/跟随），带在线状态和 👋 触碰手势。
 - ⚡ **「脉动核心」反应式界面**：呼吸发光的能量球 + 极光背景随强度实时放大/发光，外加实时音波。
 - 👑 **主人遥控**：手机友好的 `/master` 页面，让另一个人实时接管控制——大旋钮、按住震动、预设、急停。每个页面都会显示有几位主人在控制。
-- 🎬 **视频模式**：实时播放 [Funscript](https://github.com/FredTungsten/ScriptPlayer/wiki/Funscript) 时间轴（位置 `0..100` → 强度）。内置示例脚本一键试玩。
+- 🎬 **视频模式**：实时播放 [Funscript](https://github.com/FredTungsten/ScriptPlayer/wiki/Funscript) 时间轴（位置 `0..100` → 强度）。内置示例一键试玩，**或选本地视频+脚本，边看边完美同步**——暂停/拖动/倍速都自动跟上。
+- 🔌 **通用事件 webhook**：`POST /event` 端点，让任何东西（Stream Deck、IFTTT、Home Assistant、游戏 overlay、CV 脚本）都能驱动设备（`vibrate`/`pattern`/`game`/`stop`…）。
 - 🎮 **游戏模式**：`轮盘`、`递增`、`环境`、`边缘`（挑逗-拒绝）、`转盘`（旋转停留），还有 `game_event` 钩子让 Claude 在文字冒险里即时反应。
 - 🎵 **音频模式**：用**麦克风**或**标签页/系统声音**实时驱动强度。
 - 🥁 **节奏库**：`脉冲`、`波浪`、`递增`、`挑逗`、`心跳`、`楼梯`、`SOS`、`地震`。
@@ -129,7 +130,7 @@ npm run console        # 打开 http://localhost:8731
 
 **💞 双人**——打开控制台 **Duet** 面板，分享中继 URL + 房间码，两台控制台通过内置 `/relay` 中继连起来。选 **镜像**（互相感受）、**主导**（你来驱动）或 **跟随**（你来接收）；可发 👋 触碰。收到的强度仍过你本地安全上限。
 
-**🎬 视频（funscript）**——实时播放 `{at,pos}` 时间轴（`循环`/`速度`/`反向`），可一键载入示例。
+**🎬 视频（funscript）**——实时播放 `{at,pos}` 时间轴（`循环`/`速度`/`反向`），可一键载入示例。或在 **🎬 脚本** 弹窗里粘贴/载入脚本，选一个**本地视频文件**点 **▶ 配视频播放**——浏览器播视频、按 `video.currentTime` 驱动设备，暂停/拖动/倍速都完美同步（不上传，全本地）。
 
 **🎮 游戏**——轮盘（随机突发）· 递增（爬升保持）· 环境（有机波动）· 边缘（爬到边缘后拒绝，峰值逐轮升高）· 转盘（旋转后停留）。
 
@@ -172,6 +173,18 @@ export CFM_TELEGRAM_ALLOW=11111111,22222222
 
 然后给 bot 发消息：数字 `0–100`、`harder`/`softer`、`stop`/`safeword`、`scan`，或 emoji——🔥边缘 · 💓心跳 · 🌊环境 · 🎡转盘 · 📈递增 · 🎲随机 · 🛑停止。回复中英自动识别。不设 allow-list 的话，任何找到 bot 的人都能控制，所以**一定要设**。安全上限和 `safeword` 永远优先。
 
+## 💬 聊天桥接 — Discord
+
+一个 Discord 机器人（极简 Gateway 客户端，不依赖 discord.js）——私聊它或在频道里用。
+
+```bash
+# token 来自 开发者门户 → Bot（开启 "Message Content Intent"）
+export CFM_DISCORD_TOKEN=...
+export CFM_DISCORD_ALLOW=<你的用户id>,<频道id>   # allow-list，务必设置！
+```
+
+词汇和 Telegram 一致：`0–100`、`harder`/`softer`、`stop`/`safeword`、`scan`，或 🔥💓🌊🎡📈🎲。无关消息保持沉默，忽略自己/其他机器人的消息。
+
 ## 💬 聊天桥接 — 微信（公众号）
 
 用**合规的方式**从微信双向控制——走官方**公众号**消息回调。我们刻意不碰个人微信网页协议（itchat/wechaty 那类）：违反微信 ToS、易封号。
@@ -196,6 +209,20 @@ curl -fsS localhost:8731/dev -d 'event=commit&magnitude=0.5' >/dev/null 2>&1 || 
 ```
 
 控制台还内置 **🍅 专注 25 分钟** 番茄钟，计时完成触发 `focus_done`（奖励）。
+
+## 🔌 通用事件 webhook
+
+一个任何东西都能戳的端点——把 Stream Deck 按钮、IFTTT / Home Assistant 自动化、Tasker、游戏 overlay 或 CV 脚本指向 `POST /event`：
+
+```bash
+curl -fsS localhost:8731/event -d 'action=vibrate&intensity=0.6&duration_ms=3000'
+curl -fsS localhost:8731/event -d 'action=pattern&name=heartbeat'
+curl -fsS localhost:8731/event -d 'action=game&type=edge'
+curl -fsS localhost:8731/event -d 'action=event&kind=reward&magnitude=0.8'
+curl -fsS localhost:8731/event -d 'action=stop'
+```
+
+动作：`vibrate`(`intensity`/`duration_ms`) · `pattern`(`name`/`loops`) · `game`(`type`) · `event`(`kind`=reward/penalty/tease/pulse, `magnitude`) · `stop` · `scan`。可选密钥 `CFM_EVENT_SECRET`（回退到 `CFM_DEV_SECRET`）。一切仍过安全上限。
 
 ## MCP 工具
 
@@ -233,9 +260,12 @@ curl -fsS localhost:8731/dev -d 'event=commit&magnitude=0.5' >/dev/null 2>&1 || 
 | `OPENAI_API_KEY`(+ `CFM_OPENAI_BASE_URL`) | — | *可选*——同上，走 OpenAI 兼容模型（如 GPT 人格） |
 | `CFM_TELEGRAM_TOKEN` | — | *可选*——启用 Telegram 桥（@BotFather 拿 token） |
 | `CFM_TELEGRAM_ALLOW` | — | 允许控制的 chat id（逗号分隔，务必设置！） |
+| `CFM_DISCORD_TOKEN` | — | *可选*——启用 Discord 桥（开启 Message Content Intent） |
+| `CFM_DISCORD_ALLOW` | — | 允许控制的 用户/频道 id（逗号分隔，务必设置！） |
 | `CFM_WECHAT_TOKEN` | — | *可选*——启用微信公众号端点 `/wechat`（公众号后台拿 token） |
 | `CFM_WECHAT_ALLOW` | — | 允许控制的 OpenID（逗号分隔） |
 | `CFM_DEV_SECRET` | — | *可选*——给 `/dev` 开发者端点要求 `secret=` |
+| `CFM_EVENT_SECRET` | — | *可选*——给 `/event` webhook 要求 `secret=`（回退到 `CFM_DEV_SECRET`） |
 
 > 模型 key **可选**。没有它 Muse 照样能用——在对话里让 Claude `compose` 即可，人格也仍在本地调制手感。有 key 时，人格的 `model` 决定由谁作曲（这就是「🕯️ Opus」对「😈 GPT-5.5」的具体含义）。key 只从环境读取、绝不落盘；双人中继无需 key。
 

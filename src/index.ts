@@ -7,6 +7,7 @@ import { startMcp } from "./mcp.js";
 import { ModeController } from "./modes.js";
 import { Memory } from "./memory.js";
 import { startTelegram } from "./telegram.js";
+import { startDiscord } from "./discord.js";
 import { logErr } from "./util.js";
 import type { DeviceBackend } from "./device/types.js";
 
@@ -55,6 +56,10 @@ await startConsole(manager, modes, port);
 // Optional Telegram bridge — control from chat (set CFM_TELEGRAM_TOKEN to enable).
 const tgToken = process.env.CFM_TELEGRAM_TOKEN ?? "";
 if (tgToken) startTelegram(manager, modes, tgToken, process.env.CFM_TELEGRAM_ALLOW ?? "");
+
+// Optional Discord bridge — control from a DM/channel (set CFM_DISCORD_TOKEN to enable).
+const dcToken = process.env.CFM_DISCORD_TOKEN ?? "";
+if (dcToken) startDiscord(manager, modes, dcToken, process.env.CFM_DISCORD_ALLOW ?? "");
 
 if (consoleOnly) {
   logErr(`claude-f-me: console-only mode — open http://localhost:${port}`);
