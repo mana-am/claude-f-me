@@ -57,6 +57,8 @@ so the chat and the dashboard always share the exact same device state.
   `game_event` hook so Claude can react inside a text adventure ("you found treasure → reward").
 - 🎵 **Audio mode.** Drives the device from your **microphone** or **tab/system audio** in real
   time (music, voice, a video's soundtrack) via the browser's Web Audio.
+- ⚡ **Reactive "Pulse Core" UI.** A breathing energy orb and an aurora background that glow,
+  scale and pulse with live intensity, plus a real-time audio waveform — not a boring dashboard.
 - 🌐 **Bilingual.** Console and master remote ship in **English and 中文** with a one-tap toggle.
 - 🧪 **Simulator (preview).** No hardware? A fake device the console visualises as a pulsing,
   buzzing motor — build and demo everything for free.
