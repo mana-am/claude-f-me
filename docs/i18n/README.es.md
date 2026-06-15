@@ -61,26 +61,35 @@ Un **simulador integrado** te deja construir y jugar **sin hardware**.
 Un único proceso es **a la vez** el servidor MCP con el que habla Claude **y** la consola web que
 miras — así el chat y el panel siempre comparten el mismo estado del dispositivo.
 
-- 🔌 **Hardware real.** Controla Lovense, We-Vibe, Kiiroo, The Handy, Satisfyer y [más de 750 dispositivos](https://iostindex.com) a través de [Intiface Central](https://intiface.com).
-- 🎼 **Modo Muse.** El modelo *compone* — describe una vibra («slow burn tántrico de 10 minutos», «una tormenta», «te quiero en código morse») y escribe una partitura háptica suave y la reproduce. Guarda partituras en una biblioteca y vuelve a reproducirlas. El dispositivo se vuelve un instrumento que toca una IA.
-- 🎭 **Personas.** Elige *quién manda* — personalidades de control inspiradas en modelos SOTA: 🕯️ Slow Burn (Opus), 😈 Brat (GPT-5.5), 🎼 Metronome, ⛈️ Storm, 🔮 Oracle, 🍼 Mommy. Cada una cambia la sensación (ritmo, aleatoriedad, negación, techo). El **modo ciego** oculta cuál — un misterio al mando.
-- 💞 **Modo dúo.** Un enlace con código de sala entre dos consolas a través de un relé integrado, para que la entrada de tu pareja controle tu dispositivo en tiempo real (espejo / liderar / seguir), con presencia y gestos de 👋 toque.
-- ⚡ **UI reactiva «Pulse Core».** Un orbe de energía que respira y una aurora que brillan, escalan y laten con la intensidad en vivo, más una forma de onda de audio en tiempo real — nada de paneles aburridos.
-- 👑 **Mando master.** Una página apta para móvil (`/master`) para que otra persona tome el control en tiempo real — dial grande, mantener para vibrar, presets, parada de emergencia. Cada página muestra cuándo hay un master al mando.
-- 🎬 **Modo vídeo.** Reproduce una línea de tiempo [Funscript](https://github.com/FredTungsten/ScriptPlayer/wiki/Funscript) en tiempo real (posición `0..100` → intensidad). Muestra integrada con un clic, **o carga un vídeo local + script y míralos en perfecta sincronía** — pausa, búsqueda y velocidad simplemente funcionan.
-- 🔌 **Webhook universal de eventos.** Un endpoint `POST /event` para que cualquier cosa — Stream Deck, IFTTT, Home Assistant, un overlay de juego, un script de visión — controle el dispositivo (`vibrate`/`pattern`/`game`/`stop`…).
-- 📈 **Modo mercado.** Nombra una empresa o ticker (`tesla`, `AAPL`, `bitcoin`) y consulta la cotización en vivo y reproduce una **melodía de vibración** a partir del movimiento — a mayor variación, más fuerte; verde = arpegio ascendente, rojo = descendente. Posiblemente el único juguete sexual que reacciona a tu cartera. *(No es asesoramiento financiero.)*
-- 🎮 **Modo juego.** `roulette`, `escalation`, `ambient`, `edge` (provocar y negar) y `wheel` (girar y caer), más un hook `game_event` para que Claude reaccione dentro de una aventura de texto.
-- 🎵 **Modo audio.** Controla el dispositivo desde tu **micrófono** o el **audio de pestaña/sistema** en tiempo real.
-- 🥁 **Biblioteca de patrones.** `pulse`, `wave`, `escalate`, `tease`, `heartbeat`, `staircase`, `sos`, `earthquake`.
-- 🧠 **Memoria.** Memoria solo local que aprende tus favoritos, afinidad de persona y disgustos suaves (`remember` / `recall` / `forget`) para que las sesiones se vuelvan más *tuyas* con el tiempo — y nunca sale de tu máquina.
-- 💓 **Biofeedback.** Empareja una banda/reloj de frecuencia cardíaca por Bluetooth (Web Bluetooth, en la consola) y deja que tu pulso controle la intensidad — o **auto-edge**: cuando tu corazón se dispara más allá del límite, corta a cero y te deja bajar. Un bucle cerrado real con tu cuerpo.
-- 🎬 **Grabación de sesión.** Graba lo que el dispositivo realmente hace — manual, dúo, audio, bio, juegos — como una partitura Muse que puedes nombrar, reproducir y compartir. Un botón ⏺ convierte un momento en un recuerdo.
-- 🧑‍💻 **Disparadores de desarrollo.** La función más «plugin de Claude Code» que hay: contrólalo desde tu bucle de desarrollo. Un endpoint `/dev` + una recompensa Pomodoro 🍅 integrada, para que un CI en verde, un commit, un merge o 25 minutos de concentración te hagan vibrar. (Ya te imaginas cómo se siente una build en rojo.)
-- 📜 **Prompts de escena.** Escenas guiadas listas como prompts MCP — escena mommy, sesión de edging, modo historia, componer una vibra, aftercare.
-- 💬 **Puentes de chat.** Bot opcional de **Telegram**, bot de **Discord** y endpoint de **Cuenta Oficial de WeChat** (公众号) — controla por mensaje o emoji desde un chat que ya usas (parejas a distancia).
-- 🌐 **Bilingüe.** Consola y mando master en **inglés y 中文**, conmutador de un toque (o `?lang=zh`).
-- 🛟 **Seguridad integrada.** Techo global, autoparada por comando, watchdog, parada de emergencia en todas partes, hardware apagado al salir.
+**🎛️ Controla el dispositivo**
+- 🎼 **Muse** — describe una vibra («una tormenta», «te quiero en morse») y el modelo compone una partitura háptica suave y la reproduce; guárdala y vuelve a reproducirla.
+- 🥁 **Patrones** — `pulse` · `wave` · `escalate` · `tease` · `heartbeat` · `staircase` · `sos` · `earthquake`.
+- 🎮 **Juegos** — `roulette` · `escalation` · `ambient` · `edge` (provocar y negar) · `wheel`, más un hook `game_event` para aventuras de texto.
+- 🎵 **Audio** — tu **micrófono** o el **audio de pestaña/sistema** controla la intensidad en tiempo real.
+
+**🎭 Quién manda**
+- 🎭 **Personas** — elige quién conduce (🕯️ Slow Burn/Opus · 😈 Brat/GPT-5.5 · 🎼 Metronome · ⛈️ Storm · 🔮 Oracle · 🍼 Mommy); cada una cambia la sensación, y el **modo ciego** oculta cuál.
+- 👑 **Mando master** — pasa la página `/master` a alguien para que tome el control en vivo (dial, mantener para vibrar, presets, stop).
+- 💞 **Dúo** — enlaza dos consolas por un relé para que tu pareja te controle en vivo (espejo / liderar / seguir), con 👋 toque.
+
+**🌍 Entradas del mundo real**
+- 🎬 **Vídeo** — reproduce un [Funscript](https://github.com/FredTungsten/ScriptPlayer/wiki/Funscript), o un vídeo local + script en perfecta sincronía.
+- 📈 **Mercado** — nombra un ticker (`tesla`, `bitcoin`) y siente su movimiento en vivo como melodía de vibración. *(No es asesoramiento financiero.)*
+- 💓 **Biofeedback** — una banda de frecuencia cardíaca Bluetooth controla la intensidad, o **auto-edge** corta cuando tu pulso se dispara.
+- 🔌 **Webhook de eventos** — `POST /event` desde Stream Deck, IFTTT, Home Assistant, un overlay de juego, un script de visión…
+- 🧑‍💻 **Disparadores de desarrollo** — un commit, CI en verde, merge o un 🍅 Pomodoro pueden hacerte vibrar vía `/dev`.
+- 💬 **Puentes de chat** — controla por mensaje o emoji desde **Telegram**, **Discord** o **WeChat 公众号**.
+
+**🎨 Hazlo tuyo**
+- ⚡ **UI Pulse Core** — un orbe que respira + una aurora que laten con la intensidad, más una forma de onda en tiempo real — nada de paneles aburridos.
+- 🧠 **Memoria** — solo local; aprende tus favoritos, afinidad de persona y disgustos suaves (`remember` / `recall` / `forget`), y nunca sale de tu máquina.
+- 🎬 **Grabación de sesión** — captura lo que hizo el dispositivo (manual, dúo, audio, bio, juegos) como una partitura Muse reproducible.
+- 📜 **Prompts de escena** — escenas guiadas como prompts MCP (mommy, edging, historia, componer, aftercare).
+- 🌐 **Bilingüe** — consola y mando master en **inglés y 中文** (`?lang=zh`).
+
+**🔌 Hardware y seguridad**
+- 🔌 **Hardware real** — Lovense, We-Vibe, Kiiroo, The Handy, Satisfyer y [más de 750 dispositivos](https://iostindex.com) vía [Intiface](https://intiface.com).
+- 🛟 **Seguridad integrada** — techo global, autoparada por comando, watchdog, parada de emergencia en todas partes, hardware apagado al salir.
 
 ## Instalación (como plugin de Claude Code)
 
