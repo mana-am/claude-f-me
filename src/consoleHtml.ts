@@ -139,24 +139,32 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       <button class="chip" data-pat="wave" data-i18n="wave"></button>
       <button class="chip" data-pat="escalate" data-i18n="escalate"></button>
       <button class="chip" data-pat="tease" data-i18n="tease"></button>
+      <button class="chip" data-pat="heartbeat" data-i18n="heartbeat"></button>
+      <button class="chip" data-pat="staircase" data-i18n="staircase"></button>
+      <button class="chip" data-pat="sos" data-i18n="sos"></button>
+      <button class="chip" data-pat="earthquake" data-i18n="earthquake"></button>
     </div>
     <div class="deckrow">
       <span class="lbl" data-i18n="game"></span>
       <button class="chip" data-game="roulette" data-i18n="roulette"></button>
       <button class="chip" data-game="escalation" data-i18n="escalation"></button>
       <button class="chip" data-game="ambient" data-i18n="ambient"></button>
+      <button class="chip" data-game="edge" data-i18n="edge"></button>
+      <button class="chip" data-game="wheel" data-i18n="wheel"></button>
+      <button class="chip" id="surprise" data-i18n="surprise"></button>
+    </div>
+    <div class="deckrow">
       <span class="lbl" data-i18n="video"></span>
       <button class="chip" id="vidbtn" data-i18n="funscript"></button>
       <span class="lbl" data-i18n="audio"></span>
       <button class="chip" id="audmic" data-i18n="useMic"></button>
       <button class="chip" id="audtab" data-i18n="useTab"></button>
       <button class="chip" id="audstop" style="display:none" data-i18n="stopAudio"></button>
-    </div>
-    <div class="deckrow">
       <button class="chip" id="modestop" data-i18n="stopMode"></button>
       <div class="maxbox"><span class="small" data-i18n="safetyMax"></span>
         <input id="max" type="range" min="0" max="1" step="0.01" value="1" /><span id="maxval" class="small">100%</span></div>
     </div>
+    <div class="deckrow"><span class="small" data-i18n="keys"></span></div>
   </div>
 </div>
 <canvas id="wave"></canvas>
@@ -170,6 +178,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     <label class="opt"><input type="checkbox" id="fsloop" /> <span data-i18n="loop"></span></label>
     <label class="opt"><span data-i18n="speed"></span> <input id="fsspeed" type="number" min="0.1" max="4" step="0.1" value="1" style="width:58px" /></label>
     <label class="opt"><input type="checkbox" id="fsinv" /> <span data-i18n="invert"></span></label>
+    <button class="btn ghost" id="fssample" data-i18n="sample"></button>
     <span class="spacer"></span>
     <button class="btn ghost" id="fsclose" data-i18n="close"></button>
     <button class="btn" id="fsplay" data-i18n="play"></button>
@@ -182,26 +191,35 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       connecting:"connecting", connected:"connected", reconnecting:"reconnecting",
       tapScan:"tap SCAN", allTarget:"ALL", motor:"motor", motors:"motors",
       patterns:"Patterns", pulse:"Pulse", wave:"Wave", escalate:"Escalate", tease:"Tease",
-      game:"Game", roulette:"🎲 Roulette", escalation:"📈 Escalation", ambient:"🌊 Ambient",
+      heartbeat:"💓 Heartbeat", staircase:"🪜 Stairs", sos:"📡 SOS", earthquake:"🌋 Quake",
+      game:"Game", roulette:"🎲 Roulette", escalation:"📈 Escalation", ambient:"🌊 Ambient", edge:"🔥 Edge", wheel:"🎡 Wheel",
+      surprise:"🎰 Surprise",
       video:"Video", funscript:"🎬 Funscript", audio:"Audio", useMic:"🎤 Mic", useTab:"🔊 Tab", stopAudio:"■ Audio",
       stopMode:"■ Stop mode", safetyMax:"max",
       videoTitle:"🎬 Video — funscript", fsPh:'paste funscript JSON e.g. {"actions":[{"at":0,"pos":0},{"at":600,"pos":100}]}',
-      loop:"loop", speed:"speed", invert:"invert", play:"▶ Play", close:"Close",
+      sample:"Load sample", loop:"loop", speed:"speed", invert:"invert", play:"▶ Play", close:"Close",
+      keys:"keys: 0–9 set level · space stop · S scan",
       mastersOn:"👑 {n} master", mastersOnN:"👑 {n} masters",
       needFs:"Paste a funscript JSON first.", audFail:"Audio capture failed: ", langBtn:"中文" },
     zh: { remote:"👑 遥控", scan:"扫描", estop:"■ 停止", log:"日志",
       connecting:"连接中", connected:"已连接", reconnecting:"重连中",
       tapScan:"点扫描", allTarget:"全部", motor:"马达", motors:"马达",
       patterns:"节奏", pulse:"脉冲", wave:"波浪", escalate:"递增", tease:"挑逗",
-      game:"游戏", roulette:"🎲 轮盘", escalation:"📈 递增", ambient:"🌊 环境",
+      heartbeat:"💓 心跳", staircase:"🪜 楼梯", sos:"📡 SOS", earthquake:"🌋 地震",
+      game:"游戏", roulette:"🎲 轮盘", escalation:"📈 递增", ambient:"🌊 环境", edge:"🔥 边缘", wheel:"🎡 转盘",
+      surprise:"🎰 随机",
       video:"视频", funscript:"🎬 脚本", audio:"音频", useMic:"🎤 麦克风", useTab:"🔊 标签页", stopAudio:"■ 音频",
       stopMode:"■ 停止模式", safetyMax:"上限",
       videoTitle:"🎬 视频 — funscript", fsPh:'粘贴 funscript JSON，例如 {"actions":[{"at":0,"pos":0},{"at":600,"pos":100}]}',
-      loop:"循环", speed:"速度", invert:"反向", play:"▶ 播放", close:"关闭",
+      sample:"载入示例", loop:"循环", speed:"速度", invert:"反向", play:"▶ 播放", close:"关闭",
+      keys:"快捷键：0–9 设强度 · 空格 停止 · S 扫描",
       mastersOn:"👑 {n} 位主人", mastersOnN:"👑 {n} 位主人",
       needFs:"请先粘贴 funscript JSON。", audFail:"音频采集失败：", langBtn:"EN" }
   };
-  var lang = localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  var qlang = new URLSearchParams(location.search).get("lang");
+  if (qlang) qlang = qlang.indexOf("zh") === 0 ? "zh" : "en";
+  var lang = qlang || localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  if (qlang) localStorage.setItem("cfm_lang", qlang);
   function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
@@ -345,15 +363,37 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   document.querySelectorAll("[data-game]").forEach(function(b){ b.addEventListener("click", function(){ send({ type:"start_game", target:target, gameType:b.getAttribute("data-game") }); }); });
   $("#modestop").onclick = function(){ stopAudio(); send({ type:"stop_mode", target:target }); };
 
+  // surprise — random game or pattern
+  $("#surprise").onclick = function(){
+    var games = ["roulette","ambient","edge","wheel"];
+    var pats = ["pulse","wave","escalate","tease","heartbeat","staircase","earthquake"];
+    if (Math.random() < 0.5) send({ type:"start_game", target:target, gameType: games[Math.floor(Math.random()*games.length)] });
+    else send({ type:"pattern", target:target, preset: pats[Math.floor(Math.random()*pats.length)], loops:3 });
+  };
+
   // funscript modal
+  var SAMPLE_FS = JSON.stringify({ actions:[
+    {at:0,pos:0},{at:400,pos:90},{at:800,pos:20},{at:1200,pos:100},{at:1700,pos:40},
+    {at:2100,pos:95},{at:2600,pos:10},{at:3000,pos:70},{at:3400,pos:0},{at:4000,pos:100},
+    {at:4600,pos:30},{at:5200,pos:85},{at:5800,pos:0}
+  ]});
   $("#vidbtn").onclick = function(){ $("#fsmodal").classList.add("open"); };
   $("#fsclose").onclick = function(){ $("#fsmodal").classList.remove("open"); };
+  $("#fssample").onclick = function(){ $("#fs").value = SAMPLE_FS; };
   $("#fsmodal").addEventListener("click", function(e){ if (e.target === $("#fsmodal")) $("#fsmodal").classList.remove("open"); });
   $("#fsplay").onclick = function(){
     var source = $("#fs").value.trim(); if (!source){ alert(t("needFs")); return; }
     send({ type:"play_video", target:target, source:source, loop:$("#fsloop").checked, speed:parseFloat($("#fsspeed").value)||1, invert:$("#fsinv").checked });
     $("#fsmodal").classList.remove("open");
   };
+
+  // keyboard shortcuts: 0-9 set level, space=stop, s=scan
+  addEventListener("keydown", function(e){
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (e.key >= "0" && e.key <= "9"){ var v=(e.key==="0"?0:parseInt(e.key,10)/10); held=true; lvl=v; $("#scrub").value=Math.round(v*100); send({ type:"set", id:target, intensity:v }); setTimeout(function(){held=false;},120); }
+    else if (e.code === "Space"){ e.preventDefault(); stopAudio(); send({ type:"stop_all" }); }
+    else if (e.key === "s" || e.key === "S"){ send({ type:"scan", ms:4000 }); }
+  });
 
   // audio capture
   var audioCtx=null, audioStream=null, audioRAF=null, audioOn=false, lastSend=0, analyser=null, audioData=null, abuf=null;

@@ -5,6 +5,7 @@ import type { ModeController, GameType } from "./modes.js";
 import { CONSOLE_HTML } from "./consoleHtml.js";
 import { MASTER_HTML } from "./masterHtml.js";
 import { PRESETS } from "./presets.js";
+import { isLlmConfigured } from "./llm.js";
 import { logErr } from "./util.js";
 
 /**
@@ -44,6 +45,34 @@ export function startConsole(
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
   const masters = new Set<WebSocket>();
 
+  // ---- Duet relay hub: a tiny in-memory room switch on the same server, so any
+  // claude-f-me instance (even --console-only) can relay two consoles to each
+  // other. It only forwards messages between members of the same room; it never
+  // touches a device. Each browser decides what to apply to its own device.
+  const relay = new WebSocketServer({ server: httpServer, path: "/relay" });
+  const rooms = new Map<string, Set<WebSocket>>();
+  const announce = (room: string) => {
+    const set = rooms.get(room);
+    const msg = JSON.stringify({ type: "peers", peers: set?.size ?? 0 });
+    for (const c of set ?? []) if (c.readyState === c.OPEN) c.send(msg);
+  };
+  relay.on("connection", (ws: WebSocket, req) => {
+    const room = new URLSearchParams((req.url ?? "").split("?")[1] || "").get("room") || "lobby";
+    if (!rooms.has(room)) rooms.set(room, new Set());
+    rooms.get(room)!.add(ws);
+    announce(room);
+    ws.on("message", (raw) => {
+      const set = rooms.get(room);
+      if (!set) return;
+      for (const c of set) if (c !== ws && c.readyState === c.OPEN) c.send(String(raw));
+    });
+    ws.on("close", () => {
+      rooms.get(room)?.delete(ws);
+      if (rooms.get(room)?.size === 0) rooms.delete(room);
+      announce(room);
+    });
+  });
+
   const broadcast = () => {
     const msg = JSON.stringify({ type: "state", state: manager.snapshot() });
     for (const client of wss.clients) {
@@ -58,7 +87,11 @@ export function startConsole(
       masters.add(ws);
       manager.setMasterCount(masters.size);
     }
+    const reply = (o: unknown) => {
+      if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(o));
+    };
     ws.send(JSON.stringify({ type: "state", state: manager.snapshot() }));
+    reply({ type: "muse_list", scores: modes.listScores(), llm: isLlmConfigured() });
 
     ws.on("close", () => {
       if (masters.delete(ws)) manager.setMasterCount(masters.size);
@@ -121,6 +154,32 @@ export function startConsole(
           case "stop_mode":
             modes.stop();
             await manager.stop(m.target ?? "all");
+            break;
+          case "muse_list":
+            reply({ type: "muse_list", scores: modes.listScores(), llm: isLlmConfigured() });
+            break;
+          case "play_score": {
+            const score = m.name ? modes.getScore(String(m.name)) : { brief: m.brief, keyframes: m.keyframes };
+            if (!score) { reply({ type: "muse_error", message: "no such score" }); break; }
+            await modes.playScore(m.target ?? "all", score, { loop: !!m.loop });
+            break;
+          }
+          case "muse_compose": {
+            try {
+              const score = await modes.composeViaModel(String(m.brief), m.model);
+              if (m.save_as) await modes.saveScore(String(m.save_as), score);
+              await modes.playScore(m.target ?? "all", score, { loop: !!m.loop });
+              reply({ type: "muse_list", scores: modes.listScores(), llm: true });
+            } catch (e) {
+              reply({ type: "muse_error", message: String(e instanceof Error ? e.message : e) });
+            }
+            break;
+          }
+          case "set_persona":
+            modes.setPersona(String(m.id));
+            break;
+          case "reveal_persona":
+            modes.reveal();
             break;
         }
       } catch (e) {

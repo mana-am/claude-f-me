@@ -60,8 +60,11 @@ export const MASTER_HTML = /* html */ `<!doctype html>
     <button class="b" data-pat="wave" data-i18n="wave"></button>
     <button class="b" data-pat="escalate" data-i18n="escalate"></button>
     <button class="b" data-pat="tease" data-i18n="tease"></button>
+    <button class="b" data-pat="heartbeat" data-i18n="heartbeat"></button>
     <button class="b" data-game="roulette" data-i18n="roulette"></button>
     <button class="b" data-game="ambient" data-i18n="ambient"></button>
+    <button class="b" data-game="edge" data-i18n="edge"></button>
+    <button class="b" data-game="wheel" data-i18n="wheel"></button>
   </div>
   <div class="maxrow">
     <span class="small" data-i18n="safetyMax"></span>
@@ -76,16 +79,21 @@ export const MASTER_HTML = /* html */ `<!doctype html>
   var I18N = {
     en: { title:"master remote", langBtn:"中文", quick:"Quick", dialHint:"drag to set sustained intensity",
       buzz:"⚡ HOLD TO BUZZ", pulse:"Pulse", wave:"Wave", escalate:"Escalate", tease:"Tease",
-      roulette:"🎲 Roulette", ambient:"🌊 Ambient", safetyMax:"safety max", stopAll:"■ STOP EVERYTHING",
+      roulette:"🎲 Roulette", ambient:"🌊 Ambient", heartbeat:"💓 Heartbeat", edge:"🔥 Edge", wheel:"🎡 Wheel",
+      safetyMax:"safety max", stopAll:"■ STOP EVERYTHING",
       inControl:"in control", connecting:"connecting…", reconnecting:"reconnecting…",
       noDev:"no devices — tap a control to scan", devN:"{n} device", devNs:"{n} devices" },
     zh: { title:"主人遥控", langBtn:"EN", quick:"快捷", dialHint:"拖动设置持续强度",
       buzz:"⚡ 按住震动", pulse:"脉冲", wave:"波浪", escalate:"递增", tease:"挑逗",
-      roulette:"🎲 轮盘", ambient:"🌊 环境", safetyMax:"安全上限", stopAll:"■ 全部停止",
+      roulette:"🎲 轮盘", ambient:"🌊 环境", heartbeat:"💓 心跳", edge:"🔥 边缘", wheel:"🎡 转盘",
+      safetyMax:"安全上限", stopAll:"■ 全部停止",
       inControl:"控制中", connecting:"连接中…", reconnecting:"重连中…",
       noDev:"暂无设备", devN:"{n} 个设备", devNs:"{n} 个设备" }
   };
-  var lang = localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  var qlang = new URLSearchParams(location.search).get("lang");
+  if (qlang) qlang = qlang.indexOf("zh") === 0 ? "zh" : "en";
+  var lang = qlang || localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  if (qlang) localStorage.setItem("cfm_lang", qlang);
   function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });

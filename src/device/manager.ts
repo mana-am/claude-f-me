@@ -22,10 +22,20 @@ export interface LogEntry {
 }
 
 export interface ActiveMode {
-  type: "video" | "game" | "audio";
+  type: "video" | "game" | "audio" | "muse";
   label: string;
   positionMs?: number;
   durationMs?: number;
+}
+
+/** Current driver "personality" surfaced to the console (blind mode hides the id). */
+export interface PersonaView {
+  id: string;
+  name: string;
+  emoji: string;
+  tagline: string;
+  model: string | null;
+  blind: boolean;
 }
 
 export interface DeviceStateView extends DeviceInfo {
@@ -37,6 +47,7 @@ export interface Snapshot {
   maxIntensity: number;
   consoleUrl: string;
   activeMode: ActiveMode | null;
+  persona: PersonaView | null;
   masters: number;
   devices: DeviceStateView[];
   log: LogEntry[];
@@ -69,6 +80,7 @@ export class DeviceManager extends EventEmitter {
   private log: LogEntry[] = [];
   private activeMode: ActiveMode | null = null;
   private mode: Cancellable | null = null;
+  private persona: PersonaView | null = null;
   private masters = 0;
 
   constructor(private backend: DeviceBackend, opts: ManagerOptions = {}) {
@@ -85,6 +97,12 @@ export class DeviceManager extends EventEmitter {
 
   setActiveMode(m: ActiveMode | null): void {
     this.activeMode = m;
+    this.emitState();
+  }
+
+  /** The ModeController pushes the current driver persona here for the console. */
+  setPersonaView(p: PersonaView | null): void {
+    this.persona = p;
     this.emitState();
   }
 
@@ -205,6 +223,7 @@ export class DeviceManager extends EventEmitter {
       maxIntensity: this.maxIntensity,
       consoleUrl: this.consoleUrl,
       activeMode: this.activeMode,
+      persona: this.persona,
       masters: this.masters,
       devices: this.backend.list().map((d) => ({
         ...d,

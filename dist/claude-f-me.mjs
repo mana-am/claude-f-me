@@ -14716,6 +14716,7 @@ var DeviceManager = class extends EventEmitter {
   log = [];
   activeMode = null;
   mode = null;
+  persona = null;
   masters = 0;
   /** Lets emergency/stop cancel a running video/game mode too. */
   attachMode(mode2) {
@@ -14723,6 +14724,11 @@ var DeviceManager = class extends EventEmitter {
   }
   setActiveMode(m) {
     this.activeMode = m;
+    this.emitState();
+  }
+  /** The ModeController pushes the current driver persona here for the console. */
+  setPersonaView(p) {
+    this.persona = p;
     this.emitState();
   }
   /** Number of connected "master" remote-control clients. */
@@ -14832,6 +14838,7 @@ var DeviceManager = class extends EventEmitter {
       maxIntensity: this.maxIntensity,
       consoleUrl: this.consoleUrl,
       activeMode: this.activeMode,
+      persona: this.persona,
       masters: this.masters,
       devices: this.backend.list().map((d) => ({
         ...d,
@@ -15176,24 +15183,32 @@ var CONSOLE_HTML = (
       <button class="chip" data-pat="wave" data-i18n="wave"></button>
       <button class="chip" data-pat="escalate" data-i18n="escalate"></button>
       <button class="chip" data-pat="tease" data-i18n="tease"></button>
+      <button class="chip" data-pat="heartbeat" data-i18n="heartbeat"></button>
+      <button class="chip" data-pat="staircase" data-i18n="staircase"></button>
+      <button class="chip" data-pat="sos" data-i18n="sos"></button>
+      <button class="chip" data-pat="earthquake" data-i18n="earthquake"></button>
     </div>
     <div class="deckrow">
       <span class="lbl" data-i18n="game"></span>
       <button class="chip" data-game="roulette" data-i18n="roulette"></button>
       <button class="chip" data-game="escalation" data-i18n="escalation"></button>
       <button class="chip" data-game="ambient" data-i18n="ambient"></button>
+      <button class="chip" data-game="edge" data-i18n="edge"></button>
+      <button class="chip" data-game="wheel" data-i18n="wheel"></button>
+      <button class="chip" id="surprise" data-i18n="surprise"></button>
+    </div>
+    <div class="deckrow">
       <span class="lbl" data-i18n="video"></span>
       <button class="chip" id="vidbtn" data-i18n="funscript"></button>
       <span class="lbl" data-i18n="audio"></span>
       <button class="chip" id="audmic" data-i18n="useMic"></button>
       <button class="chip" id="audtab" data-i18n="useTab"></button>
       <button class="chip" id="audstop" style="display:none" data-i18n="stopAudio"></button>
-    </div>
-    <div class="deckrow">
       <button class="chip" id="modestop" data-i18n="stopMode"></button>
       <div class="maxbox"><span class="small" data-i18n="safetyMax"></span>
         <input id="max" type="range" min="0" max="1" step="0.01" value="1" /><span id="maxval" class="small">100%</span></div>
     </div>
+    <div class="deckrow"><span class="small" data-i18n="keys"></span></div>
   </div>
 </div>
 <canvas id="wave"></canvas>
@@ -15207,6 +15222,7 @@ var CONSOLE_HTML = (
     <label class="opt"><input type="checkbox" id="fsloop" /> <span data-i18n="loop"></span></label>
     <label class="opt"><span data-i18n="speed"></span> <input id="fsspeed" type="number" min="0.1" max="4" step="0.1" value="1" style="width:58px" /></label>
     <label class="opt"><input type="checkbox" id="fsinv" /> <span data-i18n="invert"></span></label>
+    <button class="btn ghost" id="fssample" data-i18n="sample"></button>
     <span class="spacer"></span>
     <button class="btn ghost" id="fsclose" data-i18n="close"></button>
     <button class="btn" id="fsplay" data-i18n="play"></button>
@@ -15219,26 +15235,35 @@ var CONSOLE_HTML = (
       connecting:"connecting", connected:"connected", reconnecting:"reconnecting",
       tapScan:"tap SCAN", allTarget:"ALL", motor:"motor", motors:"motors",
       patterns:"Patterns", pulse:"Pulse", wave:"Wave", escalate:"Escalate", tease:"Tease",
-      game:"Game", roulette:"\u{1F3B2} Roulette", escalation:"\u{1F4C8} Escalation", ambient:"\u{1F30A} Ambient",
+      heartbeat:"\u{1F493} Heartbeat", staircase:"\u{1FA9C} Stairs", sos:"\u{1F4E1} SOS", earthquake:"\u{1F30B} Quake",
+      game:"Game", roulette:"\u{1F3B2} Roulette", escalation:"\u{1F4C8} Escalation", ambient:"\u{1F30A} Ambient", edge:"\u{1F525} Edge", wheel:"\u{1F3A1} Wheel",
+      surprise:"\u{1F3B0} Surprise",
       video:"Video", funscript:"\u{1F3AC} Funscript", audio:"Audio", useMic:"\u{1F3A4} Mic", useTab:"\u{1F50A} Tab", stopAudio:"\u25A0 Audio",
       stopMode:"\u25A0 Stop mode", safetyMax:"max",
       videoTitle:"\u{1F3AC} Video \u2014 funscript", fsPh:'paste funscript JSON e.g. {"actions":[{"at":0,"pos":0},{"at":600,"pos":100}]}',
-      loop:"loop", speed:"speed", invert:"invert", play:"\u25B6 Play", close:"Close",
+      sample:"Load sample", loop:"loop", speed:"speed", invert:"invert", play:"\u25B6 Play", close:"Close",
+      keys:"keys: 0\u20139 set level \xB7 space stop \xB7 S scan",
       mastersOn:"\u{1F451} {n} master", mastersOnN:"\u{1F451} {n} masters",
       needFs:"Paste a funscript JSON first.", audFail:"Audio capture failed: ", langBtn:"\u4E2D\u6587" },
     zh: { remote:"\u{1F451} \u9065\u63A7", scan:"\u626B\u63CF", estop:"\u25A0 \u505C\u6B62", log:"\u65E5\u5FD7",
       connecting:"\u8FDE\u63A5\u4E2D", connected:"\u5DF2\u8FDE\u63A5", reconnecting:"\u91CD\u8FDE\u4E2D",
       tapScan:"\u70B9\u626B\u63CF", allTarget:"\u5168\u90E8", motor:"\u9A6C\u8FBE", motors:"\u9A6C\u8FBE",
       patterns:"\u8282\u594F", pulse:"\u8109\u51B2", wave:"\u6CE2\u6D6A", escalate:"\u9012\u589E", tease:"\u6311\u9017",
-      game:"\u6E38\u620F", roulette:"\u{1F3B2} \u8F6E\u76D8", escalation:"\u{1F4C8} \u9012\u589E", ambient:"\u{1F30A} \u73AF\u5883",
+      heartbeat:"\u{1F493} \u5FC3\u8DF3", staircase:"\u{1FA9C} \u697C\u68AF", sos:"\u{1F4E1} SOS", earthquake:"\u{1F30B} \u5730\u9707",
+      game:"\u6E38\u620F", roulette:"\u{1F3B2} \u8F6E\u76D8", escalation:"\u{1F4C8} \u9012\u589E", ambient:"\u{1F30A} \u73AF\u5883", edge:"\u{1F525} \u8FB9\u7F18", wheel:"\u{1F3A1} \u8F6C\u76D8",
+      surprise:"\u{1F3B0} \u968F\u673A",
       video:"\u89C6\u9891", funscript:"\u{1F3AC} \u811A\u672C", audio:"\u97F3\u9891", useMic:"\u{1F3A4} \u9EA6\u514B\u98CE", useTab:"\u{1F50A} \u6807\u7B7E\u9875", stopAudio:"\u25A0 \u97F3\u9891",
       stopMode:"\u25A0 \u505C\u6B62\u6A21\u5F0F", safetyMax:"\u4E0A\u9650",
       videoTitle:"\u{1F3AC} \u89C6\u9891 \u2014 funscript", fsPh:'\u7C98\u8D34 funscript JSON\uFF0C\u4F8B\u5982 {"actions":[{"at":0,"pos":0},{"at":600,"pos":100}]}',
-      loop:"\u5FAA\u73AF", speed:"\u901F\u5EA6", invert:"\u53CD\u5411", play:"\u25B6 \u64AD\u653E", close:"\u5173\u95ED",
+      sample:"\u8F7D\u5165\u793A\u4F8B", loop:"\u5FAA\u73AF", speed:"\u901F\u5EA6", invert:"\u53CD\u5411", play:"\u25B6 \u64AD\u653E", close:"\u5173\u95ED",
+      keys:"\u5FEB\u6377\u952E\uFF1A0\u20139 \u8BBE\u5F3A\u5EA6 \xB7 \u7A7A\u683C \u505C\u6B62 \xB7 S \u626B\u63CF",
       mastersOn:"\u{1F451} {n} \u4F4D\u4E3B\u4EBA", mastersOnN:"\u{1F451} {n} \u4F4D\u4E3B\u4EBA",
       needFs:"\u8BF7\u5148\u7C98\u8D34 funscript JSON\u3002", audFail:"\u97F3\u9891\u91C7\u96C6\u5931\u8D25\uFF1A", langBtn:"EN" }
   };
-  var lang = localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  var qlang = new URLSearchParams(location.search).get("lang");
+  if (qlang) qlang = qlang.indexOf("zh") === 0 ? "zh" : "en";
+  var lang = qlang || localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  if (qlang) localStorage.setItem("cfm_lang", qlang);
   function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
@@ -15382,15 +15407,37 @@ var CONSOLE_HTML = (
   document.querySelectorAll("[data-game]").forEach(function(b){ b.addEventListener("click", function(){ send({ type:"start_game", target:target, gameType:b.getAttribute("data-game") }); }); });
   $("#modestop").onclick = function(){ stopAudio(); send({ type:"stop_mode", target:target }); };
 
+  // surprise \u2014 random game or pattern
+  $("#surprise").onclick = function(){
+    var games = ["roulette","ambient","edge","wheel"];
+    var pats = ["pulse","wave","escalate","tease","heartbeat","staircase","earthquake"];
+    if (Math.random() < 0.5) send({ type:"start_game", target:target, gameType: games[Math.floor(Math.random()*games.length)] });
+    else send({ type:"pattern", target:target, preset: pats[Math.floor(Math.random()*pats.length)], loops:3 });
+  };
+
   // funscript modal
+  var SAMPLE_FS = JSON.stringify({ actions:[
+    {at:0,pos:0},{at:400,pos:90},{at:800,pos:20},{at:1200,pos:100},{at:1700,pos:40},
+    {at:2100,pos:95},{at:2600,pos:10},{at:3000,pos:70},{at:3400,pos:0},{at:4000,pos:100},
+    {at:4600,pos:30},{at:5200,pos:85},{at:5800,pos:0}
+  ]});
   $("#vidbtn").onclick = function(){ $("#fsmodal").classList.add("open"); };
   $("#fsclose").onclick = function(){ $("#fsmodal").classList.remove("open"); };
+  $("#fssample").onclick = function(){ $("#fs").value = SAMPLE_FS; };
   $("#fsmodal").addEventListener("click", function(e){ if (e.target === $("#fsmodal")) $("#fsmodal").classList.remove("open"); });
   $("#fsplay").onclick = function(){
     var source = $("#fs").value.trim(); if (!source){ alert(t("needFs")); return; }
     send({ type:"play_video", target:target, source:source, loop:$("#fsloop").checked, speed:parseFloat($("#fsspeed").value)||1, invert:$("#fsinv").checked });
     $("#fsmodal").classList.remove("open");
   };
+
+  // keyboard shortcuts: 0-9 set level, space=stop, s=scan
+  addEventListener("keydown", function(e){
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (e.key >= "0" && e.key <= "9"){ var v=(e.key==="0"?0:parseInt(e.key,10)/10); held=true; lvl=v; $("#scrub").value=Math.round(v*100); send({ type:"set", id:target, intensity:v }); setTimeout(function(){held=false;},120); }
+    else if (e.code === "Space"){ e.preventDefault(); stopAudio(); send({ type:"stop_all" }); }
+    else if (e.key === "s" || e.key === "S"){ send({ type:"scan", ms:4000 }); }
+  });
 
   // audio capture
   var audioCtx=null, audioStream=null, audioRAF=null, audioOn=false, lastSend=0, analyser=null, audioData=null, abuf=null;
@@ -15500,8 +15547,11 @@ var MASTER_HTML = (
     <button class="b" data-pat="wave" data-i18n="wave"></button>
     <button class="b" data-pat="escalate" data-i18n="escalate"></button>
     <button class="b" data-pat="tease" data-i18n="tease"></button>
+    <button class="b" data-pat="heartbeat" data-i18n="heartbeat"></button>
     <button class="b" data-game="roulette" data-i18n="roulette"></button>
     <button class="b" data-game="ambient" data-i18n="ambient"></button>
+    <button class="b" data-game="edge" data-i18n="edge"></button>
+    <button class="b" data-game="wheel" data-i18n="wheel"></button>
   </div>
   <div class="maxrow">
     <span class="small" data-i18n="safetyMax"></span>
@@ -15516,16 +15566,21 @@ var MASTER_HTML = (
   var I18N = {
     en: { title:"master remote", langBtn:"\u4E2D\u6587", quick:"Quick", dialHint:"drag to set sustained intensity",
       buzz:"\u26A1 HOLD TO BUZZ", pulse:"Pulse", wave:"Wave", escalate:"Escalate", tease:"Tease",
-      roulette:"\u{1F3B2} Roulette", ambient:"\u{1F30A} Ambient", safetyMax:"safety max", stopAll:"\u25A0 STOP EVERYTHING",
+      roulette:"\u{1F3B2} Roulette", ambient:"\u{1F30A} Ambient", heartbeat:"\u{1F493} Heartbeat", edge:"\u{1F525} Edge", wheel:"\u{1F3A1} Wheel",
+      safetyMax:"safety max", stopAll:"\u25A0 STOP EVERYTHING",
       inControl:"in control", connecting:"connecting\u2026", reconnecting:"reconnecting\u2026",
       noDev:"no devices \u2014 tap a control to scan", devN:"{n} device", devNs:"{n} devices" },
     zh: { title:"\u4E3B\u4EBA\u9065\u63A7", langBtn:"EN", quick:"\u5FEB\u6377", dialHint:"\u62D6\u52A8\u8BBE\u7F6E\u6301\u7EED\u5F3A\u5EA6",
       buzz:"\u26A1 \u6309\u4F4F\u9707\u52A8", pulse:"\u8109\u51B2", wave:"\u6CE2\u6D6A", escalate:"\u9012\u589E", tease:"\u6311\u9017",
-      roulette:"\u{1F3B2} \u8F6E\u76D8", ambient:"\u{1F30A} \u73AF\u5883", safetyMax:"\u5B89\u5168\u4E0A\u9650", stopAll:"\u25A0 \u5168\u90E8\u505C\u6B62",
+      roulette:"\u{1F3B2} \u8F6E\u76D8", ambient:"\u{1F30A} \u73AF\u5883", heartbeat:"\u{1F493} \u5FC3\u8DF3", edge:"\u{1F525} \u8FB9\u7F18", wheel:"\u{1F3A1} \u8F6C\u76D8",
+      safetyMax:"\u5B89\u5168\u4E0A\u9650", stopAll:"\u25A0 \u5168\u90E8\u505C\u6B62",
       inControl:"\u63A7\u5236\u4E2D", connecting:"\u8FDE\u63A5\u4E2D\u2026", reconnecting:"\u91CD\u8FDE\u4E2D\u2026",
       noDev:"\u6682\u65E0\u8BBE\u5907", devN:"{n} \u4E2A\u8BBE\u5907", devNs:"{n} \u4E2A\u8BBE\u5907" }
   };
-  var lang = localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  var qlang = new URLSearchParams(location.search).get("lang");
+  if (qlang) qlang = qlang.indexOf("zh") === 0 ? "zh" : "en";
+  var lang = qlang || localStorage.getItem("cfm_lang") || ((navigator.language||"").indexOf("zh")===0 ? "zh" : "en");
+  if (qlang) localStorage.setItem("cfm_lang", qlang);
   function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
   function applyI18n(){
     document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
@@ -15612,6 +15667,53 @@ var PRESETS = {
     { intensity: 0, ms: 1200 },
     { intensity: 0.85, ms: 600 },
     { intensity: 0, ms: 1500 }
+  ],
+  heartbeat: [
+    { intensity: 0.9, ms: 140 },
+    { intensity: 0.15, ms: 130 },
+    { intensity: 0.85, ms: 140 },
+    { intensity: 0, ms: 780 }
+  ],
+  staircase: [
+    { intensity: 0.2, ms: 650 },
+    { intensity: 0.4, ms: 650 },
+    { intensity: 0.6, ms: 650 },
+    { intensity: 0.8, ms: 650 },
+    { intensity: 1, ms: 900 },
+    { intensity: 0, ms: 500 }
+  ],
+  sos: [
+    // · · ·
+    { intensity: 0.9, ms: 150 },
+    { intensity: 0, ms: 130 },
+    { intensity: 0.9, ms: 150 },
+    { intensity: 0, ms: 130 },
+    { intensity: 0.9, ms: 150 },
+    { intensity: 0, ms: 340 },
+    // – – –
+    { intensity: 0.9, ms: 430 },
+    { intensity: 0, ms: 130 },
+    { intensity: 0.9, ms: 430 },
+    { intensity: 0, ms: 130 },
+    { intensity: 0.9, ms: 430 },
+    { intensity: 0, ms: 340 },
+    // · · ·
+    { intensity: 0.9, ms: 150 },
+    { intensity: 0, ms: 130 },
+    { intensity: 0.9, ms: 150 },
+    { intensity: 0, ms: 130 },
+    { intensity: 0.9, ms: 150 },
+    { intensity: 0, ms: 900 }
+  ],
+  earthquake: [
+    { intensity: 0.5, ms: 90 },
+    { intensity: 0.95, ms: 90 },
+    { intensity: 0.3, ms: 90 },
+    { intensity: 1, ms: 120 },
+    { intensity: 0.45, ms: 90 },
+    { intensity: 0.85, ms: 90 },
+    { intensity: 0.2, ms: 120 },
+    { intensity: 0.7, ms: 90 }
   ]
 };
 
@@ -29997,7 +30099,7 @@ async function startMcp(manager2, modes2) {
       description: "Run a sequence of intensity steps on a device. Provide a named preset (pulse|wave|escalate|tease) OR explicit steps. loops repeats the whole sequence (the device stops when it finishes). Stop or vibrate cancels a running pattern.",
       inputSchema: {
         target: external_exports.string().optional().describe("device id or 'all' (default)"),
-        preset: external_exports.enum(["pulse", "wave", "escalate", "tease"]).optional(),
+        preset: external_exports.enum(["pulse", "wave", "escalate", "tease", "heartbeat", "staircase", "sos", "earthquake"]).optional(),
         steps: external_exports.array(
           external_exports.object({
             intensity: external_exports.number().min(0).max(1),
@@ -30078,9 +30180,9 @@ async function startMcp(manager2, modes2) {
     "start_game",
     {
       title: "Start a game mode",
-      description: "Start a built-in interactive game engine. roulette = random bursts at random intervals; escalation = ramps up and holds at max until stopped; ambient = gentle organic waves. Cancels any other running mode.",
+      description: "Start a built-in interactive game engine. roulette = random bursts at random intervals; escalation = ramps up and holds at max; ambient = gentle organic waves; edge = tease-and-deny (ramp to the brink, then cut and rest, peak creeps higher); wheel = spin through random levels then land and hold. Cancels any other running mode.",
       inputSchema: {
-        type: external_exports.enum(["roulette", "escalation", "ambient"]),
+        type: external_exports.enum(["roulette", "escalation", "ambient", "edge", "wheel"]),
         target: external_exports.string().optional().describe("device id or 'all' (default)"),
         intensity_max: external_exports.number().min(0).max(1).optional().describe("ceiling for this game (default 1)"),
         duration_ms: external_exports.number().int().min(1e3).optional().describe("auto-end after this long")
@@ -30114,24 +30216,355 @@ async function startMcp(manager2, modes2) {
       return text(manager2.snapshot());
     }
   );
+  server.registerTool(
+    "compose",
+    {
+      title: "Compose & play a Muse score",
+      description: "YOU compose a haptic timeline from a creative brief and play it \u2014 the device becomes an instrument you play. Provide `keyframes` as [{at,level}] where `at` is ms from the start (strictly increasing, starting at 0) and `level` is intensity 0..1. Use many keyframes for smooth ramps, plateaus to hold, drops to 0 for denial/rest, and a release near the end; scores can run for minutes. `brief` is the natural-language idea you turned into the score (shown in the console). Optionally save_as a library name. Respects the safety cap. Cancels any other running mode.",
+      inputSchema: {
+        brief: external_exports.string().describe("the vibe you composed, in words (e.g. '10-minute tantric slow burn')"),
+        keyframes: external_exports.array(external_exports.object({ at: external_exports.number().min(0), level: external_exports.number().min(0).max(1) })).min(2).describe("[{at:ms, level:0..1}] timeline, at strictly increasing from 0"),
+        target: external_exports.string().optional().describe("device id or 'all' (default)"),
+        save_as: external_exports.string().optional().describe("save to the Muse library under this name"),
+        loop: external_exports.boolean().optional().describe("repeat when it ends (default false)")
+      }
+    },
+    async ({ brief, keyframes, target, save_as, loop }) => {
+      const score = { brief, keyframes, by: "claude" };
+      if (save_as) await modes2.saveScore(save_as, score);
+      const r = await modes2.playScore(target ?? "all", score, { loop });
+      return text({ ...r, brief, keyframes: keyframes.length, saved: save_as ?? null });
+    }
+  );
+  server.registerTool(
+    "muse_list",
+    {
+      title: "List Muse library",
+      description: "List saved/built-in Muse scores (name, brief, duration, keyframe count) you can replay with muse_play.",
+      inputSchema: {}
+    },
+    async () => text(modes2.listScores())
+  );
+  server.registerTool(
+    "muse_play",
+    {
+      title: "Play a Muse score",
+      description: "Play a score from the Muse library by name (see muse_list). Cancels any other running mode.",
+      inputSchema: {
+        name: external_exports.string().describe("library score name"),
+        target: external_exports.string().optional().describe("device id or 'all' (default)"),
+        loop: external_exports.boolean().optional()
+      }
+    },
+    async ({ name, target, loop }) => {
+      const score = modes2.getScore(name);
+      if (!score) throw new Error(`no Muse score named "${name}" \u2014 try muse_list`);
+      return text(await modes2.playScore(target ?? "all", score, { loop }));
+    }
+  );
+  server.registerTool(
+    "list_personas",
+    {
+      title: "List personas",
+      description: "List driver personas. Each shapes the feel of games/events (pace, randomness, denial, ceiling) and, when a matching API key is set, which model composes Muse scores. Pick one with set_persona.",
+      inputSchema: {}
+    },
+    async () => text(modes2.listPersonas())
+  );
+  server.registerTool(
+    "set_persona",
+    {
+      title: "Set the driver persona",
+      description: "Choose who's in control. Pass a persona id (slowburn|brat|metronome|storm|oracle) or 'blind' to pick a random hidden one (label shows \u{1F3AD} ??? until reveal_persona). Changes how subsequent games and game_events feel.",
+      inputSchema: { id: external_exports.string().describe("persona id, or 'blind'") }
+    },
+    async ({ id }) => {
+      const r = modes2.setPersona(id);
+      return text({ ...r, persona: manager2.snapshot().persona });
+    }
+  );
+  server.registerTool(
+    "reveal_persona",
+    {
+      title: "Reveal a blind persona",
+      description: "Reveal the identity of a persona chosen via blind mode.",
+      inputSchema: {}
+    },
+    async () => text(modes2.reveal())
+  );
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
 
 // src/modes.ts
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
+
+// src/score.ts
+function normalizeKeyframes(raw) {
+  const arr = Array.isArray(raw) ? raw : [];
+  const kf = arr.map((a) => ({ at: Number(a?.at), level: Number(a?.level) })).filter((k) => Number.isFinite(k.at) && Number.isFinite(k.level) && k.at >= 0).map((k) => ({ at: k.at, level: Math.min(1, Math.max(0, k.level)) })).sort((a, b) => a.at - b.at);
+  if (kf.length === 0) throw new Error("score has no usable keyframes");
+  return kf;
+}
+function scoreDuration(kf) {
+  return kf.length ? kf[kf.length - 1].at : 0;
+}
+function sampleScore(kf, t) {
+  if (kf.length === 0) return 0;
+  if (t <= kf[0].at) return kf[0].level;
+  const last = kf[kf.length - 1];
+  if (t >= last.at) return last.level;
+  let lo = 0;
+  let hi = kf.length - 1;
+  while (lo < hi) {
+    const mid = lo + hi >> 1;
+    if (kf[mid].at <= t) lo = mid + 1;
+    else hi = mid;
+  }
+  const b = kf[lo];
+  const a = kf[lo - 1];
+  const span = b.at - a.at || 1;
+  const f = (t - a.at) / span;
+  return a.level + (b.level - a.level) * f;
+}
+
+// src/personas.ts
+var PERSONAS = [
+  {
+    id: "slowburn",
+    emoji: "\u{1F56F}\uFE0F",
+    name: { en: "The Slow Burn", zh: "\u6162\u7096" },
+    tagline: { en: "patient, deliberate, merciless about waiting", zh: "\u8010\u5FC3\u3001\u514B\u5236\u3001\u628A\u4F60\u540A\u5728\u8FB9\u7F18" },
+    model: "claude-opus-4-8",
+    pace: 0.25,
+    randomness: 0.15,
+    denial: 0.8,
+    ceiling: 0.9,
+    ramp: "slow",
+    signatureGame: "edge",
+    signaturePreset: "tease",
+    voice: { en: "We have all the time in the world.", zh: "\u522B\u6025\uFF0C\u6211\u4EEC\u6709\u7684\u662F\u65F6\u95F4\u3002" }
+  },
+  {
+    id: "brat",
+    emoji: "\u{1F608}",
+    name: { en: "The Brat", zh: "\u5C0F\u6076\u9B54" },
+    tagline: { en: "fast, jumpy, never plays fair", zh: "\u53C8\u6025\u53C8\u8DF3\uFF0C\u4ECE\u4E0D\u8BB2\u9053\u7406" },
+    model: "gpt-5.5",
+    pace: 0.9,
+    randomness: 0.85,
+    denial: 0.4,
+    ceiling: 1,
+    ramp: "snap",
+    signatureGame: "wheel",
+    signaturePreset: "earthquake",
+    voice: { en: "Try to keep up.", zh: "\u8DDF\u5F97\u4E0A\u5417\uFF1F" }
+  },
+  {
+    id: "metronome",
+    emoji: "\u{1F3BC}",
+    name: { en: "The Metronome", zh: "\u8282\u62CD\u5668" },
+    tagline: { en: "steady, predictable, hypnotic", zh: "\u7A33\u5B9A\u3001\u53EF\u9884\u671F\u3001\u50AC\u7720" },
+    model: null,
+    pace: 0.5,
+    randomness: 0.05,
+    denial: 0.2,
+    ceiling: 0.85,
+    ramp: "linear",
+    signatureGame: "ambient",
+    signaturePreset: "heartbeat",
+    voice: { en: "Breathe with me.", zh: "\u8DDF\u7740\u6211\u7684\u8282\u594F\u547C\u5438\u3002" }
+  },
+  {
+    id: "storm",
+    emoji: "\u26C8\uFE0F",
+    name: { en: "The Storm", zh: "\u98CE\u66B4" },
+    tagline: { en: "relentless escalation, no mercy", zh: "\u4E00\u8DEF\u9012\u589E\uFF0C\u6BEB\u4E0D\u7559\u60C5" },
+    model: null,
+    pace: 0.75,
+    randomness: 0.5,
+    denial: 0.1,
+    ceiling: 1,
+    ramp: "linear",
+    signatureGame: "escalation",
+    signaturePreset: "escalate",
+    voice: { en: "There's no stopping this now.", zh: "\u5DF2\u7ECF\u505C\u4E0D\u4E0B\u6765\u4E86\u3002" }
+  },
+  {
+    id: "oracle",
+    emoji: "\u{1F52E}",
+    name: { en: "The Oracle", zh: "\u795E\u8C15" },
+    tagline: { en: "dreamy, organic, never the same twice", zh: "\u68A6\u5E7B\u3001\u6709\u673A\u3001\u6BCF\u6B21\u90FD\u4E0D\u4E00\u6837" },
+    model: "claude-opus-4-8",
+    pace: 0.4,
+    randomness: 0.7,
+    denial: 0.35,
+    ceiling: 0.9,
+    ramp: "slow",
+    signatureGame: "ambient",
+    signaturePreset: "wave",
+    voice: { en: "Let go. Let me decide.", zh: "\u653E\u624B\uFF0C\u4EA4\u7ED9\u6211\u3002" }
+  }
+];
+var DEFAULT_PERSONA = PERSONAS.find((p) => p.id === "metronome");
+function getPersona(id) {
+  return PERSONAS.find((p) => p.id === id);
+}
+
+// src/llm.ts
+var ANTHROPIC_KEY = () => process.env.CFM_LLM_API_KEY || process.env.ANTHROPIC_API_KEY || "";
+var OPENAI_KEY = () => process.env.OPENAI_API_KEY || "";
+var OPENAI_BASE = () => process.env.CFM_OPENAI_BASE_URL || "https://api.openai.com/v1";
+var DEFAULT_ANTHROPIC_MODEL = "claude-opus-4-8";
+var DEFAULT_OPENAI_MODEL = "gpt-5.5";
+function isLlmConfigured() {
+  return !!(ANTHROPIC_KEY() || OPENAI_KEY());
+}
+function pickProvider(model) {
+  const m = (model || "").trim().toLowerCase();
+  if (m.startsWith("claude") || m.startsWith("anthropic")) {
+    if (ANTHROPIC_KEY()) return { provider: "anthropic", model };
+  }
+  if (m.startsWith("gpt") || m.startsWith("o1") || m.startsWith("o3") || m.startsWith("openai")) {
+    if (OPENAI_KEY()) return { provider: "openai", model };
+  }
+  if (ANTHROPIC_KEY()) return { provider: "anthropic", model: DEFAULT_ANTHROPIC_MODEL };
+  if (OPENAI_KEY()) return { provider: "openai", model: DEFAULT_OPENAI_MODEL };
+  return null;
+}
+var SYSTEM = [
+  "You are a haptic composer for a single-motor vibration device.",
+  "Turn the user's brief into a smooth timeline of keyframes.",
+  'Rules: respond with ONLY JSON, shape {"keyframes":[{"at":<ms>,"level":<0..1>}, ...]}.',
+  "`at` is milliseconds from the start, strictly increasing, starting at 0.",
+  "`level` is intensity 0..1. Use ramps (many keyframes) for builds, plateaus to hold,",
+  "drops to 0 for denial/rest, and a release near the end. 8\u201340 keyframes is plenty.",
+  "Honour any duration in the brief; otherwise aim for 60\u2013180s. No prose, no markdown."
+].join(" ");
+async function composeWithModel(brief, model) {
+  const pick2 = pickProvider(model);
+  if (!pick2) throw new Error("no LLM API key configured (set ANTHROPIC_API_KEY or OPENAI_API_KEY)");
+  const prompt = "Brief: " + brief.trim();
+  const raw = pick2.provider === "anthropic" ? await callAnthropic(pick2.model, prompt) : await callOpenAI(pick2.model, prompt);
+  const keyframes = parseKeyframes(raw);
+  const score = { brief: brief.trim(), by: pick2.model, keyframes };
+  logErr(`[muse] ${pick2.provider}/${pick2.model} composed ${keyframes.length} kf / ${(scoreDuration(keyframes) / 1e3).toFixed(0)}s`);
+  return score;
+}
+function parseKeyframes(raw) {
+  let txt = raw.trim();
+  const start = txt.indexOf("{");
+  const end = txt.lastIndexOf("}");
+  if (start >= 0 && end > start) txt = txt.slice(start, end + 1);
+  const obj = JSON.parse(txt);
+  return normalizeKeyframes(obj.keyframes ?? obj.actions ?? obj);
+}
+async function callAnthropic(model, prompt) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": ANTHROPIC_KEY(),
+      "anthropic-version": "2023-06-01"
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 1500,
+      system: SYSTEM,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  if (!res.ok) throw new Error(`anthropic ${res.status}: ${await res.text().catch(() => "")}`);
+  const data = await res.json();
+  const block = (data.content || []).find((b) => b.type === "text");
+  return block?.text ?? "";
+}
+async function callOpenAI(model, prompt) {
+  const res = await fetch(OPENAI_BASE() + "/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: "Bearer " + OPENAI_KEY() },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" }
+    })
+  });
+  if (!res.ok) throw new Error(`openai ${res.status}: ${await res.text().catch(() => "")}`);
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content ?? "";
+}
+
+// src/modes.ts
+var DATA_DIR = join(homedir(), ".claude-f-me");
+var MUSE_FILE = join(DATA_DIR, "muse.json");
 var ModeController = class {
   constructor(manager2) {
     this.manager = manager2;
     manager2.attachMode(this);
+    for (const s of BUILTIN_SCORES) this.library.set(s.name, s);
+    void this.loadLibrary();
+    this.pushPersona();
   }
   token = 0;
   actions = [];
+  // loaded funscript, as level-native keyframes
+  library = /* @__PURE__ */ new Map();
+  persona = DEFAULT_PERSONA;
+  blind = false;
   /** Cancel whatever mode is running. */
   stop() {
     this.token++;
     this.manager.setActiveMode(null);
   }
+  // ---- personas ----
+  listPersonas() {
+    return PERSONAS.map((p) => ({ ...p, active: !this.blind && p.id === this.persona.id }));
+  }
+  /** Select a persona by id, or "blind" to pick a random hidden one. */
+  setPersona(id) {
+    if (id === "blind" || id === "random") {
+      const pick2 = PERSONAS[Math.floor(Math.random() * PERSONAS.length)];
+      this.persona = pick2;
+      this.blind = id === "blind";
+      this.manager.log_("cmd", this.blind ? "persona \u2192 \u{1F3AD} ??? (blind)" : `persona \u2192 ${pick2.emoji} ${pick2.name.en}`);
+    } else {
+      const p = getPersona(id);
+      if (!p) throw new Error(`unknown persona "${id}"`);
+      this.persona = p;
+      this.blind = false;
+      this.manager.log_("cmd", `persona \u2192 ${p.emoji} ${p.name.en} \u2014 "${p.voice.en}"`);
+    }
+    this.pushPersona();
+    return { id: this.blind ? "blind" : this.persona.id, blind: this.blind };
+  }
+  /** Reveal a blind persona's identity. */
+  reveal() {
+    if (this.blind) {
+      this.blind = false;
+      this.manager.log_("cmd", `persona revealed \u2192 ${this.persona.emoji} ${this.persona.name.en}`);
+      this.pushPersona();
+    }
+    return this.personaView();
+  }
+  get activePersona() {
+    return this.persona;
+  }
+  personaView() {
+    const p = this.persona;
+    if (this.blind) {
+      return { id: "blind", name: "???", emoji: "\u{1F3AD}", tagline: "a mystery is in control", model: null, blind: true };
+    }
+    return { id: p.id, name: p.name.en, emoji: p.emoji, tagline: p.tagline.en, model: p.model, blind: false };
+  }
+  pushPersona() {
+    this.manager.setPersonaView(this.personaView());
+  }
+  // ---- video mode (funscript) ----
   /** Load a funscript from a JSON string or a file path. */
   async loadFunscript(source) {
     let raw = source.trim();
@@ -30139,26 +30572,68 @@ var ModeController = class {
       raw = await readFile(source, "utf8");
     }
     const data = JSON.parse(raw);
-    const actions = (data.actions ?? []).map((a) => ({ at: Number(a.at), pos: Number(a.pos) })).filter((a) => Number.isFinite(a.at) && Number.isFinite(a.pos)).sort((a, b) => a.at - b.at);
-    if (actions.length === 0) throw new Error("funscript has no usable actions");
-    this.actions = actions;
-    const durationMs = actions[actions.length - 1].at;
-    this.manager.log_("info", `funscript loaded: ${actions.length} actions, ${(durationMs / 1e3).toFixed(1)}s`);
-    return { actions: actions.length, durationMs };
+    const kf = normalizeKeyframes(
+      (data.actions ?? []).map((a) => ({ at: Number(a.at), level: Number(a.pos) / 100 }))
+    );
+    this.actions = kf;
+    const durationMs = scoreDuration(kf);
+    this.manager.log_("info", `funscript loaded: ${kf.length} actions, ${(durationMs / 1e3).toFixed(1)}s`);
+    return { actions: kf.length, durationMs };
   }
   /** Play the loaded funscript in real time. Returns immediately; runs async. */
   async playVideo(target, opts = {}) {
     if (this.actions.length === 0) throw new Error("no funscript loaded \u2014 call load_funscript first");
-    const speed = opts.speed && opts.speed > 0 ? opts.speed : 1;
-    const loop = !!opts.loop;
     const invert = !!opts.invert;
+    const label = `funscript \xD7${normSpeed(opts.speed)}${opts.loop ? " \u21BB" : ""}${invert ? " inv" : ""}`;
+    return this.runTimeline("video", target, this.actions, {
+      loop: opts.loop,
+      speed: opts.speed,
+      label,
+      transform: (lvl) => invert ? 1 - lvl : lvl
+    });
+  }
+  // ---- muse mode (composed scores) ----
+  listScores() {
+    return [...this.library.values()].map((s) => ({
+      name: s.name,
+      brief: s.brief,
+      by: s.by,
+      durationMs: scoreDuration(s.keyframes),
+      keyframes: s.keyframes.length
+    }));
+  }
+  getScore(name) {
+    return this.library.get(name);
+  }
+  /** Save a composed score to the library (and best-effort to disk). */
+  async saveScore(name, score) {
+    const s = { ...score, name, keyframes: normalizeKeyframes(score.keyframes) };
+    this.library.set(name, s);
+    await this.persistLibrary();
+    this.manager.log_("info", `muse saved "${name}" (${s.keyframes.length} kf)`);
+  }
+  /** Compose via an external model (console "describe a vibe" box). Throws if no key. */
+  async composeViaModel(brief, model) {
+    const chosen = model ?? this.persona.model ?? void 0;
+    if (!isLlmConfigured()) throw new Error("no LLM key configured \u2014 ask Claude in chat to compose, or set ANTHROPIC_API_KEY / OPENAI_API_KEY");
+    return composeWithModel(brief, chosen);
+  }
+  /** Play a score (Muse mode). Returns immediately; runs async. */
+  async playScore(target, score, opts = {}) {
+    const kf = normalizeKeyframes(score.keyframes);
+    const label = score.brief || score.name || "muse";
+    this.manager.log_("cmd", `muse \u2192 "${label}"${score.by ? " \xB7 by " + score.by : ""}`);
+    return this.runTimeline("muse", target, kf, { loop: opts.loop, speed: opts.speed, label });
+  }
+  /** Shared real-time keyframe player for video + muse modes. */
+  async runTimeline(type, target, kf, opts) {
     const ids = this.manager.resolveTargets(target);
     if (ids.length === 0) throw new Error(`no device matched "${target}"`);
+    const speed = normSpeed(opts.speed);
+    const loop = !!opts.loop;
+    const transform2 = opts.transform;
+    const durationMs = scoreDuration(kf);
     const my = ++this.token;
-    const acts = this.actions;
-    const durationMs = acts[acts.length - 1].at;
-    const label = `funscript \xD7${speed}${loop ? " \u21BB" : ""}${invert ? " inv" : ""}`;
-    this.manager.log_("cmd", `video mode \u2192 ${label}`);
     void (async () => {
       do {
         const start = Date.now();
@@ -30166,10 +30641,10 @@ var ModeController = class {
           if (this.token !== my) return;
           const t = (Date.now() - start) * speed;
           if (t >= durationMs) break;
-          const pos = sampleFunscript(acts, t);
-          const intensity = clamp01((invert ? 100 - pos : pos) / 100);
-          for (const id of ids) await this.manager.driveStep(id, intensity);
-          this.manager.setActiveMode({ type: "video", label, positionMs: t, durationMs });
+          let lvl = clamp01(sampleScore(kf, t));
+          if (transform2) lvl = clamp01(transform2(lvl));
+          for (const id of ids) await this.manager.driveStep(id, lvl);
+          this.manager.setActiveMode({ type, label: opts.label, positionMs: t, durationMs });
           await delay(50);
         }
       } while (loop && this.token === my);
@@ -30180,44 +30655,77 @@ var ModeController = class {
     })();
     return { started: true, durationMs };
   }
-  /** Start a built-in game engine. Returns immediately; runs async. */
+  // ---- game mode ----
+  /** Start a built-in game engine. Returns immediately; runs async. Persona modulates feel. */
   async startGame(target, type, opts = {}) {
     const ids = this.manager.resolveTargets(target);
     if (ids.length === 0) throw new Error(`no device matched "${target}"`);
-    const max = clamp01(opts.intensityMax ?? 1);
+    const p = this.persona;
+    const max = clamp01(Math.min(opts.intensityMax ?? 1, p.ceiling));
     const endAt = opts.durationMs && opts.durationMs > 0 ? Date.now() + opts.durationMs : Infinity;
+    const pace = (ms) => Math.max(40, ms * (1.4 - p.pace));
+    const rand = (span) => Math.random() * span * (0.4 + p.randomness);
     const my = ++this.token;
-    this.manager.log_("cmd", `game mode \u2192 ${type}${opts.durationMs ? ` (${opts.durationMs}ms)` : ""}`);
-    this.manager.setActiveMode({ type: "game", label: type });
+    this.manager.log_("cmd", `game \u2192 ${type} \xB7 ${this.blind ? "\u{1F3AD} ???" : p.emoji + " " + p.name.en}${opts.durationMs ? ` (${opts.durationMs}ms)` : ""}`);
+    this.manager.setActiveMode({ type: "game", label: this.blind ? `\u{1F3AD} ${type}` : `${p.emoji} ${type}` });
     const drive = async (v) => {
       for (const id of ids) await this.manager.driveStep(id, v);
     };
     void (async () => {
       if (type === "roulette") {
         while (this.token === my && Date.now() < endAt) {
-          await delay(600 + Math.random() * 2400);
+          await delay(pace(600) + rand(2400));
           if (this.token !== my) break;
           const lvl = 0.3 + Math.random() * 0.7 * max;
           await drive(Math.min(lvl, max));
-          await delay(200 + Math.random() * 900);
+          await delay(pace(200) + rand(900));
           await drive(0);
         }
       } else if (type === "escalation") {
         let lvl = 0.1;
+        const stepHold = pace(2500);
         while (this.token === my && Date.now() < endAt && lvl < max) {
           await drive(lvl);
-          await delay(2500);
+          await delay(stepHold);
           lvl += 0.1;
         }
         while (this.token === my && Date.now() < endAt) {
           await drive(max);
           await delay(500);
         }
+      } else if (type === "edge") {
+        let peak = 0.55;
+        const denyRest = 1500 + p.denial * 4e3;
+        while (this.token === my && Date.now() < endAt) {
+          for (let v = 0.2; v <= peak && this.token === my; v += 0.08) {
+            await drive(Math.min(v, max));
+            await delay(pace(420));
+          }
+          await drive(Math.min(peak, max));
+          await delay(pace(1600));
+          await drive(0);
+          await delay(denyRest + rand(2500));
+          peak = Math.min(0.98, peak + 0.1);
+        }
+      } else if (type === "wheel") {
+        while (this.token === my && Date.now() < endAt) {
+          let wait = pace(45);
+          while (wait < pace(320) && this.token === my) {
+            await drive(Math.random() * max);
+            await delay(wait);
+            wait *= 1.18;
+          }
+          const landed = (0.4 + Math.random() * 0.6) * max;
+          await drive(Math.min(landed, max));
+          await delay(3e3 + rand(2500));
+          await drive(0);
+          await delay(500);
+        }
       } else {
         const t0 = Date.now();
         while (this.token === my && Date.now() < endAt) {
           const t = (Date.now() - t0) / 1e3;
-          const v = (0.45 + 0.35 * Math.sin(t * 0.7) + 0.15 * Math.sin(t * 2.3)) * max;
+          const v = (0.45 + 0.35 * Math.sin(t * 0.7) + (0.1 + 0.2 * p.randomness) * Math.sin(t * 2.3)) * max;
           await drive(clamp01(v));
           await delay(80);
         }
@@ -30231,39 +30739,132 @@ var ModeController = class {
   }
   /**
    * Narrative game hook: a one-shot reaction Claude can fire while running a
-   * text adventure ("you opened the chest → reward"). Does not take over a mode.
+   * text adventure ("you opened the chest → reward"). Persona tints magnitude.
    */
   async gameEvent(target, kind, magnitude = 0.7) {
+    const p = this.persona;
     const m = clamp01(magnitude);
+    const cap = (v) => Math.min(v, p.ceiling);
     const map = {
-      reward: { intensity: 0.5 + 0.5 * m, ms: 1500 },
-      penalty: { intensity: Math.min(1, 0.8 + 0.2 * m), ms: 500 },
-      tease: { intensity: 0.3 + 0.3 * m, ms: 2500 },
-      pulse: { intensity: m, ms: 300 }
+      reward: { intensity: cap(0.5 + 0.5 * m), ms: 1500 * (1.4 - p.pace) },
+      penalty: { intensity: cap(Math.min(1, 0.8 + 0.2 * m)), ms: 500 },
+      tease: { intensity: cap(0.3 + 0.3 * m), ms: (2500 + p.denial * 2e3) * (1.4 - p.pace) },
+      pulse: { intensity: cap(m), ms: 300 }
     };
     const e = map[kind] ?? map.pulse;
-    await this.manager.vibrate(target, e.intensity, e.ms);
+    await this.manager.vibrate(target, e.intensity, Math.round(e.ms));
     this.manager.log_("cmd", `game_event ${kind} (${Math.round(m * 100)}%)`);
     return { ok: true };
   }
-};
-function sampleFunscript(acts, t) {
-  if (t <= acts[0].at) return acts[0].pos;
-  const last = acts[acts.length - 1];
-  if (t >= last.at) return last.pos;
-  let lo = 0;
-  let hi = acts.length - 1;
-  while (lo < hi) {
-    const mid = lo + hi >> 1;
-    if (acts[mid].at <= t) lo = mid + 1;
-    else hi = mid;
+  // ---- library persistence (best-effort) ----
+  async loadLibrary() {
+    try {
+      const raw = await readFile(MUSE_FILE, "utf8");
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        for (const s of arr) {
+          if (s?.name && Array.isArray(s.keyframes)) {
+            this.library.set(s.name, { ...s, keyframes: normalizeKeyframes(s.keyframes) });
+          }
+        }
+      }
+    } catch {
+    }
   }
-  const b = acts[lo];
-  const a = acts[lo - 1];
-  const span = b.at - a.at || 1;
-  const f = (t - a.at) / span;
-  return a.pos + (b.pos - a.pos) * f;
-}
+  async persistLibrary() {
+    try {
+      await mkdir(DATA_DIR, { recursive: true });
+      const builtinNames = new Set(BUILTIN_SCORES.map((s) => s.name));
+      const saved = [...this.library.values()].filter((s) => !builtinNames.has(s.name));
+      await writeFile(MUSE_FILE, JSON.stringify(saved, null, 2));
+    } catch {
+    }
+  }
+};
+var normSpeed = (s) => s && s > 0 ? s : 1;
+var BUILTIN_SCORES = [
+  {
+    name: "slow-build",
+    brief: "a long, patient build to a single release",
+    keyframes: [
+      { at: 0, level: 0 },
+      { at: 2e4, level: 0.25 },
+      { at: 45e3, level: 0.4 },
+      { at: 7e4, level: 0.35 },
+      { at: 95e3, level: 0.6 },
+      { at: 11e4, level: 0.55 },
+      { at: 125e3, level: 0.85 },
+      { at: 132e3, level: 1 },
+      { at: 138e3, level: 0 }
+    ]
+  },
+  {
+    name: "rollercoaster",
+    brief: "climbs, plunges, climbs higher \u2014 never lets you settle",
+    keyframes: [
+      { at: 0, level: 0.1 },
+      { at: 6e3, level: 0.7 },
+      { at: 8e3, level: 0.2 },
+      { at: 14e3, level: 0.85 },
+      { at: 16e3, level: 0.15 },
+      { at: 22e3, level: 1 },
+      { at: 24500, level: 0.3 },
+      { at: 3e4, level: 0.95 },
+      { at: 33e3, level: 0 }
+    ]
+  },
+  {
+    name: "storm",
+    brief: "distant rumbles building into relentless waves",
+    keyframes: [
+      { at: 0, level: 0.05 },
+      { at: 8e3, level: 0.3 },
+      { at: 9e3, level: 0.6 },
+      { at: 1e4, level: 0.2 },
+      { at: 18e3, level: 0.5 },
+      { at: 19e3, level: 0.9 },
+      { at: 2e4, level: 0.4 },
+      { at: 28e3, level: 0.7 },
+      { at: 34e3, level: 1 },
+      { at: 44e3, level: 1 },
+      { at: 47e3, level: 0.1 }
+    ]
+  },
+  {
+    name: "ily-morse",
+    brief: 'pulses "I love you" in morse, then a warm hold',
+    keyframes: [
+      // I = · ·
+      { at: 0, level: 0 },
+      { at: 100, level: 0.9 },
+      { at: 250, level: 0 },
+      { at: 400, level: 0.9 },
+      { at: 550, level: 0 },
+      // L = · – · ·
+      { at: 900, level: 0.9 },
+      { at: 1050, level: 0 },
+      { at: 1200, level: 0.9 },
+      { at: 1600, level: 0 },
+      { at: 1750, level: 0.9 },
+      { at: 1900, level: 0 },
+      { at: 2050, level: 0.9 },
+      { at: 2200, level: 0 },
+      // Y = – · – –
+      { at: 2600, level: 0.9 },
+      { at: 3e3, level: 0 },
+      { at: 3150, level: 0.9 },
+      { at: 3300, level: 0 },
+      { at: 3450, level: 0.9 },
+      { at: 3850, level: 0 },
+      { at: 4e3, level: 0.9 },
+      { at: 4400, level: 0 },
+      // warm hold
+      { at: 5200, level: 0.6 },
+      { at: 8e3, level: 0.7 },
+      { at: 9e3, level: 0 }
+    ]
+  }
+];
 
 // src/index.ts
 var args = process.argv.slice(2);

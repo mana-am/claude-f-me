@@ -76,7 +76,9 @@ export async function startMcp(manager: DeviceManager, modes: ModeController): P
         "Run a sequence of intensity steps on a device. Provide a named preset (pulse|wave|escalate|tease) OR explicit steps. loops repeats the whole sequence (the device stops when it finishes). Stop or vibrate cancels a running pattern.",
       inputSchema: {
         target: z.string().optional().describe("device id or 'all' (default)"),
-        preset: z.enum(["pulse", "wave", "escalate", "tease"]).optional(),
+        preset: z
+          .enum(["pulse", "wave", "escalate", "tease", "heartbeat", "staircase", "sos", "earthquake"])
+          .optional(),
         steps: z
           .array(
             z.object({
@@ -176,9 +178,9 @@ export async function startMcp(manager: DeviceManager, modes: ModeController): P
     {
       title: "Start a game mode",
       description:
-        "Start a built-in interactive game engine. roulette = random bursts at random intervals; escalation = ramps up and holds at max until stopped; ambient = gentle organic waves. Cancels any other running mode.",
+        "Start a built-in interactive game engine. roulette = random bursts at random intervals; escalation = ramps up and holds at max; ambient = gentle organic waves; edge = tease-and-deny (ramp to the brink, then cut and rest, peak creeps higher); wheel = spin through random levels then land and hold. Cancels any other running mode.",
       inputSchema: {
-        type: z.enum(["roulette", "escalation", "ambient"]),
+        type: z.enum(["roulette", "escalation", "ambient", "edge", "wheel"]),
         target: z.string().optional().describe("device id or 'all' (default)"),
         intensity_max: z.number().min(0).max(1).optional().describe("ceiling for this game (default 1)"),
         duration_ms: z.number().int().min(1000).optional().describe("auto-end after this long"),
@@ -215,6 +217,98 @@ export async function startMcp(manager: DeviceManager, modes: ModeController): P
       await manager.stop(target ?? "all");
       return text(manager.snapshot());
     }
+  );
+
+  // ---- muse mode (you compose a haptic score from a brief) ----
+
+  server.registerTool(
+    "compose",
+    {
+      title: "Compose & play a Muse score",
+      description:
+        "YOU compose a haptic timeline from a creative brief and play it — the device becomes an instrument you play. Provide `keyframes` as [{at,level}] where `at` is ms from the start (strictly increasing, starting at 0) and `level` is intensity 0..1. Use many keyframes for smooth ramps, plateaus to hold, drops to 0 for denial/rest, and a release near the end; scores can run for minutes. `brief` is the natural-language idea you turned into the score (shown in the console). Optionally save_as a library name. Respects the safety cap. Cancels any other running mode.",
+      inputSchema: {
+        brief: z.string().describe("the vibe you composed, in words (e.g. '10-minute tantric slow burn')"),
+        keyframes: z
+          .array(z.object({ at: z.number().min(0), level: z.number().min(0).max(1) }))
+          .min(2)
+          .describe("[{at:ms, level:0..1}] timeline, at strictly increasing from 0"),
+        target: z.string().optional().describe("device id or 'all' (default)"),
+        save_as: z.string().optional().describe("save to the Muse library under this name"),
+        loop: z.boolean().optional().describe("repeat when it ends (default false)"),
+      },
+    },
+    async ({ brief, keyframes, target, save_as, loop }) => {
+      const score = { brief, keyframes, by: "claude" };
+      if (save_as) await modes.saveScore(save_as, score);
+      const r = await modes.playScore(target ?? "all", score, { loop });
+      return text({ ...r, brief, keyframes: keyframes.length, saved: save_as ?? null });
+    }
+  );
+
+  server.registerTool(
+    "muse_list",
+    {
+      title: "List Muse library",
+      description: "List saved/built-in Muse scores (name, brief, duration, keyframe count) you can replay with muse_play.",
+      inputSchema: {},
+    },
+    async () => text(modes.listScores())
+  );
+
+  server.registerTool(
+    "muse_play",
+    {
+      title: "Play a Muse score",
+      description: "Play a score from the Muse library by name (see muse_list). Cancels any other running mode.",
+      inputSchema: {
+        name: z.string().describe("library score name"),
+        target: z.string().optional().describe("device id or 'all' (default)"),
+        loop: z.boolean().optional(),
+      },
+    },
+    async ({ name, target, loop }) => {
+      const score = modes.getScore(name);
+      if (!score) throw new Error(`no Muse score named "${name}" — try muse_list`);
+      return text(await modes.playScore(target ?? "all", score, { loop }));
+    }
+  );
+
+  // ---- personas (driver personality, themed after SOTA models) ----
+
+  server.registerTool(
+    "list_personas",
+    {
+      title: "List personas",
+      description:
+        "List driver personas. Each shapes the feel of games/events (pace, randomness, denial, ceiling) and, when a matching API key is set, which model composes Muse scores. Pick one with set_persona.",
+      inputSchema: {},
+    },
+    async () => text(modes.listPersonas())
+  );
+
+  server.registerTool(
+    "set_persona",
+    {
+      title: "Set the driver persona",
+      description:
+        "Choose who's in control. Pass a persona id (slowburn|brat|metronome|storm|oracle) or 'blind' to pick a random hidden one (label shows 🎭 ??? until reveal_persona). Changes how subsequent games and game_events feel.",
+      inputSchema: { id: z.string().describe("persona id, or 'blind'") },
+    },
+    async ({ id }) => {
+      const r = modes.setPersona(id);
+      return text({ ...r, persona: manager.snapshot().persona });
+    }
+  );
+
+  server.registerTool(
+    "reveal_persona",
+    {
+      title: "Reveal a blind persona",
+      description: "Reveal the identity of a persona chosen via blind mode.",
+      inputSchema: {},
+    },
+    async () => text(modes.reveal())
   );
 
   const transport = new StdioServerTransport();
