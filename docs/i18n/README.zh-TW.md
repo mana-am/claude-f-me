@@ -50,9 +50,15 @@
 
 ## 截圖
 
-| 反應式主控台（英文） | 主控台（中文） | 主人遙控 |
-|---|---|---|
-| <img src="../console.png" width="320" /> | <img src="../console.zh.png" width="320" /> | <img src="../master.png" width="150" /> |
+🎥 **看主控台即時反應**（或[**在瀏覽器裡試玩 →**](https://mana-am.github.io/claude-f-me/)）：
+
+<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
+
+<sub>影片若無法內嵌播放，[點此開啟](../pulse-core.mp4)，或看頂部的循環預覽。</sub>
+
+| 主控台（英文） | 主控台（中文） | 主人遙控 | 瀏覽器內 demo |
+|---|---|---|---|
+| <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
 ## 它是什麼
 

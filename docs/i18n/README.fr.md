@@ -56,9 +56,15 @@ Un **simulateur intégré** permet de tout construire et d'essayer **sans matér
 
 ## Galerie
 
-| Console réactive (EN) | Console (中文) | Télécommande master |
-|---|---|---|
-| <img src="../console.png" width="320" /> | <img src="../console.zh.png" width="320" /> | <img src="../master.png" width="150" /> |
+🎥 **Regarde la console réagir en temps réel** (ou [**essaie-la dans ton navigateur →**](https://mana-am.github.io/claude-f-me/)) :
+
+<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
+
+<sub>Si la vidéo ne se lit pas en ligne, [ouvre-la ici](../pulse-core.mp4), ou regarde l'aperçu en boucle en haut.</sub>
+
+| Console (EN) | Console (中文) | Télécommande master | Démo navigateur |
+|---|---|---|---|
+| <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
 ## Qu'est-ce que c'est
 

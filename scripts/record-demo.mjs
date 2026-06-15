@@ -20,7 +20,9 @@ const FRAMES = Number(process.env.CFM_DEMO_FRAMES || 56);
 const FPS = Number(process.env.CFM_DEMO_FPS || 12);
 const OUTW = Number(process.env.CFM_DEMO_WIDTH || 600);
 const COLORS = Number(process.env.CFM_DEMO_COLORS || 64);
-const W = 900, H = 720;
+const W = Number(process.env.CFM_DEMO_VW || 900);
+const H = Number(process.env.CFM_DEMO_VH || 720);
+const MP4 = OUT.endsWith(".mp4");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const ev = (body) =>
@@ -66,17 +68,26 @@ try {
   }
   await ev("action=stop");
 
-  // frames -> high-quality looping gif via a generated palette
-  const palette = join(dir, "pal.png");
-  execFileSync("ffmpeg", [
-    "-y", "-framerate", String(FPS), "-i", join(dir, "f%04d.png"),
-    "-vf", `scale=${OUTW}:-1:flags=lanczos,palettegen=max_colors=${COLORS}:stats_mode=diff`, palette,
-  ], { stdio: "ignore" });
-  execFileSync("ffmpeg", [
-    "-y", "-framerate", String(FPS), "-i", join(dir, "f%04d.png"), "-i", palette,
-    "-lavfi", `scale=${OUTW}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=4`,
-    "-loop", "0", OUT,
-  ], { stdio: "ignore" });
+  if (MP4) {
+    // frames -> compact, broadly-compatible h264 mp4
+    execFileSync("ffmpeg", [
+      "-y", "-framerate", String(FPS), "-i", join(dir, "f%04d.png"),
+      "-vf", `scale=${OUTW}:-2:flags=lanczos`,
+      "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "23", "-movflags", "+faststart", OUT,
+    ], { stdio: "ignore" });
+  } else {
+    // frames -> high-quality looping gif via a generated palette
+    const palette = join(dir, "pal.png");
+    execFileSync("ffmpeg", [
+      "-y", "-framerate", String(FPS), "-i", join(dir, "f%04d.png"),
+      "-vf", `scale=${OUTW}:-1:flags=lanczos,palettegen=max_colors=${COLORS}:stats_mode=diff`, palette,
+    ], { stdio: "ignore" });
+    execFileSync("ffmpeg", [
+      "-y", "-framerate", String(FPS), "-i", join(dir, "f%04d.png"), "-i", palette,
+      "-lavfi", `scale=${OUTW}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=4`,
+      "-loop", "0", OUT,
+    ], { stdio: "ignore" });
+  }
 
   console.error(`wrote ${OUT}`);
 } finally {

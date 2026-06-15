@@ -57,9 +57,15 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 
 ## Gallery
 
-| Reactive console (EN) | 控制台 (中文) | Master remote |
-|---|---|---|
-| <img src="./docs/console.png" width="320" /> | <img src="./docs/console.zh.png" width="320" /> | <img src="./docs/master.png" width="150" /> |
+🎥 **Watch the console react in real time** (or [**try it live in your browser →**](https://mana-am.github.io/claude-f-me/)):
+
+<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
+
+<sub>If the video doesn't play inline, [open it here](./docs/pulse-core.mp4) — or see the looping preview at the top.</sub>
+
+| Console (EN) | 控制台 (中文) | Master remote | In-browser demo |
+|---|---|---|---|
+| <img src="./docs/console.png" width="230" /> | <img src="./docs/console.zh.png" width="230" /> | <img src="./docs/master.png" width="110" /> | <img src="./docs/demo-browser.png" width="230" /> |
 
 ## What it is
 

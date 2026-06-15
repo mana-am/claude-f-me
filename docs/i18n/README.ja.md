@@ -52,9 +52,15 @@
 
 ## スクリーンショット
 
-| リアクティブコンソール（英語） | コンソール（中国語） | マスターリモート |
-|---|---|---|
-| <img src="../console.png" width="320" /> | <img src="../console.zh.png" width="320" /> | <img src="../master.png" width="150" /> |
+🎥 **コンソールがリアルタイムに反応する様子**（または[**ブラウザで試す →**](https://mana-am.github.io/claude-f-me/)）：
+
+<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
+
+<sub>動画がインラインで再生されない場合は[こちらで開く](../pulse-core.mp4)、または上部のループプレビューを参照。</sub>
+
+| コンソール（英語） | コンソール（中国語） | マスターリモート | ブラウザ内デモ |
+|---|---|---|---|
+| <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
 ## これは何か
 

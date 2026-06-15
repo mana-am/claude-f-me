@@ -52,9 +52,15 @@ Un **simulador integrado** te deja construir y jugar **sin hardware**.
 
 ## Galería
 
-| Consola reactiva (EN) | Consola (中文) | Mando master |
-|---|---|---|
-| <img src="../console.png" width="320" /> | <img src="../console.zh.png" width="320" /> | <img src="../master.png" width="150" /> |
+🎥 **Mira la consola reaccionar en tiempo real** (o [**pruébala en tu navegador →**](https://mana-am.github.io/claude-f-me/)):
+
+<video src="https://github.com/mana-am/claude-f-me/raw/main/docs/pulse-core.mp4" width="640" controls></video>
+
+<sub>Si el vídeo no se reproduce en línea, [ábrelo aquí](../pulse-core.mp4), o mira la vista previa en bucle de arriba.</sub>
+
+| Consola (EN) | Consola (中文) | Mando master | Demo en navegador |
+|---|---|---|---|
+| <img src="../console.png" width="230" /> | <img src="../console.zh.png" width="230" /> | <img src="../master.png" width="110" /> | <img src="../demo-browser.png" width="230" /> |
 
 ## Qué es
 
