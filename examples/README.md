@@ -10,7 +10,7 @@ npx -y github:mana-am/claude-f-me
 | Client | How |
 |---|---|
 | **Claude Code** | `/plugin marketplace add mana-am/claude-f-me` then `/plugin install claude-f-me@claude-f-me` (one-click, includes slash commands) |
-| **Codex CLI** | copy [`codex-config.toml`](./codex-config.toml) into `~/.codex/config.toml` |
+| **Codex CLI** | copy [`codex-config.toml`](./codex-config.toml) into `~/.codex/config.toml` (repo conventions live in [`AGENTS.md`](../AGENTS.md)) |
 | **Claude Desktop** | merge [`mcp.json`](./mcp.json) into `claude_desktop_config.json` → `mcpServers` |
 | **Cursor** | merge [`mcp.json`](./mcp.json) into `.cursor/mcp.json` (or Settings → MCP) |
 | **Cline / Roo** | merge [`mcp.json`](./mcp.json) into the Cline MCP settings |
@@ -26,3 +26,9 @@ Once connected, just chat: `scan for devices` · `vibrate at 40% for 3s` · `sta
 
 > No hardware? The built-in **simulator** runs everything. For real toys, install
 > [Intiface Central](https://intiface.com) and set `CFM_MODE=buttplug`.
+
+---
+
+**Publishing to registries** (MCP registry, Smithery, skills.sh) and the GPT Store policy notes
+live in [`docs/publishing/`](../docs/publishing/README.md). Agent/Codex repo conventions are in
+[`AGENTS.md`](../AGENTS.md).
