@@ -110,6 +110,9 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     <span id="mode" class="pill">…</span>
     <span class="pill dot"><span id="conn" class="dot"></span><span id="connlbl"></span></span>
     <span id="active" class="pill act" style="display:none"></span>
+    <span id="persona" class="pill act" style="display:none"></span>
+    <button id="revealbtn" class="btn ghost" style="display:none" data-i18n="reveal"></button>
+    <span id="duetbadge" class="pill act" style="display:none"></span>
     <span id="masters" class="pill act" style="display:none"></span>
     <div class="spacer"></div>
     <button id="lang" class="btn ghost"></button>
@@ -154,8 +157,20 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       <button class="chip" id="surprise" data-i18n="surprise"></button>
     </div>
     <div class="deckrow">
+      <span class="lbl" data-i18n="persona"></span>
+      <span id="personas"></span>
+    </div>
+    <div class="deckrow">
+      <span class="lbl" data-i18n="muse"></span>
+      <span id="muselib"></span>
+      <input id="musebrief" type="text" data-i18n-ph="musePh" style="min-width:200px; flex:1; max-width:340px;
+        background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:7px 12px; font:inherit;" />
+      <button class="chip" id="musego" data-i18n="museGo"></button>
+    </div>
+    <div class="deckrow">
       <span class="lbl" data-i18n="video"></span>
       <button class="chip" id="vidbtn" data-i18n="funscript"></button>
+      <button class="chip" id="duetbtn" data-i18n="duet"></button>
       <span class="lbl" data-i18n="audio"></span>
       <button class="chip" id="audmic" data-i18n="useMic"></button>
       <button class="chip" id="audtab" data-i18n="useTab"></button>
@@ -185,6 +200,32 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   </div>
 </div></div>
 
+<div id="duetmodal"><div class="modal">
+  <h3 data-i18n="duetTitle"></h3>
+  <div class="deckrow" style="justify-content:flex-start; gap:10px">
+    <label class="opt" style="flex:1"><span data-i18n="duetRelay"></span>
+      <input id="duetrelay" type="text" style="width:100%; margin-top:4px" /></label>
+  </div>
+  <div class="deckrow" style="justify-content:flex-start; gap:10px; margin-top:8px">
+    <label class="opt"><span data-i18n="duetRoom"></span> <input id="duetroom" type="text" style="width:120px" /></label>
+    <label class="opt"><span data-i18n="duetMode"></span>
+      <select id="duetmode" style="background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:6px; padding:4px 6px">
+        <option value="mirror" data-i18n="duetMirror"></option>
+        <option value="lead" data-i18n="duetLead"></option>
+        <option value="follow" data-i18n="duetFollow"></option>
+      </select></label>
+  </div>
+  <div class="deckrow" style="justify-content:flex-start; margin-top:10px">
+    <span id="duetstatus" class="small" data-i18n="duetOffline"></span>
+  </div>
+  <div class="deckrow" style="margin-top:10px; justify-content:flex-start">
+    <button class="btn" id="duettouch" data-i18n="duetTouch" disabled></button>
+    <span class="spacer"></span>
+    <button class="btn ghost" id="duetclose" data-i18n="close"></button>
+    <button class="btn" id="duetconnect" data-i18n="duetConnect"></button>
+  </div>
+</div></div>
+
 <script>
   var I18N = {
     en: { remote:"👑 Remote", scan:"Scan", estop:"■ STOP", log:"Log",
@@ -200,6 +241,15 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       sample:"Load sample", loop:"loop", speed:"speed", invert:"invert", play:"▶ Play", close:"Close",
       keys:"keys: 0–9 set level · space stop · S scan",
       mastersOn:"👑 {n} master", mastersOnN:"👑 {n} masters",
+      muse:"Muse", musePh:"describe a vibe — e.g. 10-min slow burn", museGo:"✨ Compose",
+      museNoKey:"No model key set — ask Claude in chat to compose (or set ANTHROPIC_API_KEY).",
+      museErr:"Compose failed: ", needBrief:"Describe a vibe first.",
+      persona:"Persona", reveal:"Reveal", blind:"🎭 Blind",
+      duet:"💞 Duet", duetTitle:"💞 Duet — long-distance sync", duetRelay:"relay URL", duetRoom:"room code",
+      duetMode:"mode", duetMirror:"mirror", duetLead:"I lead", duetFollow:"I follow",
+      duetConnect:"Connect", duetLeave:"Leave", duetTouch:"👋 Touch",
+      duetWaiting:"waiting for partner…", duetLinked:"partner linked", duetOffline:"not connected",
+      duetPeers:"{n} in room", duetBadge:"🔗 Duet",
       needFs:"Paste a funscript JSON first.", audFail:"Audio capture failed: ", langBtn:"中文" },
     zh: { remote:"👑 遥控", scan:"扫描", estop:"■ 停止", log:"日志",
       connecting:"连接中", connected:"已连接", reconnecting:"重连中",
@@ -214,6 +264,15 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       sample:"载入示例", loop:"循环", speed:"速度", invert:"反向", play:"▶ 播放", close:"关闭",
       keys:"快捷键：0–9 设强度 · 空格 停止 · S 扫描",
       mastersOn:"👑 {n} 位主人", mastersOnN:"👑 {n} 位主人",
+      muse:"作曲", musePh:"描述一种感觉 — 例如 10 分钟慢热", museGo:"✨ 作曲",
+      museNoKey:"未配置模型 key — 去聊天里让 Claude 作曲（或设置 ANTHROPIC_API_KEY）。",
+      museErr:"作曲失败：", needBrief:"请先描述一种感觉。",
+      persona:"人格", reveal:"揭晓", blind:"🎭 盲盒",
+      duet:"💞 双人", duetTitle:"💞 双人 — 异地同步", duetRelay:"中转地址", duetRoom:"房间码",
+      duetMode:"模式", duetMirror:"镜像", duetLead:"我主导", duetFollow:"我跟随",
+      duetConnect:"连接", duetLeave:"断开", duetTouch:"👋 触碰",
+      duetWaiting:"等待伙伴…", duetLinked:"伙伴已连接", duetOffline:"未连接",
+      duetPeers:"房间内 {n} 人", duetBadge:"🔗 双人",
       needFs:"请先粘贴 funscript JSON。", audFail:"音频采集失败：", langBtn:"EN" }
   };
   var qlang = new URLSearchParams(location.search).get("lang");
@@ -231,13 +290,27 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   var $ = function(s){ return document.querySelector(s); };
   var ws, state = null, target = "all", held = false, maxHeld = false;
   var lvl = 0, lvlEase = 0; // smoothed display level
+  var museScores = [], museLlm = false;
+  var PERSONAS = [
+    { id:"slowburn", emoji:"🕯️", en:"Slow Burn", zh:"慢炖" },
+    { id:"brat", emoji:"😈", en:"Brat", zh:"小恶魔" },
+    { id:"metronome", emoji:"🎼", en:"Metronome", zh:"节拍器" },
+    { id:"storm", emoji:"⛈️", en:"Storm", zh:"风暴" },
+    { id:"oracle", emoji:"🔮", en:"Oracle", zh:"神谕" }
+  ];
+  // duet state
+  var dws=null, duetMode="mirror", partnerLvl=0, duetPeers=0, partnerSeen=0;
 
   function connect(){
     var proto = location.protocol === "https:" ? "wss://" : "ws://";
     ws = new WebSocket(proto + location.host + "/ws");
     ws.onopen = function(){ $("#conn").classList.add("on"); $("#connlbl").textContent = t("connected"); };
     ws.onclose = function(){ $("#conn").classList.remove("on"); $("#connlbl").textContent = t("reconnecting"); setTimeout(connect, 1000); };
-    ws.onmessage = function(e){ var m = JSON.parse(e.data); if (m.type === "state") { state = m.state; render(); } };
+    ws.onmessage = function(e){ var m = JSON.parse(e.data);
+      if (m.type === "state") { state = m.state; render(); }
+      else if (m.type === "muse_list") { museScores = m.scores||[]; museLlm = !!m.llm; renderMuse(); }
+      else if (m.type === "muse_error") { alert(t("museErr") + m.message); }
+    };
   }
   var send = function(o){ try { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); } catch(e){} };
 
@@ -256,6 +329,13 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     if (state.activeMode){ act.style.display=""; var g = state.activeMode.type==="video"?"🎬 ":(state.activeMode.type==="audio"?"🎵 ":"🎮 "); act.textContent = g + state.activeMode.label; }
     else act.style.display="none";
     if (state.masters > 0){ mEl.style.display=""; mEl.textContent = (state.masters>1?t("mastersOnN"):t("mastersOn")).replace("{n}", state.masters); } else mEl.style.display="none";
+
+    // persona pill + reveal + picker
+    var pEl = $("#persona"), rEl = $("#revealbtn");
+    if (state.persona){ pEl.style.display=""; pEl.textContent = state.persona.emoji + " " + state.persona.name + (state.persona.model?" · "+state.persona.model:"");
+      rEl.style.display = state.persona.blind ? "" : "none"; }
+    else { pEl.style.display="none"; rEl.style.display="none"; }
+    renderPersonas();
 
     // ensure target still valid
     if (target !== "all" && !state.devices.some(function(d){ return d.id===target; })) target = "all";
@@ -317,6 +397,16 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       actx.fillStyle = g; actx.beginPath(); actx.arc(x,y,r,0,6.2832); actx.fill();
     });
 
+    // duet partner presence — a teal bloom that decays if no recent update
+    if (partnerSeen && (Date.now()-partnerSeen) > 1200) partnerLvl *= 0.94;
+    if (partnerLvl > 0.01){
+      var pr = (Math.min(W,H) * (0.18 + partnerLvl*0.3));
+      var pg = actx.createRadialGradient(W*0.5,H*0.5,0,W*0.5,H*0.5,pr);
+      pg.addColorStop(0, "hsla(165,90%,60%,"+(0.05+partnerLvl*0.22)+")");
+      pg.addColorStop(1, "hsla(165,90%,50%,0)");
+      actx.fillStyle = pg; actx.beginPath(); actx.arc(W*0.5,H*0.5,pr,0,6.2832); actx.fill();
+    }
+
     // orb reactor vars
     document.documentElement.style.setProperty("--lvl", L.toFixed(3));
     var orb = $("#orb"); if (orb) orb.style.transform = "scale(" + (1 + L*0.16).toFixed(3) + ")";
@@ -344,7 +434,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
 
   // ---- controls ----
   var scrub = $("#scrub");
-  scrub.addEventListener("input", function(){ held = true; lvl = scrub.value/100; send({ type:"set", id:target, intensity: scrub.value/100 }); });
+  scrub.addEventListener("input", function(){ held = true; lvl = scrub.value/100; send({ type:"set", id:target, intensity: scrub.value/100 }); if (window.__duetForward) window.__duetForward(scrub.value/100); });
   scrub.addEventListener("pointerup", function(){ held = false; });
   scrub.addEventListener("pointercancel", function(){ held = false; });
 
@@ -390,7 +480,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   // keyboard shortcuts: 0-9 set level, space=stop, s=scan
   addEventListener("keydown", function(e){
     if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
-    if (e.key >= "0" && e.key <= "9"){ var v=(e.key==="0"?0:parseInt(e.key,10)/10); held=true; lvl=v; $("#scrub").value=Math.round(v*100); send({ type:"set", id:target, intensity:v }); setTimeout(function(){held=false;},120); }
+    if (e.key >= "0" && e.key <= "9"){ var v=(e.key==="0"?0:parseInt(e.key,10)/10); held=true; lvl=v; $("#scrub").value=Math.round(v*100); send({ type:"set", id:target, intensity:v }); if (window.__duetForward) window.__duetForward(v); setTimeout(function(){held=false;},120); }
     else if (e.code === "Space"){ e.preventDefault(); stopAudio(); send({ type:"stop_all" }); }
     else if (e.key === "s" || e.key === "S"){ send({ type:"scan", ms:4000 }); }
   });
@@ -433,6 +523,91 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
   $("#audmic").onclick = function(){ startAudio("mic"); };
   $("#audtab").onclick = function(){ startAudio("tab"); };
   $("#audstop").onclick = stopAudio;
+
+  // ---- personas ----
+  function renderPersonas(){
+    var host = $("#personas"); if (!host) return;
+    var activeId = state && state.persona && !state.persona.blind ? state.persona.id : null;
+    host.innerHTML = "";
+    PERSONAS.forEach(function(p){
+      var c = document.createElement("button"); c.className = "chip" + (p.id===activeId?" sel":"");
+      c.textContent = p.emoji + " " + (lang==="zh"?p.zh:p.en);
+      c.onclick = function(){ send({ type:"set_persona", id:p.id }); };
+      host.appendChild(c);
+    });
+    var b = document.createElement("button"); b.className = "chip" + (state&&state.persona&&state.persona.blind?" sel":"");
+    b.textContent = t("blind"); b.onclick = function(){ send({ type:"set_persona", id:"blind" }); };
+    host.appendChild(b);
+  }
+  $("#revealbtn").onclick = function(){ send({ type:"reveal_persona" }); };
+
+  // ---- muse ----
+  function renderMuse(){
+    var host = $("#muselib"); if (!host) return;
+    host.innerHTML = "";
+    museScores.forEach(function(s){
+      var c = document.createElement("button"); c.className = "chip";
+      var secs = Math.round((s.durationMs||0)/1000);
+      c.textContent = "♪ " + s.name + " · " + secs + "s";
+      c.title = (s.brief||"") + (s.by?" — "+s.by:"");
+      c.onclick = function(){ send({ type:"play_score", name:s.name, target:target }); };
+      host.appendChild(c);
+    });
+  }
+  function museCompose(){
+    var brief = $("#musebrief").value.trim();
+    if (!brief){ alert(t("needBrief")); return; }
+    if (!museLlm){ alert(t("museNoKey")); return; }
+    send({ type:"muse_compose", brief:brief, target:target });
+    $("#musebrief").value = "";
+  }
+  $("#musego").onclick = museCompose;
+  $("#musebrief").addEventListener("keydown", function(e){ if (e.key==="Enter") museCompose(); });
+
+  // ---- duet ----
+  $("#duetbtn").onclick = function(){
+    if (!$("#duetrelay").value) $("#duetrelay").value = (location.protocol==="https:"?"wss://":"ws://") + location.host + "/relay";
+    if (!$("#duetroom").value) $("#duetroom").value = Math.random().toString(36).slice(2,7);
+    $("#duetmodal").classList.add("open");
+  };
+  $("#duetclose").onclick = function(){ $("#duetmodal").classList.remove("open"); };
+  $("#duetmodal").addEventListener("click", function(e){ if (e.target === $("#duetmodal")) $("#duetmodal").classList.remove("open"); });
+  $("#duetmode").addEventListener("change", function(){ duetMode = $("#duetmode").value; });
+
+  function duetStatus(){
+    var s = $("#duetstatus");
+    if (!dws || dws.readyState!==1){ s.textContent = t("duetOffline"); $("#duetbadge").style.display="none"; return; }
+    var linked = duetPeers > 1;
+    s.textContent = (linked? t("duetLinked") : t("duetWaiting")) + " · " + t("duetPeers").replace("{n}", duetPeers);
+    $("#duettouch").disabled = !linked;
+    $("#duetbadge").style.display=""; $("#duetbadge").textContent = t("duetBadge");
+  }
+  function duetSend(o){ try { if (dws && dws.readyState===1) dws.send(JSON.stringify(o)); } catch(e){} }
+  // called from local controls to forward MY level to the partner
+  function duetForward(v){ if (dws && dws.readyState===1 && (duetMode==="lead"||duetMode==="mirror")) duetSend({ k:"level", v:v }); }
+  window.__duetForward = duetForward;
+
+  function duetConnect(){
+    var url = $("#duetrelay").value.trim(); var room = $("#duetroom").value.trim()||"lobby";
+    if (!url) return;
+    duetMode = $("#duetmode").value;
+    try { dws = new WebSocket(url + (url.indexOf("?")<0?"?":"&") + "room=" + encodeURIComponent(room)); } catch(e){ alert(String(e)); return; }
+    dws.onopen = function(){ duetSend({ k:"hello" }); $("#duetconnect").textContent = t("duetLeave"); duetStatus(); };
+    dws.onclose = function(){ duetPeers=0; partnerLvl=0; $("#duetconnect").textContent = t("duetConnect"); duetStatus(); };
+    dws.onmessage = function(e){
+      var m; try { m = JSON.parse(e.data); } catch(_){ return; }
+      if (m.type === "peers"){ duetPeers = m.peers; duetStatus(); return; }
+      if (m.k === "level"){ partnerLvl = Math.max(0, Math.min(1, +m.v||0)); partnerSeen = Date.now();
+        if (duetMode==="follow"||duetMode==="mirror") send({ type:"drive", target:target, intensity:partnerLvl }); }
+      else if (m.k === "touch"){ partnerLvl = 0.85; partnerSeen = Date.now();
+        if (duetMode==="follow"||duetMode==="mirror") send({ type:"set", id:target, intensity:0.85, durationMs:450 }); }
+    };
+  }
+  $("#duetconnect").onclick = function(){
+    if (dws && (dws.readyState===0||dws.readyState===1)){ dws.close(); dws=null; }
+    else duetConnect();
+  };
+  $("#duettouch").onclick = function(){ duetSend({ k:"touch" }); };
 
   applyI18n();
   $("#connlbl").textContent = t("connecting");

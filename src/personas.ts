@@ -105,6 +105,21 @@ export const PERSONAS: Persona[] = [
     signaturePreset: "wave",
     voice: { en: "Let go. Let me decide.", zh: "放手，交给我。" },
   },
+  {
+    id: "mommy",
+    emoji: "🍼",
+    name: { en: "Mommy", zh: "妈咪" },
+    tagline: { en: "warm, doting, calmly in charge", zh: "温柔、宠溺、稳稳掌控" },
+    model: "claude-opus-4-8",
+    pace: 0.35,
+    randomness: 0.2,
+    denial: 0.45,
+    ceiling: 0.9,
+    ramp: "slow",
+    signatureGame: "ambient",
+    signaturePreset: "heartbeat",
+    voice: { en: "Good. You're doing so well for me.", zh: "乖，做得很好，妈咪很满意。" },
+  },
 ];
 
 export const DEFAULT_PERSONA = PERSONAS.find((p) => p.id === "metronome")!;

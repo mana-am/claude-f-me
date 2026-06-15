@@ -36,6 +36,7 @@ export class ModeController {
   private library = new Map<string, Score>();
   private persona: Persona = DEFAULT_PERSONA;
   private blind = false;
+  private memory: import("./memory.js").Memory | null = null;
 
   constructor(private manager: DeviceManager) {
     manager.attachMode(this);
@@ -44,9 +45,15 @@ export class ModeController {
     this.pushPersona();
   }
 
+  /** Optional local memory: records plays + quick-abort dislike signals. */
+  attachMemory(m: import("./memory.js").Memory): void {
+    this.memory = m;
+  }
+
   /** Cancel whatever mode is running. */
   stop(): void {
     this.token++;
+    this.memory?.noteStop();
     this.manager.setActiveMode(null);
   }
 
@@ -174,6 +181,7 @@ export class ModeController {
   ): Promise<{ started: boolean; durationMs: number }> {
     const kf = normalizeKeyframes(score.keyframes);
     const label = score.brief || score.name || "muse";
+    this.memory?.recordPlay("muse", score.name || label, this.persona.id);
     this.manager.log_("cmd", `muse → "${label}"${score.by ? " · by " + score.by : ""}`);
     return this.runTimeline("muse", target, kf, { loop: opts.loop, speed: opts.speed, label });
   }
@@ -234,6 +242,7 @@ export class ModeController {
     const rand = (span: number) => Math.random() * span * (0.4 + p.randomness);
 
     const my = ++this.token;
+    this.memory?.recordPlay("game", type, this.persona.id);
     this.manager.log_("cmd", `game → ${type} · ${this.blind ? "🎭 ???" : p.emoji + " " + p.name.en}${opts.durationMs ? ` (${opts.durationMs}ms)` : ""}`);
     this.manager.setActiveMode({ type: "game", label: this.blind ? `🎭 ${type}` : `${p.emoji} ${type}` });
 

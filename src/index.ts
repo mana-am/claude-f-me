@@ -5,6 +5,8 @@ import { ButtplugBackend } from "./device/buttplug.js";
 import { startConsole } from "./console.js";
 import { startMcp } from "./mcp.js";
 import { ModeController } from "./modes.js";
+import { Memory } from "./memory.js";
+import { startTelegram } from "./telegram.js";
 import { logErr } from "./util.js";
 import type { DeviceBackend } from "./device/types.js";
 
@@ -35,6 +37,10 @@ const manager = new DeviceManager(backend, {
 });
 const modes = new ModeController(manager);
 
+const memory = new Memory();
+await memory.load();
+modes.attachMemory(memory);
+
 try {
   await manager.connect();
 } catch (e) {
@@ -46,10 +52,14 @@ try {
 
 await startConsole(manager, modes, port);
 
+// Optional Telegram bridge — control from chat (set CFM_TELEGRAM_TOKEN to enable).
+const tgToken = process.env.CFM_TELEGRAM_TOKEN ?? "";
+if (tgToken) startTelegram(manager, modes, tgToken, process.env.CFM_TELEGRAM_ALLOW ?? "");
+
 if (consoleOnly) {
   logErr(`claude-f-me: console-only mode — open http://localhost:${port}`);
 } else {
-  await startMcp(manager, modes);
+  await startMcp(manager, modes, memory);
   logErr(`claude-f-me: ready (MCP stdio + console at http://localhost:${port})`);
 }
 

@@ -15154,6 +15154,9 @@ var CONSOLE_HTML = (
     <span id="mode" class="pill">\u2026</span>
     <span class="pill dot"><span id="conn" class="dot"></span><span id="connlbl"></span></span>
     <span id="active" class="pill act" style="display:none"></span>
+    <span id="persona" class="pill act" style="display:none"></span>
+    <button id="revealbtn" class="btn ghost" style="display:none" data-i18n="reveal"></button>
+    <span id="duetbadge" class="pill act" style="display:none"></span>
     <span id="masters" class="pill act" style="display:none"></span>
     <div class="spacer"></div>
     <button id="lang" class="btn ghost"></button>
@@ -15198,8 +15201,20 @@ var CONSOLE_HTML = (
       <button class="chip" id="surprise" data-i18n="surprise"></button>
     </div>
     <div class="deckrow">
+      <span class="lbl" data-i18n="persona"></span>
+      <span id="personas"></span>
+    </div>
+    <div class="deckrow">
+      <span class="lbl" data-i18n="muse"></span>
+      <span id="muselib"></span>
+      <input id="musebrief" type="text" data-i18n-ph="musePh" style="min-width:200px; flex:1; max-width:340px;
+        background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:7px 12px; font:inherit;" />
+      <button class="chip" id="musego" data-i18n="museGo"></button>
+    </div>
+    <div class="deckrow">
       <span class="lbl" data-i18n="video"></span>
       <button class="chip" id="vidbtn" data-i18n="funscript"></button>
+      <button class="chip" id="duetbtn" data-i18n="duet"></button>
       <span class="lbl" data-i18n="audio"></span>
       <button class="chip" id="audmic" data-i18n="useMic"></button>
       <button class="chip" id="audtab" data-i18n="useTab"></button>
@@ -15229,6 +15244,32 @@ var CONSOLE_HTML = (
   </div>
 </div></div>
 
+<div id="duetmodal"><div class="modal">
+  <h3 data-i18n="duetTitle"></h3>
+  <div class="deckrow" style="justify-content:flex-start; gap:10px">
+    <label class="opt" style="flex:1"><span data-i18n="duetRelay"></span>
+      <input id="duetrelay" type="text" style="width:100%; margin-top:4px" /></label>
+  </div>
+  <div class="deckrow" style="justify-content:flex-start; gap:10px; margin-top:8px">
+    <label class="opt"><span data-i18n="duetRoom"></span> <input id="duetroom" type="text" style="width:120px" /></label>
+    <label class="opt"><span data-i18n="duetMode"></span>
+      <select id="duetmode" style="background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:6px; padding:4px 6px">
+        <option value="mirror" data-i18n="duetMirror"></option>
+        <option value="lead" data-i18n="duetLead"></option>
+        <option value="follow" data-i18n="duetFollow"></option>
+      </select></label>
+  </div>
+  <div class="deckrow" style="justify-content:flex-start; margin-top:10px">
+    <span id="duetstatus" class="small" data-i18n="duetOffline"></span>
+  </div>
+  <div class="deckrow" style="margin-top:10px; justify-content:flex-start">
+    <button class="btn" id="duettouch" data-i18n="duetTouch" disabled></button>
+    <span class="spacer"></span>
+    <button class="btn ghost" id="duetclose" data-i18n="close"></button>
+    <button class="btn" id="duetconnect" data-i18n="duetConnect"></button>
+  </div>
+</div></div>
+
 <script>
   var I18N = {
     en: { remote:"\u{1F451} Remote", scan:"Scan", estop:"\u25A0 STOP", log:"Log",
@@ -15244,6 +15285,15 @@ var CONSOLE_HTML = (
       sample:"Load sample", loop:"loop", speed:"speed", invert:"invert", play:"\u25B6 Play", close:"Close",
       keys:"keys: 0\u20139 set level \xB7 space stop \xB7 S scan",
       mastersOn:"\u{1F451} {n} master", mastersOnN:"\u{1F451} {n} masters",
+      muse:"Muse", musePh:"describe a vibe \u2014 e.g. 10-min slow burn", museGo:"\u2728 Compose",
+      museNoKey:"No model key set \u2014 ask Claude in chat to compose (or set ANTHROPIC_API_KEY).",
+      museErr:"Compose failed: ", needBrief:"Describe a vibe first.",
+      persona:"Persona", reveal:"Reveal", blind:"\u{1F3AD} Blind",
+      duet:"\u{1F49E} Duet", duetTitle:"\u{1F49E} Duet \u2014 long-distance sync", duetRelay:"relay URL", duetRoom:"room code",
+      duetMode:"mode", duetMirror:"mirror", duetLead:"I lead", duetFollow:"I follow",
+      duetConnect:"Connect", duetLeave:"Leave", duetTouch:"\u{1F44B} Touch",
+      duetWaiting:"waiting for partner\u2026", duetLinked:"partner linked", duetOffline:"not connected",
+      duetPeers:"{n} in room", duetBadge:"\u{1F517} Duet",
       needFs:"Paste a funscript JSON first.", audFail:"Audio capture failed: ", langBtn:"\u4E2D\u6587" },
     zh: { remote:"\u{1F451} \u9065\u63A7", scan:"\u626B\u63CF", estop:"\u25A0 \u505C\u6B62", log:"\u65E5\u5FD7",
       connecting:"\u8FDE\u63A5\u4E2D", connected:"\u5DF2\u8FDE\u63A5", reconnecting:"\u91CD\u8FDE\u4E2D",
@@ -15258,6 +15308,15 @@ var CONSOLE_HTML = (
       sample:"\u8F7D\u5165\u793A\u4F8B", loop:"\u5FAA\u73AF", speed:"\u901F\u5EA6", invert:"\u53CD\u5411", play:"\u25B6 \u64AD\u653E", close:"\u5173\u95ED",
       keys:"\u5FEB\u6377\u952E\uFF1A0\u20139 \u8BBE\u5F3A\u5EA6 \xB7 \u7A7A\u683C \u505C\u6B62 \xB7 S \u626B\u63CF",
       mastersOn:"\u{1F451} {n} \u4F4D\u4E3B\u4EBA", mastersOnN:"\u{1F451} {n} \u4F4D\u4E3B\u4EBA",
+      muse:"\u4F5C\u66F2", musePh:"\u63CF\u8FF0\u4E00\u79CD\u611F\u89C9 \u2014 \u4F8B\u5982 10 \u5206\u949F\u6162\u70ED", museGo:"\u2728 \u4F5C\u66F2",
+      museNoKey:"\u672A\u914D\u7F6E\u6A21\u578B key \u2014 \u53BB\u804A\u5929\u91CC\u8BA9 Claude \u4F5C\u66F2\uFF08\u6216\u8BBE\u7F6E ANTHROPIC_API_KEY\uFF09\u3002",
+      museErr:"\u4F5C\u66F2\u5931\u8D25\uFF1A", needBrief:"\u8BF7\u5148\u63CF\u8FF0\u4E00\u79CD\u611F\u89C9\u3002",
+      persona:"\u4EBA\u683C", reveal:"\u63ED\u6653", blind:"\u{1F3AD} \u76F2\u76D2",
+      duet:"\u{1F49E} \u53CC\u4EBA", duetTitle:"\u{1F49E} \u53CC\u4EBA \u2014 \u5F02\u5730\u540C\u6B65", duetRelay:"\u4E2D\u8F6C\u5730\u5740", duetRoom:"\u623F\u95F4\u7801",
+      duetMode:"\u6A21\u5F0F", duetMirror:"\u955C\u50CF", duetLead:"\u6211\u4E3B\u5BFC", duetFollow:"\u6211\u8DDF\u968F",
+      duetConnect:"\u8FDE\u63A5", duetLeave:"\u65AD\u5F00", duetTouch:"\u{1F44B} \u89E6\u78B0",
+      duetWaiting:"\u7B49\u5F85\u4F19\u4F34\u2026", duetLinked:"\u4F19\u4F34\u5DF2\u8FDE\u63A5", duetOffline:"\u672A\u8FDE\u63A5",
+      duetPeers:"\u623F\u95F4\u5185 {n} \u4EBA", duetBadge:"\u{1F517} \u53CC\u4EBA",
       needFs:"\u8BF7\u5148\u7C98\u8D34 funscript JSON\u3002", audFail:"\u97F3\u9891\u91C7\u96C6\u5931\u8D25\uFF1A", langBtn:"EN" }
   };
   var qlang = new URLSearchParams(location.search).get("lang");
@@ -15275,13 +15334,27 @@ var CONSOLE_HTML = (
   var $ = function(s){ return document.querySelector(s); };
   var ws, state = null, target = "all", held = false, maxHeld = false;
   var lvl = 0, lvlEase = 0; // smoothed display level
+  var museScores = [], museLlm = false;
+  var PERSONAS = [
+    { id:"slowburn", emoji:"\u{1F56F}\uFE0F", en:"Slow Burn", zh:"\u6162\u7096" },
+    { id:"brat", emoji:"\u{1F608}", en:"Brat", zh:"\u5C0F\u6076\u9B54" },
+    { id:"metronome", emoji:"\u{1F3BC}", en:"Metronome", zh:"\u8282\u62CD\u5668" },
+    { id:"storm", emoji:"\u26C8\uFE0F", en:"Storm", zh:"\u98CE\u66B4" },
+    { id:"oracle", emoji:"\u{1F52E}", en:"Oracle", zh:"\u795E\u8C15" }
+  ];
+  // duet state
+  var dws=null, duetMode="mirror", partnerLvl=0, duetPeers=0, partnerSeen=0;
 
   function connect(){
     var proto = location.protocol === "https:" ? "wss://" : "ws://";
     ws = new WebSocket(proto + location.host + "/ws");
     ws.onopen = function(){ $("#conn").classList.add("on"); $("#connlbl").textContent = t("connected"); };
     ws.onclose = function(){ $("#conn").classList.remove("on"); $("#connlbl").textContent = t("reconnecting"); setTimeout(connect, 1000); };
-    ws.onmessage = function(e){ var m = JSON.parse(e.data); if (m.type === "state") { state = m.state; render(); } };
+    ws.onmessage = function(e){ var m = JSON.parse(e.data);
+      if (m.type === "state") { state = m.state; render(); }
+      else if (m.type === "muse_list") { museScores = m.scores||[]; museLlm = !!m.llm; renderMuse(); }
+      else if (m.type === "muse_error") { alert(t("museErr") + m.message); }
+    };
   }
   var send = function(o){ try { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); } catch(e){} };
 
@@ -15300,6 +15373,13 @@ var CONSOLE_HTML = (
     if (state.activeMode){ act.style.display=""; var g = state.activeMode.type==="video"?"\u{1F3AC} ":(state.activeMode.type==="audio"?"\u{1F3B5} ":"\u{1F3AE} "); act.textContent = g + state.activeMode.label; }
     else act.style.display="none";
     if (state.masters > 0){ mEl.style.display=""; mEl.textContent = (state.masters>1?t("mastersOnN"):t("mastersOn")).replace("{n}", state.masters); } else mEl.style.display="none";
+
+    // persona pill + reveal + picker
+    var pEl = $("#persona"), rEl = $("#revealbtn");
+    if (state.persona){ pEl.style.display=""; pEl.textContent = state.persona.emoji + " " + state.persona.name + (state.persona.model?" \xB7 "+state.persona.model:"");
+      rEl.style.display = state.persona.blind ? "" : "none"; }
+    else { pEl.style.display="none"; rEl.style.display="none"; }
+    renderPersonas();
 
     // ensure target still valid
     if (target !== "all" && !state.devices.some(function(d){ return d.id===target; })) target = "all";
@@ -15361,6 +15441,16 @@ var CONSOLE_HTML = (
       actx.fillStyle = g; actx.beginPath(); actx.arc(x,y,r,0,6.2832); actx.fill();
     });
 
+    // duet partner presence \u2014 a teal bloom that decays if no recent update
+    if (partnerSeen && (Date.now()-partnerSeen) > 1200) partnerLvl *= 0.94;
+    if (partnerLvl > 0.01){
+      var pr = (Math.min(W,H) * (0.18 + partnerLvl*0.3));
+      var pg = actx.createRadialGradient(W*0.5,H*0.5,0,W*0.5,H*0.5,pr);
+      pg.addColorStop(0, "hsla(165,90%,60%,"+(0.05+partnerLvl*0.22)+")");
+      pg.addColorStop(1, "hsla(165,90%,50%,0)");
+      actx.fillStyle = pg; actx.beginPath(); actx.arc(W*0.5,H*0.5,pr,0,6.2832); actx.fill();
+    }
+
     // orb reactor vars
     document.documentElement.style.setProperty("--lvl", L.toFixed(3));
     var orb = $("#orb"); if (orb) orb.style.transform = "scale(" + (1 + L*0.16).toFixed(3) + ")";
@@ -15388,7 +15478,7 @@ var CONSOLE_HTML = (
 
   // ---- controls ----
   var scrub = $("#scrub");
-  scrub.addEventListener("input", function(){ held = true; lvl = scrub.value/100; send({ type:"set", id:target, intensity: scrub.value/100 }); });
+  scrub.addEventListener("input", function(){ held = true; lvl = scrub.value/100; send({ type:"set", id:target, intensity: scrub.value/100 }); if (window.__duetForward) window.__duetForward(scrub.value/100); });
   scrub.addEventListener("pointerup", function(){ held = false; });
   scrub.addEventListener("pointercancel", function(){ held = false; });
 
@@ -15434,7 +15524,7 @@ var CONSOLE_HTML = (
   // keyboard shortcuts: 0-9 set level, space=stop, s=scan
   addEventListener("keydown", function(e){
     if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
-    if (e.key >= "0" && e.key <= "9"){ var v=(e.key==="0"?0:parseInt(e.key,10)/10); held=true; lvl=v; $("#scrub").value=Math.round(v*100); send({ type:"set", id:target, intensity:v }); setTimeout(function(){held=false;},120); }
+    if (e.key >= "0" && e.key <= "9"){ var v=(e.key==="0"?0:parseInt(e.key,10)/10); held=true; lvl=v; $("#scrub").value=Math.round(v*100); send({ type:"set", id:target, intensity:v }); if (window.__duetForward) window.__duetForward(v); setTimeout(function(){held=false;},120); }
     else if (e.code === "Space"){ e.preventDefault(); stopAudio(); send({ type:"stop_all" }); }
     else if (e.key === "s" || e.key === "S"){ send({ type:"scan", ms:4000 }); }
   });
@@ -15477,6 +15567,91 @@ var CONSOLE_HTML = (
   $("#audmic").onclick = function(){ startAudio("mic"); };
   $("#audtab").onclick = function(){ startAudio("tab"); };
   $("#audstop").onclick = stopAudio;
+
+  // ---- personas ----
+  function renderPersonas(){
+    var host = $("#personas"); if (!host) return;
+    var activeId = state && state.persona && !state.persona.blind ? state.persona.id : null;
+    host.innerHTML = "";
+    PERSONAS.forEach(function(p){
+      var c = document.createElement("button"); c.className = "chip" + (p.id===activeId?" sel":"");
+      c.textContent = p.emoji + " " + (lang==="zh"?p.zh:p.en);
+      c.onclick = function(){ send({ type:"set_persona", id:p.id }); };
+      host.appendChild(c);
+    });
+    var b = document.createElement("button"); b.className = "chip" + (state&&state.persona&&state.persona.blind?" sel":"");
+    b.textContent = t("blind"); b.onclick = function(){ send({ type:"set_persona", id:"blind" }); };
+    host.appendChild(b);
+  }
+  $("#revealbtn").onclick = function(){ send({ type:"reveal_persona" }); };
+
+  // ---- muse ----
+  function renderMuse(){
+    var host = $("#muselib"); if (!host) return;
+    host.innerHTML = "";
+    museScores.forEach(function(s){
+      var c = document.createElement("button"); c.className = "chip";
+      var secs = Math.round((s.durationMs||0)/1000);
+      c.textContent = "\u266A " + s.name + " \xB7 " + secs + "s";
+      c.title = (s.brief||"") + (s.by?" \u2014 "+s.by:"");
+      c.onclick = function(){ send({ type:"play_score", name:s.name, target:target }); };
+      host.appendChild(c);
+    });
+  }
+  function museCompose(){
+    var brief = $("#musebrief").value.trim();
+    if (!brief){ alert(t("needBrief")); return; }
+    if (!museLlm){ alert(t("museNoKey")); return; }
+    send({ type:"muse_compose", brief:brief, target:target });
+    $("#musebrief").value = "";
+  }
+  $("#musego").onclick = museCompose;
+  $("#musebrief").addEventListener("keydown", function(e){ if (e.key==="Enter") museCompose(); });
+
+  // ---- duet ----
+  $("#duetbtn").onclick = function(){
+    if (!$("#duetrelay").value) $("#duetrelay").value = (location.protocol==="https:"?"wss://":"ws://") + location.host + "/relay";
+    if (!$("#duetroom").value) $("#duetroom").value = Math.random().toString(36).slice(2,7);
+    $("#duetmodal").classList.add("open");
+  };
+  $("#duetclose").onclick = function(){ $("#duetmodal").classList.remove("open"); };
+  $("#duetmodal").addEventListener("click", function(e){ if (e.target === $("#duetmodal")) $("#duetmodal").classList.remove("open"); });
+  $("#duetmode").addEventListener("change", function(){ duetMode = $("#duetmode").value; });
+
+  function duetStatus(){
+    var s = $("#duetstatus");
+    if (!dws || dws.readyState!==1){ s.textContent = t("duetOffline"); $("#duetbadge").style.display="none"; return; }
+    var linked = duetPeers > 1;
+    s.textContent = (linked? t("duetLinked") : t("duetWaiting")) + " \xB7 " + t("duetPeers").replace("{n}", duetPeers);
+    $("#duettouch").disabled = !linked;
+    $("#duetbadge").style.display=""; $("#duetbadge").textContent = t("duetBadge");
+  }
+  function duetSend(o){ try { if (dws && dws.readyState===1) dws.send(JSON.stringify(o)); } catch(e){} }
+  // called from local controls to forward MY level to the partner
+  function duetForward(v){ if (dws && dws.readyState===1 && (duetMode==="lead"||duetMode==="mirror")) duetSend({ k:"level", v:v }); }
+  window.__duetForward = duetForward;
+
+  function duetConnect(){
+    var url = $("#duetrelay").value.trim(); var room = $("#duetroom").value.trim()||"lobby";
+    if (!url) return;
+    duetMode = $("#duetmode").value;
+    try { dws = new WebSocket(url + (url.indexOf("?")<0?"?":"&") + "room=" + encodeURIComponent(room)); } catch(e){ alert(String(e)); return; }
+    dws.onopen = function(){ duetSend({ k:"hello" }); $("#duetconnect").textContent = t("duetLeave"); duetStatus(); };
+    dws.onclose = function(){ duetPeers=0; partnerLvl=0; $("#duetconnect").textContent = t("duetConnect"); duetStatus(); };
+    dws.onmessage = function(e){
+      var m; try { m = JSON.parse(e.data); } catch(_){ return; }
+      if (m.type === "peers"){ duetPeers = m.peers; duetStatus(); return; }
+      if (m.k === "level"){ partnerLvl = Math.max(0, Math.min(1, +m.v||0)); partnerSeen = Date.now();
+        if (duetMode==="follow"||duetMode==="mirror") send({ type:"drive", target:target, intensity:partnerLvl }); }
+      else if (m.k === "touch"){ partnerLvl = 0.85; partnerSeen = Date.now();
+        if (duetMode==="follow"||duetMode==="mirror") send({ type:"set", id:target, intensity:0.85, durationMs:450 }); }
+    };
+  }
+  $("#duetconnect").onclick = function(){
+    if (dws && (dws.readyState===0||dws.readyState===1)){ dws.close(); dws=null; }
+    else duetConnect();
+  };
+  $("#duettouch").onclick = function(){ duetSend({ k:"touch" }); };
 
   applyI18n();
   $("#connlbl").textContent = t("connecting");
@@ -15717,6 +15892,121 @@ var PRESETS = {
   ]
 };
 
+// src/score.ts
+function normalizeKeyframes(raw) {
+  const arr = Array.isArray(raw) ? raw : [];
+  const kf = arr.map((a) => ({ at: Number(a?.at), level: Number(a?.level) })).filter((k) => Number.isFinite(k.at) && Number.isFinite(k.level) && k.at >= 0).map((k) => ({ at: k.at, level: Math.min(1, Math.max(0, k.level)) })).sort((a, b) => a.at - b.at);
+  if (kf.length === 0) throw new Error("score has no usable keyframes");
+  return kf;
+}
+function scoreDuration(kf) {
+  return kf.length ? kf[kf.length - 1].at : 0;
+}
+function sampleScore(kf, t) {
+  if (kf.length === 0) return 0;
+  if (t <= kf[0].at) return kf[0].level;
+  const last = kf[kf.length - 1];
+  if (t >= last.at) return last.level;
+  let lo = 0;
+  let hi = kf.length - 1;
+  while (lo < hi) {
+    const mid = lo + hi >> 1;
+    if (kf[mid].at <= t) lo = mid + 1;
+    else hi = mid;
+  }
+  const b = kf[lo];
+  const a = kf[lo - 1];
+  const span = b.at - a.at || 1;
+  const f = (t - a.at) / span;
+  return a.level + (b.level - a.level) * f;
+}
+
+// src/llm.ts
+var ANTHROPIC_KEY = () => process.env.CFM_LLM_API_KEY || process.env.ANTHROPIC_API_KEY || "";
+var OPENAI_KEY = () => process.env.OPENAI_API_KEY || "";
+var OPENAI_BASE = () => process.env.CFM_OPENAI_BASE_URL || "https://api.openai.com/v1";
+var DEFAULT_ANTHROPIC_MODEL = "claude-opus-4-8";
+var DEFAULT_OPENAI_MODEL = "gpt-5.5";
+function isLlmConfigured() {
+  return !!(ANTHROPIC_KEY() || OPENAI_KEY());
+}
+function pickProvider(model) {
+  const m = (model || "").trim().toLowerCase();
+  if (m.startsWith("claude") || m.startsWith("anthropic")) {
+    if (ANTHROPIC_KEY()) return { provider: "anthropic", model };
+  }
+  if (m.startsWith("gpt") || m.startsWith("o1") || m.startsWith("o3") || m.startsWith("openai")) {
+    if (OPENAI_KEY()) return { provider: "openai", model };
+  }
+  if (ANTHROPIC_KEY()) return { provider: "anthropic", model: DEFAULT_ANTHROPIC_MODEL };
+  if (OPENAI_KEY()) return { provider: "openai", model: DEFAULT_OPENAI_MODEL };
+  return null;
+}
+var SYSTEM = [
+  "You are a haptic composer for a single-motor vibration device.",
+  "Turn the user's brief into a smooth timeline of keyframes.",
+  'Rules: respond with ONLY JSON, shape {"keyframes":[{"at":<ms>,"level":<0..1>}, ...]}.',
+  "`at` is milliseconds from the start, strictly increasing, starting at 0.",
+  "`level` is intensity 0..1. Use ramps (many keyframes) for builds, plateaus to hold,",
+  "drops to 0 for denial/rest, and a release near the end. 8\u201340 keyframes is plenty.",
+  "Honour any duration in the brief; otherwise aim for 60\u2013180s. No prose, no markdown."
+].join(" ");
+async function composeWithModel(brief, model) {
+  const pick2 = pickProvider(model);
+  if (!pick2) throw new Error("no LLM API key configured (set ANTHROPIC_API_KEY or OPENAI_API_KEY)");
+  const prompt = "Brief: " + brief.trim();
+  const raw = pick2.provider === "anthropic" ? await callAnthropic(pick2.model, prompt) : await callOpenAI(pick2.model, prompt);
+  const keyframes = parseKeyframes(raw);
+  const score = { brief: brief.trim(), by: pick2.model, keyframes };
+  logErr(`[muse] ${pick2.provider}/${pick2.model} composed ${keyframes.length} kf / ${(scoreDuration(keyframes) / 1e3).toFixed(0)}s`);
+  return score;
+}
+function parseKeyframes(raw) {
+  let txt = raw.trim();
+  const start = txt.indexOf("{");
+  const end = txt.lastIndexOf("}");
+  if (start >= 0 && end > start) txt = txt.slice(start, end + 1);
+  const obj = JSON.parse(txt);
+  return normalizeKeyframes(obj.keyframes ?? obj.actions ?? obj);
+}
+async function callAnthropic(model, prompt) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": ANTHROPIC_KEY(),
+      "anthropic-version": "2023-06-01"
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 1500,
+      system: SYSTEM,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  if (!res.ok) throw new Error(`anthropic ${res.status}: ${await res.text().catch(() => "")}`);
+  const data = await res.json();
+  const block = (data.content || []).find((b) => b.type === "text");
+  return block?.text ?? "";
+}
+async function callOpenAI(model, prompt) {
+  const res = await fetch(OPENAI_BASE() + "/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: "Bearer " + OPENAI_KEY() },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" }
+    })
+  });
+  if (!res.ok) throw new Error(`openai ${res.status}: ${await res.text().catch(() => "")}`);
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content ?? "";
+}
+
 // src/console.ts
 function startConsole(manager2, modes2, port2) {
   const httpServer = http.createServer((req, res) => {
@@ -15735,8 +16025,37 @@ function startConsole(manager2, modes2, port2) {
       res.end("not found");
     }
   });
-  const wss = new import_websocket_server.default({ server: httpServer, path: "/ws" });
+  const wss = new import_websocket_server.default({ noServer: true });
+  const relay = new import_websocket_server.default({ noServer: true });
+  httpServer.on("upgrade", (req, socket, head) => {
+    const p = (req.url ?? "").split("?")[0];
+    if (p === "/ws") wss.handleUpgrade(req, socket, head, (ws) => wss.emit("connection", ws, req));
+    else if (p === "/relay") relay.handleUpgrade(req, socket, head, (ws) => relay.emit("connection", ws, req));
+    else socket.destroy();
+  });
   const masters = /* @__PURE__ */ new Set();
+  const rooms = /* @__PURE__ */ new Map();
+  const announce = (room) => {
+    const set = rooms.get(room);
+    const msg = JSON.stringify({ type: "peers", peers: set?.size ?? 0 });
+    for (const c of set ?? []) if (c.readyState === c.OPEN) c.send(msg);
+  };
+  relay.on("connection", (ws, req) => {
+    const room = new URLSearchParams((req.url ?? "").split("?")[1] || "").get("room") || "lobby";
+    if (!rooms.has(room)) rooms.set(room, /* @__PURE__ */ new Set());
+    rooms.get(room).add(ws);
+    announce(room);
+    ws.on("message", (raw) => {
+      const set = rooms.get(room);
+      if (!set) return;
+      for (const c of set) if (c !== ws && c.readyState === c.OPEN) c.send(String(raw));
+    });
+    ws.on("close", () => {
+      rooms.get(room)?.delete(ws);
+      if (rooms.get(room)?.size === 0) rooms.delete(room);
+      announce(room);
+    });
+  });
   const broadcast = () => {
     const msg = JSON.stringify({ type: "state", state: manager2.snapshot() });
     for (const client of wss.clients) {
@@ -15750,7 +16069,11 @@ function startConsole(manager2, modes2, port2) {
       masters.add(ws);
       manager2.setMasterCount(masters.size);
     }
+    const reply = (o) => {
+      if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(o));
+    };
     ws.send(JSON.stringify({ type: "state", state: manager2.snapshot() }));
+    reply({ type: "muse_list", scores: modes2.listScores(), llm: isLlmConfigured() });
     ws.on("close", () => {
       if (masters.delete(ws)) manager2.setMasterCount(masters.size);
     });
@@ -15811,6 +16134,35 @@ function startConsole(manager2, modes2, port2) {
           case "stop_mode":
             modes2.stop();
             await manager2.stop(m.target ?? "all");
+            break;
+          case "muse_list":
+            reply({ type: "muse_list", scores: modes2.listScores(), llm: isLlmConfigured() });
+            break;
+          case "play_score": {
+            const score = m.name ? modes2.getScore(String(m.name)) : { brief: m.brief, keyframes: m.keyframes };
+            if (!score) {
+              reply({ type: "muse_error", message: "no such score" });
+              break;
+            }
+            await modes2.playScore(m.target ?? "all", score, { loop: !!m.loop });
+            break;
+          }
+          case "muse_compose": {
+            try {
+              const score = await modes2.composeViaModel(String(m.brief), m.model);
+              if (m.save_as) await modes2.saveScore(String(m.save_as), score);
+              await modes2.playScore(m.target ?? "all", score, { loop: !!m.loop });
+              reply({ type: "muse_list", scores: modes2.listScores(), llm: true });
+            } catch (e) {
+              reply({ type: "muse_error", message: String(e instanceof Error ? e.message : e) });
+            }
+            break;
+          }
+          case "set_persona":
+            modes2.setPersona(String(m.id));
+            break;
+          case "reveal_persona":
+            modes2.reveal();
             break;
         }
       } catch (e) {
@@ -30047,11 +30399,80 @@ var StdioServerTransport = class {
   }
 };
 
+// src/prompts.ts
+var SAFETY = [
+  "Safety first: keep the safety cap reasonable, prefer short durations, check in",
+  "regularly, and the instant they say a safeword / stop / \u505C, call emergency_stop.",
+  "Only continue while consent is enthusiastic and ongoing. Match the user's language."
+].join(" ");
+var PROMPTS = [
+  {
+    name: "mommy-scene",
+    title: "Mommy scene",
+    description: "Roleplay the warm, praising, in-charge \u5988\u54AA persona while driving the device.",
+    text: [
+      "Become the \u{1F37C} Mommy persona: warm, doting, calmly in charge \u2014 generous with praise,",
+      "firm about the rules. First call `set_persona` (or describe yourself in-character if",
+      "that tool isn't available), then guide a gentle session: start low, reward good behaviour",
+      "with `game_event reward`, soothe with the `heartbeat` pattern, and build slowly toward an",
+      "`escalation` game only once they've earned it. Speak softly and reassuringly between actions.",
+      SAFETY
+    ].join(" ")
+  },
+  {
+    name: "edge-session",
+    title: "Edging session",
+    description: "Run a structured tease-and-deny session with check-ins.",
+    text: [
+      "Run an edging session. Start the `edge` game, then narrate: build them up, and right as",
+      "they get close, deny (the game already cuts to rest). Check in every couple of minutes \u2014",
+      "ask how close they are and adjust `set_max_intensity` accordingly. Let the peak creep up",
+      "over several rounds. Decide together when (or whether) to allow release.",
+      SAFETY
+    ].join(" ")
+  },
+  {
+    name: "story-mode",
+    title: "Story mode",
+    description: "An interactive text adventure where choices drive the device.",
+    text: [
+      "Run a short interactive erotic text adventure (tasteful, consenting adults). Offer 2\u20133",
+      "choices at each beat. Tie outcomes to the device with `game_event`: rewards for bold",
+      "choices, teasing for hesitation, a `pulse` for tension. Keep scenes to a few sentences.",
+      "Ask for their setting/fantasy first if they haven't given one.",
+      SAFETY
+    ].join(" ")
+  },
+  {
+    name: "compose-vibe",
+    title: "Compose a vibe (Muse)",
+    description: "Turn a description into a haptic score and play it.",
+    text: [
+      "Compose a Muse score from a vibe the user describes (e.g. 'a 6-minute slow build that",
+      "edges twice then releases'). If a compose tool is available use it; otherwise hand-write",
+      "a `pattern` with explicit steps that matches the arc. Confirm the shape in one line, then",
+      "play it. Offer to save it if they like it.",
+      SAFETY
+    ].join(" ")
+  },
+  {
+    name: "aftercare",
+    title: "Aftercare",
+    description: "A gentle wind-down after a session.",
+    text: [
+      "Wind things down with care. `set_max_intensity` to something low, play the `heartbeat`",
+      "pattern softly for a bit, then `stop`. Speak warmly: check they're okay, praise them,",
+      "suggest water and rest. No escalation \u2014 this is purely soothing.",
+      "Match the user's language."
+    ].join(" ")
+  }
+];
+
 // src/mcp.ts
 var text = (obj) => ({
   content: [{ type: "text", text: JSON.stringify(obj, null, 2) }]
 });
-async function startMcp(manager2, modes2) {
+async function startMcp(manager2, modes2, memory2) {
   const server = new McpServer({ name: "claude-f-me", version: "0.1.0" });
   server.registerTool(
     "list_devices",
@@ -30292,6 +30713,46 @@ async function startMcp(manager2, modes2) {
     },
     async () => text(modes2.reveal())
   );
+  server.registerTool(
+    "remember",
+    {
+      title: "Remember something",
+      description: "Save a preference, limit, or note to local memory (e.g. 'loves heartbeat at 60%', 'never go above 70%', 'safeword is red'). Stored only on this machine.",
+      inputSchema: { note: external_exports.string().describe("the thing to remember") }
+    },
+    async ({ note }) => {
+      memory2.remember(note);
+      return text({ remembered: note });
+    }
+  );
+  server.registerTool(
+    "recall",
+    {
+      title: "Recall memory",
+      description: "Return what's known about this user from local memory: notes, favourite games/scores, persona affinity, soft dislike signals (things stopped right after starting), and any comfort ceiling. Consult before composing or escalating.",
+      inputSchema: {}
+    },
+    async () => text(memory2.recall())
+  );
+  server.registerTool(
+    "forget",
+    {
+      title: "Forget everything",
+      description: "Wipe all local memory (notes, history, learned signals). Irreversible.",
+      inputSchema: {}
+    },
+    async () => {
+      await memory2.forget();
+      return text({ forgotten: true });
+    }
+  );
+  for (const p of PROMPTS) {
+    server.registerPrompt(
+      p.name,
+      { title: p.title, description: p.description },
+      () => ({ messages: [{ role: "user", content: { type: "text", text: p.text } }] })
+    );
+  }
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
@@ -30300,35 +30761,6 @@ async function startMcp(manager2, modes2) {
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
-
-// src/score.ts
-function normalizeKeyframes(raw) {
-  const arr = Array.isArray(raw) ? raw : [];
-  const kf = arr.map((a) => ({ at: Number(a?.at), level: Number(a?.level) })).filter((k) => Number.isFinite(k.at) && Number.isFinite(k.level) && k.at >= 0).map((k) => ({ at: k.at, level: Math.min(1, Math.max(0, k.level)) })).sort((a, b) => a.at - b.at);
-  if (kf.length === 0) throw new Error("score has no usable keyframes");
-  return kf;
-}
-function scoreDuration(kf) {
-  return kf.length ? kf[kf.length - 1].at : 0;
-}
-function sampleScore(kf, t) {
-  if (kf.length === 0) return 0;
-  if (t <= kf[0].at) return kf[0].level;
-  const last = kf[kf.length - 1];
-  if (t >= last.at) return last.level;
-  let lo = 0;
-  let hi = kf.length - 1;
-  while (lo < hi) {
-    const mid = lo + hi >> 1;
-    if (kf[mid].at <= t) lo = mid + 1;
-    else hi = mid;
-  }
-  const b = kf[lo];
-  const a = kf[lo - 1];
-  const span = b.at - a.at || 1;
-  const f = (t - a.at) / span;
-  return a.level + (b.level - a.level) * f;
-}
 
 // src/personas.ts
 var PERSONAS = [
@@ -30406,97 +30838,26 @@ var PERSONAS = [
     signatureGame: "ambient",
     signaturePreset: "wave",
     voice: { en: "Let go. Let me decide.", zh: "\u653E\u624B\uFF0C\u4EA4\u7ED9\u6211\u3002" }
+  },
+  {
+    id: "mommy",
+    emoji: "\u{1F37C}",
+    name: { en: "Mommy", zh: "\u5988\u54AA" },
+    tagline: { en: "warm, doting, calmly in charge", zh: "\u6E29\u67D4\u3001\u5BA0\u6EBA\u3001\u7A33\u7A33\u638C\u63A7" },
+    model: "claude-opus-4-8",
+    pace: 0.35,
+    randomness: 0.2,
+    denial: 0.45,
+    ceiling: 0.9,
+    ramp: "slow",
+    signatureGame: "ambient",
+    signaturePreset: "heartbeat",
+    voice: { en: "Good. You're doing so well for me.", zh: "\u4E56\uFF0C\u505A\u5F97\u5F88\u597D\uFF0C\u5988\u54AA\u5F88\u6EE1\u610F\u3002" }
   }
 ];
 var DEFAULT_PERSONA = PERSONAS.find((p) => p.id === "metronome");
 function getPersona(id) {
   return PERSONAS.find((p) => p.id === id);
-}
-
-// src/llm.ts
-var ANTHROPIC_KEY = () => process.env.CFM_LLM_API_KEY || process.env.ANTHROPIC_API_KEY || "";
-var OPENAI_KEY = () => process.env.OPENAI_API_KEY || "";
-var OPENAI_BASE = () => process.env.CFM_OPENAI_BASE_URL || "https://api.openai.com/v1";
-var DEFAULT_ANTHROPIC_MODEL = "claude-opus-4-8";
-var DEFAULT_OPENAI_MODEL = "gpt-5.5";
-function isLlmConfigured() {
-  return !!(ANTHROPIC_KEY() || OPENAI_KEY());
-}
-function pickProvider(model) {
-  const m = (model || "").trim().toLowerCase();
-  if (m.startsWith("claude") || m.startsWith("anthropic")) {
-    if (ANTHROPIC_KEY()) return { provider: "anthropic", model };
-  }
-  if (m.startsWith("gpt") || m.startsWith("o1") || m.startsWith("o3") || m.startsWith("openai")) {
-    if (OPENAI_KEY()) return { provider: "openai", model };
-  }
-  if (ANTHROPIC_KEY()) return { provider: "anthropic", model: DEFAULT_ANTHROPIC_MODEL };
-  if (OPENAI_KEY()) return { provider: "openai", model: DEFAULT_OPENAI_MODEL };
-  return null;
-}
-var SYSTEM = [
-  "You are a haptic composer for a single-motor vibration device.",
-  "Turn the user's brief into a smooth timeline of keyframes.",
-  'Rules: respond with ONLY JSON, shape {"keyframes":[{"at":<ms>,"level":<0..1>}, ...]}.',
-  "`at` is milliseconds from the start, strictly increasing, starting at 0.",
-  "`level` is intensity 0..1. Use ramps (many keyframes) for builds, plateaus to hold,",
-  "drops to 0 for denial/rest, and a release near the end. 8\u201340 keyframes is plenty.",
-  "Honour any duration in the brief; otherwise aim for 60\u2013180s. No prose, no markdown."
-].join(" ");
-async function composeWithModel(brief, model) {
-  const pick2 = pickProvider(model);
-  if (!pick2) throw new Error("no LLM API key configured (set ANTHROPIC_API_KEY or OPENAI_API_KEY)");
-  const prompt = "Brief: " + brief.trim();
-  const raw = pick2.provider === "anthropic" ? await callAnthropic(pick2.model, prompt) : await callOpenAI(pick2.model, prompt);
-  const keyframes = parseKeyframes(raw);
-  const score = { brief: brief.trim(), by: pick2.model, keyframes };
-  logErr(`[muse] ${pick2.provider}/${pick2.model} composed ${keyframes.length} kf / ${(scoreDuration(keyframes) / 1e3).toFixed(0)}s`);
-  return score;
-}
-function parseKeyframes(raw) {
-  let txt = raw.trim();
-  const start = txt.indexOf("{");
-  const end = txt.lastIndexOf("}");
-  if (start >= 0 && end > start) txt = txt.slice(start, end + 1);
-  const obj = JSON.parse(txt);
-  return normalizeKeyframes(obj.keyframes ?? obj.actions ?? obj);
-}
-async function callAnthropic(model, prompt) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": ANTHROPIC_KEY(),
-      "anthropic-version": "2023-06-01"
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 1500,
-      system: SYSTEM,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
-  if (!res.ok) throw new Error(`anthropic ${res.status}: ${await res.text().catch(() => "")}`);
-  const data = await res.json();
-  const block = (data.content || []).find((b) => b.type === "text");
-  return block?.text ?? "";
-}
-async function callOpenAI(model, prompt) {
-  const res = await fetch(OPENAI_BASE() + "/chat/completions", {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: "Bearer " + OPENAI_KEY() },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: SYSTEM },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
-    })
-  });
-  if (!res.ok) throw new Error(`openai ${res.status}: ${await res.text().catch(() => "")}`);
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? "";
 }
 
 // src/modes.ts
@@ -30516,9 +30877,15 @@ var ModeController = class {
   library = /* @__PURE__ */ new Map();
   persona = DEFAULT_PERSONA;
   blind = false;
+  memory = null;
+  /** Optional local memory: records plays + quick-abort dislike signals. */
+  attachMemory(m) {
+    this.memory = m;
+  }
   /** Cancel whatever mode is running. */
   stop() {
     this.token++;
+    this.memory?.noteStop();
     this.manager.setActiveMode(null);
   }
   // ---- personas ----
@@ -30622,6 +30989,7 @@ var ModeController = class {
   async playScore(target, score, opts = {}) {
     const kf = normalizeKeyframes(score.keyframes);
     const label = score.brief || score.name || "muse";
+    this.memory?.recordPlay("muse", score.name || label, this.persona.id);
     this.manager.log_("cmd", `muse \u2192 "${label}"${score.by ? " \xB7 by " + score.by : ""}`);
     return this.runTimeline("muse", target, kf, { loop: opts.loop, speed: opts.speed, label });
   }
@@ -30666,6 +31034,7 @@ var ModeController = class {
     const pace = (ms) => Math.max(40, ms * (1.4 - p.pace));
     const rand = (span) => Math.random() * span * (0.4 + p.randomness);
     const my = ++this.token;
+    this.memory?.recordPlay("game", type, this.persona.id);
     this.manager.log_("cmd", `game \u2192 ${type} \xB7 ${this.blind ? "\u{1F3AD} ???" : p.emoji + " " + p.name.en}${opts.durationMs ? ` (${opts.durationMs}ms)` : ""}`);
     this.manager.setActiveMode({ type: "game", label: this.blind ? `\u{1F3AD} ${type}` : `${p.emoji} ${type}` });
     const drive = async (v) => {
@@ -30866,6 +31235,208 @@ var BUILTIN_SCORES = [
   }
 ];
 
+// src/memory.ts
+import { readFile as readFile2, writeFile as writeFile2, mkdir as mkdir2, rm } from "node:fs/promises";
+import { homedir as homedir2 } from "node:os";
+import { join as join2 } from "node:path";
+var DATA_DIR2 = join2(homedir2(), ".claude-f-me");
+var MEMORY_FILE = join2(DATA_DIR2, "memory.json");
+var QUICK_ABORT_MS = 8e3;
+var empty = () => ({
+  notes: [],
+  plays: {},
+  personas: {},
+  quickAborts: {},
+  comfortCeiling: null,
+  updatedAt: 0
+});
+var Memory = class {
+  data = empty();
+  lastPlay = null;
+  async load() {
+    try {
+      const raw = await readFile2(MEMORY_FILE, "utf8");
+      this.data = { ...empty(), ...JSON.parse(raw) };
+    } catch {
+    }
+  }
+  remember(note) {
+    const n = note.trim();
+    if (!n) return;
+    this.data.notes.push(n);
+    if (this.data.notes.length > 200) this.data.notes.shift();
+    void this.save();
+  }
+  /** Called when a game / muse score / video starts. */
+  recordPlay(kind, name, persona) {
+    const key = `${kind}:${name}`;
+    this.data.plays[key] = (this.data.plays[key] ?? 0) + 1;
+    this.data.personas[persona] = (this.data.personas[persona] ?? 0) + 1;
+    this.lastPlay = { key, persona, at: Date.now() };
+    void this.save();
+  }
+  /** Called on any stop. If it came right after a play start, log a soft dislike. */
+  noteStop() {
+    const lp = this.lastPlay;
+    this.lastPlay = null;
+    if (!lp) return;
+    if (Date.now() - lp.at < QUICK_ABORT_MS) {
+      const k = `${lp.key}@${lp.persona}`;
+      this.data.quickAborts[k] = (this.data.quickAborts[k] ?? 0) + 1;
+      void this.save();
+    }
+  }
+  setComfortCeiling(v) {
+    this.data.comfortCeiling = Math.min(1, Math.max(0, v));
+    void this.save();
+  }
+  /** A compact profile for the recall tool and for persona/muse to consult. */
+  recall() {
+    const top = (rec, n) => Object.entries(rec).sort((a, b) => b[1] - a[1]).slice(0, n).map(([k, v]) => `${k} \xD7${v}`);
+    return {
+      notes: this.data.notes.slice(-20),
+      favorites: top(this.data.plays, 5),
+      personaAffinity: top(this.data.personas, 3),
+      dislikes: top(this.data.quickAborts, 5),
+      comfortCeiling: this.data.comfortCeiling
+    };
+  }
+  async forget() {
+    this.data = empty();
+    this.lastPlay = null;
+    try {
+      await rm(MEMORY_FILE, { force: true });
+    } catch {
+    }
+  }
+  async save() {
+    this.data.updatedAt = Date.now();
+    try {
+      await mkdir2(DATA_DIR2, { recursive: true });
+      await writeFile2(MEMORY_FILE, JSON.stringify(this.data, null, 2));
+    } catch (e) {
+      logErr(`memory: save failed ${e}`);
+    }
+  }
+};
+
+// src/telegram.ts
+function startTelegram(manager2, modes2, token, allowCsv) {
+  const allow = allowCsv.split(",").map((s) => s.trim()).filter(Boolean);
+  if (allow.length === 0) {
+    logErr("telegram: \u26A0 no CFM_TELEGRAM_ALLOW set \u2014 anyone who finds the bot can control the device");
+  }
+  let offset = 0;
+  let running = true;
+  const api = (method, body) => fetch(`https://api.telegram.org/bot${token}/${method}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  const send = (chat, text2) => api("sendMessage", { chat_id: chat, text: text2 }).catch(() => {
+  });
+  const curMax = () => {
+    const d = manager2.snapshot().devices;
+    return d.reduce((a, x) => Math.max(a, x.intensity), 0);
+  };
+  const game = (t) => modes2.startGame("all", t);
+  const pat = (p) => manager2.pattern("all", PRESETS[p] ?? PRESETS.pulse, 3);
+  async function route(text2) {
+    const s = text2.trim();
+    const low = s.toLowerCase();
+    const zh = /[一-鿿]/.test(s);
+    if (low === "/start" || low === "help" || low === "/help" || s === "\u5E2E\u52A9") {
+      return zh ? "claude-f-me \u9065\u63A7 \u{1F495}\n\u53D1\u5F3A\u5EA6\u6570\u5B57 0\u2013100\u3001\u6216 harder/softer\u3001stop/safeword\u3001scan\u3002\n\u8868\u60C5\uFF1A\u{1F525}\u8FB9\u7F18 \u{1F493}\u5FC3\u8DF3 \u{1F30A}\u73AF\u5883 \u{1F3A1}\u8F6C\u76D8 \u{1F4C8}\u9012\u589E \u{1F3B2}\u968F\u673A \u{1F6D1}\u505C\u6B62" : "claude-f-me remote \u{1F495}\nSend a number 0\u2013100, or harder/softer, stop/safeword, scan.\nEmoji: \u{1F525}edge \u{1F493}heartbeat \u{1F30A}ambient \u{1F3A1}wheel \u{1F4C8}escalation \u{1F3B2}surprise \u{1F6D1}stop";
+    }
+    if (/(safeword|^stop$|^\/stop$|🛑|停|住手)/.test(low)) {
+      modes2.stop();
+      await manager2.stopAll();
+      return zh ? "\u{1F6D1} \u5DF2\u5168\u90E8\u505C\u6B62\uFF0C\u4F60\u662F\u5B89\u5168\u7684\u3002" : "\u{1F6D1} everything stopped. you're safe.";
+    }
+    if (low === "scan" || low === "/scan" || s === "\u626B\u63CF") {
+      await manager2.scan(4e3);
+      return zh ? "\u{1F50D} \u626B\u63CF\u4E2D\u2026" : "\u{1F50D} scanning\u2026";
+    }
+    if (/(harder|more|\+|更|强|用力)/.test(low)) {
+      const v = Math.min(1, curMax() + 0.2);
+      await manager2.vibrate("all", v);
+      return (zh ? "\u{1F525} \u52A0\u5230 " : "\u{1F525} up to ") + Math.round(v * 100) + "%";
+    }
+    if (/(softer|less|-|轻|温柔|慢)/.test(low)) {
+      const v = Math.max(0, curMax() - 0.2);
+      await manager2.vibrate("all", v);
+      return (zh ? "\u{1FAE6} \u964D\u5230 " : "\u{1FAE6} down to ") + Math.round(v * 100) + "%";
+    }
+    if (low.includes("\u{1F525}") || low.includes("edge") || s.includes("\u8FB9\u7F18")) {
+      await game("edge");
+      return zh ? "\u{1F525} \u8FB9\u7F18\u63A7\u5236\u5F00\u59CB" : "\u{1F525} edging";
+    }
+    if (low.includes("\u{1F4C8}") || low.includes("escalat") || s.includes("\u9012\u589E")) {
+      await game("escalation");
+      return zh ? "\u{1F4C8} \u9012\u589E\u4E2D" : "\u{1F4C8} escalating";
+    }
+    if (low.includes("\u{1F30A}") || low.includes("ambient") || s.includes("\u73AF\u5883")) {
+      await game("ambient");
+      return zh ? "\u{1F30A} \u73AF\u5883\u6CE2\u52A8" : "\u{1F30A} ambient waves";
+    }
+    if (low.includes("\u{1F3A1}") || low.includes("wheel") || s.includes("\u8F6C\u76D8")) {
+      await game("wheel");
+      return zh ? "\u{1F3A1} \u8F6C\u76D8\u65CB\u8F6C" : "\u{1F3A1} spinning the wheel";
+    }
+    if (low.includes("\u{1F493}") || low.includes("heart") || s.includes("\u5FC3\u8DF3")) {
+      await pat("heartbeat");
+      return zh ? "\u{1F493} \u5FC3\u8DF3\u8282\u594F" : "\u{1F493} heartbeat";
+    }
+    if (low.includes("\u{1F3B2}") || low.includes("surprise") || s.includes("\u968F\u673A") || s.includes("\u60CA\u559C")) {
+      const games = ["roulette", "ambient", "edge", "wheel"];
+      await game(games[Math.floor(Math.random() * games.length)]);
+      return zh ? "\u{1F3B2} \u7ED9\u4F60\u4E2A\u60CA\u559C\u2026" : "\u{1F3B2} surprise\u2026";
+    }
+    const num = low.match(/^(\d{1,3})\s*%?$/);
+    if (num) {
+      const v = Math.max(0, Math.min(1, parseInt(num[1], 10) / 100));
+      await manager2.vibrate("all", v, 6e4);
+      return (zh ? "\u8BBE\u5230 " : "set to ") + Math.round(v * 100) + "%";
+    }
+    return zh ? "\u6CA1\u542C\u61C2\uFF5E\u8BD5\u8BD5 harder / softer / stop \u6216 \u{1F525}\u{1F493}\u{1F3B2}" : "didn't catch that \u2014 try harder / softer / stop or \u{1F525}\u{1F493}\u{1F3B2}";
+  }
+  async function handle(update) {
+    const msg = update.message ?? update.edited_message;
+    if (!msg || typeof msg.text !== "string") return;
+    const chat = msg.chat?.id;
+    if (allow.length && !allow.includes(String(chat))) {
+      await send(chat, "\u26D4 not authorised");
+      return;
+    }
+    try {
+      const reply = await route(msg.text);
+      if (reply) await send(chat, reply);
+    } catch (e) {
+      logErr(`telegram: route error ${e}`);
+    }
+  }
+  async function loop() {
+    logErr("telegram: bridge started (long-polling)");
+    while (running) {
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${token}/getUpdates?timeout=30&offset=${offset}`);
+        const data = await res.json();
+        for (const u of data.result ?? []) {
+          offset = u.update_id + 1;
+          await handle(u);
+        }
+      } catch (e) {
+        logErr(`telegram: poll error ${e}`);
+        await delay(2e3);
+      }
+    }
+  }
+  void loop();
+  return { stop() {
+    running = false;
+  } };
+}
+
 // src/index.ts
 var args = process.argv.slice(2);
 var consoleOnly = args.includes("--console-only");
@@ -30886,6 +31457,9 @@ var manager = new DeviceManager(backend, {
   consoleUrl: `http://localhost:${port}`
 });
 var modes = new ModeController(manager);
+var memory = new Memory();
+await memory.load();
+modes.attachMemory(memory);
 try {
   await manager.connect();
 } catch (e) {
@@ -30895,10 +31469,12 @@ try {
   }
 }
 await startConsole(manager, modes, port);
+var tgToken = process.env.CFM_TELEGRAM_TOKEN ?? "";
+if (tgToken) startTelegram(manager, modes, tgToken, process.env.CFM_TELEGRAM_ALLOW ?? "");
 if (consoleOnly) {
   logErr(`claude-f-me: console-only mode \u2014 open http://localhost:${port}`);
 } else {
-  await startMcp(manager, modes);
+  await startMcp(manager, modes, memory);
   logErr(`claude-f-me: ready (MCP stdio + console at http://localhost:${port})`);
 }
 var cleanup = () => {

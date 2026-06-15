@@ -3,13 +3,15 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import type { DeviceManager } from "./device/manager.js";
 import type { ModeController } from "./modes.js";
+import type { Memory } from "./memory.js";
 import { PRESETS } from "./presets.js";
+import { PROMPTS } from "./prompts.js";
 
 const text = (obj: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(obj, null, 2) }],
 });
 
-export async function startMcp(manager: DeviceManager, modes: ModeController): Promise<void> {
+export async function startMcp(manager: DeviceManager, modes: ModeController, memory: Memory): Promise<void> {
   const server = new McpServer({ name: "claude-f-me", version: "0.1.0" });
 
   server.registerTool(
@@ -310,6 +312,56 @@ export async function startMcp(manager: DeviceManager, modes: ModeController): P
     },
     async () => text(modes.reveal())
   );
+
+  // ---- memory (local-only; gets to know you over time) ----
+
+  server.registerTool(
+    "remember",
+    {
+      title: "Remember something",
+      description:
+        "Save a preference, limit, or note to local memory (e.g. 'loves heartbeat at 60%', 'never go above 70%', 'safeword is red'). Stored only on this machine.",
+      inputSchema: { note: z.string().describe("the thing to remember") },
+    },
+    async ({ note }) => {
+      memory.remember(note);
+      return text({ remembered: note });
+    }
+  );
+
+  server.registerTool(
+    "recall",
+    {
+      title: "Recall memory",
+      description:
+        "Return what's known about this user from local memory: notes, favourite games/scores, persona affinity, soft dislike signals (things stopped right after starting), and any comfort ceiling. Consult before composing or escalating.",
+      inputSchema: {},
+    },
+    async () => text(memory.recall())
+  );
+
+  server.registerTool(
+    "forget",
+    {
+      title: "Forget everything",
+      description: "Wipe all local memory (notes, history, learned signals). Irreversible.",
+      inputSchema: {},
+    },
+    async () => {
+      await memory.forget();
+      return text({ forgotten: true });
+    }
+  );
+
+  // ---- scene prompts (guided experiences) ----
+
+  for (const p of PROMPTS) {
+    server.registerPrompt(
+      p.name,
+      { title: p.title, description: p.description },
+      () => ({ messages: [{ role: "user", content: { type: "text", text: p.text } }] })
+    );
+  }
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

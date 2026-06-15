@@ -43,6 +43,7 @@ A **built-in simulator** lets you build and play with **zero hardware**.
   ┌──────────────┐   WebSocket      │   ┌─────────────────────┐ │
   │  Web console │ ◄──────────────► │   │   DeviceManager     │ │  safety cap · watchdog
   │  + master    │                  │   │   ModeController    │ │  patterns · video · game
+  │  + duet      │                  │   │   muse · personas   │ │  muse · personas · duet
   └──────────────┘                  │   └──────────┬──────────┘ │
                                     └──────────────┼────────────┘
                                        ┌───────────┴───────────┐
@@ -56,6 +57,14 @@ so the chat and the dashboard always share the exact same device state.
 
 - 🔌 **Real hardware.** Drives Lovense, We-Vibe, Kiiroo, The Handy, Satisfyer, and
   [750+ devices](https://iostindex.com) through [Intiface Central](https://intiface.com).
+- 🎼 **Muse mode.** The model *composes* — you describe a vibe ("10-minute tantric slow burn",
+  "a thunderstorm", "I love you in morse") and it writes a smooth haptic score and plays it.
+  Save scores to a library and replay them. The device becomes an instrument an AI plays.
+- 🎭 **Personas.** Pick *who's in control* — driver personalities themed after SOTA models:
+  🕯️ Slow Burn (Opus), 😈 Brat (GPT-5.5), 🎼 Metronome, ⛈️ Storm, 🔮 Oracle. Each changes the
+  feel (pace, randomness, denial, ceiling). **Blind mode** hides which one — a mystery in control.
+- 💞 **Duet mode.** A room-code link between two consoles over a built-in relay, so a partner's
+  input drives your device in real time (mirror / lead / follow), with presence and 👋 touch gestures.
 - ⚡ **Reactive "Pulse Core" UI.** A breathing energy orb and an aurora that glow, scale and
   pulse with live intensity, plus a real-time audio waveform — not a boring dashboard.
 - 👑 **Master remote.** A phone-friendly page (`/master`) so another person can take control
@@ -87,6 +96,8 @@ scan for devices
 vibrate at 40% for 3 seconds
 run the "heartbeat" pattern
 start an edge game
+compose a 5-minute slow build that edges twice then releases
+become the Brat persona
 surprise me
 ```
 
@@ -103,6 +114,8 @@ The console comes up at **http://localhost:8731** — run `/claude-f-me:console`
 | `/claude-f-me:softer` | ease off (−20%) |
 | `/claude-f-me:edge` | tease-and-deny game |
 | `/claude-f-me:tease` | gentle on-off pattern |
+| `/claude-f-me:muse` | compose a custom haptic score from a vibe |
+| `/claude-f-me:persona` | pick who's in control (Slow Burn / Brat / …) |
 | `/claude-f-me:surprise` | pick a random mode |
 | `/claude-f-me:safeword` · `/claude-f-me:panic` | **stop everything immediately** |
 
@@ -145,6 +158,20 @@ link. Over a tunnel it's HTTPS, so `wss://` works automatically.
 
 ## Modes & games
 
+**🎼 Muse (composed scores)** — the model turns a natural-language brief into a smooth keyframe
+timeline (`{at, level}`, interpolated) and plays it. Composed in chat with the `compose` tool, or
+from the console's **"describe a vibe"** box when an external model key is set. Scores can be
+saved to a library (built-ins included) and replayed with `muse_list` / `muse_play`.
+
+**🎭 Personas** — a driver personality that modulates every game/event (pace, randomness, denial,
+ceiling) and, with a matching key, picks which model composes your Muse scores:
+🕯️ `slowburn` (Opus) · 😈 `brat` (GPT-5.5) · 🎼 `metronome` · ⛈️ `storm` · 🔮 `oracle`.
+`set_persona blind` hides the choice until `reveal_persona`.
+
+**💞 Duet** — open the console's **Duet** panel, share a relay URL + room code, and two consoles
+link through the built-in `/relay` hub. Pick **mirror** (both feel each other), **lead** (you drive)
+or **follow** (you receive); send a 👋 touch. Incoming levels still pass your local safety cap.
+
 **🎬 Video (funscript)** — plays a `{at,pos}` timeline, interpolated to intensity in real time
 (`loop`, `speed`, `invert`). Use the **Load sample** button to try it with no file.
 
@@ -169,7 +196,10 @@ link. Over a tunnel it's HTTPS, so `wss://` works automatically.
 | `load_funscript` · `play_video` | load + play a funscript (`loop`, `speed`, `invert`) |
 | `start_game` | `roulette`/`escalation`/`ambient`/`edge`/`wheel` (`intensity_max`, `duration_ms`) |
 | `game_event` | one-shot `reward`/`penalty`/`tease`/`pulse` for narrative games |
-| `stop_mode` | stop the active video/game mode |
+| `compose` | you write `keyframes` (`[{at,level}]`) from a `brief` and play them; optional `save_as`, `loop` |
+| `muse_list` · `muse_play` | list / replay saved & built-in Muse scores |
+| `list_personas` · `set_persona` · `reveal_persona` | pick the driver persona (or `blind`) and reveal it |
+| `stop_mode` | stop the active video/game/muse mode |
 
 > Audio mode and the master remote live in the console (they need a browser for mic capture and
 > hands-on control); everything else is drivable by Claude through the tools above.
@@ -182,6 +212,13 @@ link. Over a tunnel it's HTTPS, so `wss://` works automatically.
 | `CFM_CONSOLE_PORT` | `8731` | web console port (also serves `/master`) |
 | `CFM_MAX_INTENSITY` | `1.0` | initial safety cap (0..1) |
 | `CFM_INTIFACE_URL` | `ws://127.0.0.1:12345` | Intiface server (buttplug mode) |
+| `ANTHROPIC_API_KEY` / `CFM_LLM_API_KEY` | — | *optional* — lets the console's "describe a vibe" box have **Claude** compose Muse scores |
+| `OPENAI_API_KEY` (+ `CFM_OPENAI_BASE_URL`) | — | *optional* — same, via an OpenAI-compatible model (e.g. a GPT persona) |
+
+> The model keys are **optional**. Without them, Muse still works — just ask Claude in chat to
+> `compose`, and personas still modulate the feel locally. With a key, a persona's `model` decides
+> who writes the score (that's what makes "🕯️ Opus" vs "😈 GPT-5.5" literal). Keys are read from the
+> environment and never written to disk; Duet's relay is keyless.
 
 ## Development
 

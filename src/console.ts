@@ -42,14 +42,23 @@ export function startConsole(
     }
   });
 
-  const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+  // Two endpoints share one HTTP server. Use noServer + a single upgrade router
+  // rather than two `{server}` WebSocketServers (which would both listen for the
+  // 'upgrade' event and can double-handshake a socket → corrupt frames).
+  const wss = new WebSocketServer({ noServer: true });
+  const relay = new WebSocketServer({ noServer: true });
+  httpServer.on("upgrade", (req, socket, head) => {
+    const p = (req.url ?? "").split("?")[0];
+    if (p === "/ws") wss.handleUpgrade(req, socket, head, (ws) => wss.emit("connection", ws, req));
+    else if (p === "/relay") relay.handleUpgrade(req, socket, head, (ws) => relay.emit("connection", ws, req));
+    else socket.destroy();
+  });
   const masters = new Set<WebSocket>();
 
   // ---- Duet relay hub: a tiny in-memory room switch on the same server, so any
   // claude-f-me instance (even --console-only) can relay two consoles to each
   // other. It only forwards messages between members of the same room; it never
   // touches a device. Each browser decides what to apply to its own device.
-  const relay = new WebSocketServer({ server: httpServer, path: "/relay" });
   const rooms = new Map<string, Set<WebSocket>>();
   const announce = (room: string) => {
     const set = rooms.get(room);
