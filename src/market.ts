@@ -43,12 +43,22 @@ export function resolveSymbol(input: string): string {
 
 export async function fetchQuote(input: string): Promise<Quote> {
   const symbol = resolveSymbol(input);
-  try {
-    return await fetchYahoo(symbol);
-  } catch (e) {
-    logErr(`market: yahoo failed for ${symbol} (${e}); trying stooq`);
-    return await fetchStooq(symbol);
+  const isCrypto = /-USD$/i.test(symbol);
+  const providers: Array<[string, () => Promise<Quote>]> = [
+    ["yahoo", () => fetchYahoo(symbol)],
+    ["stooq", () => fetchStooq(symbol)],
+  ];
+  if (isCrypto) providers.push(["coinbase", () => fetchCoinbase(symbol)]);
+  let lastErr: unknown;
+  for (const [name, fn] of providers) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      logErr(`market: ${name} failed for ${symbol} (${e})`);
+    }
   }
+  throw new Error(`could not fetch a quote for "${symbol}" (${lastErr instanceof Error ? lastErr.message : lastErr})`);
 }
 
 async function fetchYahoo(symbol: string): Promise<Quote> {
@@ -71,9 +81,27 @@ async function fetchYahoo(symbol: string): Promise<Quote> {
   };
 }
 
+async function fetchCoinbase(symbol: string): Promise<Quote> {
+  // symbol like BTC-USD → Coinbase spot + yesterday for a rough change
+  const pair = symbol.toUpperCase();
+  const spot = await fetch(`https://api.coinbase.com/v2/prices/${pair}/spot`);
+  if (!spot.ok) throw new Error(`coinbase ${spot.status}`);
+  const price = Number((await spot.json())?.data?.amount);
+  if (!Number.isFinite(price)) throw new Error("no price");
+  let prevClose = price;
+  try {
+    const y = await fetch(`https://api.coinbase.com/v2/prices/${pair}/spot?date=${new Date(Date.now() - 864e5).toISOString().slice(0, 10)}`);
+    if (y.ok) prevClose = Number((await y.json())?.data?.amount) || price;
+  } catch { /* change is optional */ }
+  return { symbol: pair, price, prevClose, changePct: prevClose ? ((price - prevClose) / prevClose) * 100 : 0, currency: "USD" };
+}
+
 async function fetchStooq(symbol: string): Promise<Quote> {
-  // Stooq uses lowercase + ".us" for US equities; pass through for others.
-  const sym = /^[A-Za-z.]+$/.test(symbol) && !symbol.includes(".") ? `${symbol.toLowerCase()}.us` : symbol.toLowerCase();
+  // Stooq: US equities use lowercase + ".us"; crypto like BTC-USD → "btcusd".
+  let sym: string;
+  if (/-USD$/i.test(symbol)) sym = symbol.toLowerCase().replace("-", "");
+  else if (/^[A-Za-z.]+$/.test(symbol) && !symbol.includes(".")) sym = `${symbol.toLowerCase()}.us`;
+  else sym = symbol.toLowerCase();
   const url = `https://stooq.com/q/l/?s=${encodeURIComponent(sym)}&f=sd2t2ohlc&h&e=csv`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`stooq ${res.status}`);

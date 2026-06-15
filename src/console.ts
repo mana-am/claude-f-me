@@ -230,6 +230,9 @@ export function startConsole(
             if (m.on) manager.setActiveMode({ type: (m.modeType ?? "video"), label: String(m.label ?? "") });
             else { await manager.stop(m.target ?? "all"); manager.setActiveMode(null); }
             break;
+          case "market_start":
+            if (m.symbol) await modes.startMarket(m.target ?? "all", String(m.symbol), {});
+            break;
           case "rec_start":
             recorder.begin();
             break;

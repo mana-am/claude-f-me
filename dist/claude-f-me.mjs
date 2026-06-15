@@ -39,6 +39,21 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// src/util.ts
+var clamp01, delay, logErr;
+var init_util = __esm({
+  "src/util.ts"() {
+    "use strict";
+    clamp01 = (n) => Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0;
+    delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    logErr = (...args2) => {
+      process.stderr.write(
+        args2.map((a) => typeof a === "string" ? a : JSON.stringify(a)).join(" ") + "\n"
+      );
+    };
+  }
+});
+
 // node_modules/ws/lib/constants.js
 var require_constants = __commonJS({
   "node_modules/ws/lib/constants.js"(exports, module) {
@@ -14685,19 +14700,146 @@ var require_dist = __commonJS({
   }
 });
 
+// src/market.ts
+var market_exports = {};
+__export(market_exports, {
+  fetchQuote: () => fetchQuote,
+  marketMelody: () => marketMelody,
+  resolveSymbol: () => resolveSymbol
+});
+function resolveSymbol(input) {
+  const s = input.trim();
+  const key = s.toLowerCase();
+  if (ALIASES[s]) return ALIASES[s];
+  if (ALIASES[key]) return ALIASES[key];
+  return s.toUpperCase();
+}
+async function fetchQuote(input) {
+  const symbol = resolveSymbol(input);
+  const isCrypto = /-USD$/i.test(symbol);
+  const providers = [
+    ["yahoo", () => fetchYahoo(symbol)],
+    ["stooq", () => fetchStooq(symbol)]
+  ];
+  if (isCrypto) providers.push(["coinbase", () => fetchCoinbase(symbol)]);
+  let lastErr;
+  for (const [name, fn] of providers) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      logErr(`market: ${name} failed for ${symbol} (${e})`);
+    }
+  }
+  throw new Error(`could not fetch a quote for "${symbol}" (${lastErr instanceof Error ? lastErr.message : lastErr})`);
+}
+async function fetchYahoo(symbol) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+  const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 claude-f-me" } });
+  if (!res.ok) throw new Error(`yahoo ${res.status}`);
+  const data = await res.json();
+  const r = data?.chart?.result?.[0];
+  const meta = r?.meta;
+  if (!meta) throw new Error("no quote");
+  const price = Number(meta.regularMarketPrice);
+  const prevClose = Number(meta.chartPreviousClose ?? meta.previousClose ?? price);
+  if (!Number.isFinite(price)) throw new Error("no price");
+  return {
+    symbol,
+    price,
+    prevClose,
+    changePct: prevClose ? (price - prevClose) / prevClose * 100 : 0,
+    currency: String(meta.currency ?? "USD")
+  };
+}
+async function fetchCoinbase(symbol) {
+  const pair = symbol.toUpperCase();
+  const spot = await fetch(`https://api.coinbase.com/v2/prices/${pair}/spot`);
+  if (!spot.ok) throw new Error(`coinbase ${spot.status}`);
+  const price = Number((await spot.json())?.data?.amount);
+  if (!Number.isFinite(price)) throw new Error("no price");
+  let prevClose = price;
+  try {
+    const y = await fetch(`https://api.coinbase.com/v2/prices/${pair}/spot?date=${new Date(Date.now() - 864e5).toISOString().slice(0, 10)}`);
+    if (y.ok) prevClose = Number((await y.json())?.data?.amount) || price;
+  } catch {
+  }
+  return { symbol: pair, price, prevClose, changePct: prevClose ? (price - prevClose) / prevClose * 100 : 0, currency: "USD" };
+}
+async function fetchStooq(symbol) {
+  let sym;
+  if (/-USD$/i.test(symbol)) sym = symbol.toLowerCase().replace("-", "");
+  else if (/^[A-Za-z.]+$/.test(symbol) && !symbol.includes(".")) sym = `${symbol.toLowerCase()}.us`;
+  else sym = symbol.toLowerCase();
+  const url = `https://stooq.com/q/l/?s=${encodeURIComponent(sym)}&f=sd2t2ohlc&h&e=csv`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`stooq ${res.status}`);
+  const text2 = await res.text();
+  const rows = text2.trim().split("\n");
+  if (rows.length < 2) throw new Error("no data");
+  const cols = rows[1].split(",");
+  const open = Number(cols[3]);
+  const close = Number(cols[6]);
+  if (!Number.isFinite(close)) throw new Error("no close");
+  return {
+    symbol: symbol.toUpperCase(),
+    price: close,
+    prevClose: open,
+    changePct: open ? (close - open) / open * 100 : 0,
+    currency: "USD"
+  };
+}
+function marketMelody(q, ceiling = 1) {
+  const m = Math.min(1, Math.abs(q.changePct) / 5);
+  const peak = Math.min(ceiling, 0.3 + 0.65 * m);
+  const lo = Math.min(ceiling, 0.12 + 0.15 * m);
+  const mid = (lo + peak) / 2;
+  const up = q.changePct >= 0;
+  const notes = up ? [lo, mid, peak, mid] : [peak, mid, lo, lo * 0.6];
+  const dur = up ? 150 : 200;
+  const steps = notes.map((intensity) => ({ intensity, ms: dur }));
+  steps.push({ intensity: lo * 0.5, ms: 120 });
+  return steps;
+}
+var ALIASES;
+var init_market = __esm({
+  "src/market.ts"() {
+    "use strict";
+    init_util();
+    ALIASES = {
+      apple: "AAPL",
+      \u82F9\u679C: "AAPL",
+      tesla: "TSLA",
+      \u7279\u65AF\u62C9: "TSLA",
+      nvidia: "NVDA",
+      \u82F1\u4F1F\u8FBE: "NVDA",
+      \u82F1\u5049\u9054: "NVDA",
+      microsoft: "MSFT",
+      \u5FAE\u8F6F: "MSFT",
+      google: "GOOGL",
+      alphabet: "GOOGL",
+      \u8C37\u6B4C: "GOOGL",
+      amazon: "AMZN",
+      \u4E9A\u9A6C\u900A: "AMZN",
+      meta: "META",
+      facebook: "META",
+      netflix: "NFLX",
+      bitcoin: "BTC-USD",
+      btc: "BTC-USD",
+      \u6BD4\u7279\u5E01: "BTC-USD",
+      ethereum: "ETH-USD",
+      eth: "ETH-USD",
+      \u4EE5\u592A\u574A: "ETH-USD",
+      dogecoin: "DOGE-USD",
+      doge: "DOGE-USD",
+      \u72D7\u72D7\u5E01: "DOGE-USD"
+    };
+  }
+});
+
 // src/device/manager.ts
+init_util();
 import { EventEmitter } from "node:events";
-
-// src/util.ts
-var clamp01 = (n) => Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0;
-var delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-var logErr = (...args2) => {
-  process.stderr.write(
-    args2.map((a) => typeof a === "string" ? a : JSON.stringify(a)).join(" ") + "\n"
-  );
-};
-
-// src/device/manager.ts
 var SAFETY_MAX_ON_MS = 5 * 60 * 1e3;
 var DRIVE_WATCHDOG_MS = 4e3;
 var DeviceManager = class extends EventEmitter {
@@ -14916,6 +15058,7 @@ var DeviceManager = class extends EventEmitter {
 var pct = (v) => `${Math.round(v * 100)}%`;
 
 // src/device/simulated.ts
+init_util();
 var SimulatedBackend = class {
   mode = "simulated";
   devices = /* @__PURE__ */ new Map();
@@ -14954,6 +15097,7 @@ var SimulatedBackend = class {
 };
 
 // src/device/buttplug.ts
+init_util();
 var ButtplugBackend = class {
   constructor(url) {
     this.url = url;
@@ -15227,6 +15371,12 @@ var CONSOLE_HTML = (
       <button class="chip" id="recbtn" data-i18n="rec"></button>
     </div>
     <div class="deckrow">
+      <span class="lbl" data-i18n="market"></span>
+      <input id="market" type="text" data-i18n-ph="marketPh" style="min-width:180px;
+        background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:7px 12px; font:inherit;" />
+      <button class="chip" id="marketgo" data-i18n="marketGo"></button>
+    </div>
+    <div class="deckrow">
       <span class="lbl" data-i18n="video"></span>
       <button class="chip" id="vidbtn" data-i18n="funscript"></button>
       <button class="chip" id="duetbtn" data-i18n="duet"></button>
@@ -15319,6 +15469,7 @@ var CONSOLE_HTML = (
       pomo:"\u{1F345} Focus 25m", pomoStop:"\u25A0 Focus", pomoLeft:"\u{1F345} {m}:{s}",
       rec:"\u23FA Record", recStop:"\u23F9 Save", recName:"Name this recording (blank = auto):", recSaved:"\u{1F4BE} saved as ", recShort:"recording too short",
       vsync:"\u{1F39E}\uFE0F With video", vsyncPlay:"\u25B6 Play with video", vsyncClose:"\u2715 Close video", needVid:"Choose a video file first.", pickVideo:"video file",
+      market:"Market", marketPh:"ticker \u2014 AAPL / tesla / bitcoin", marketGo:"\u{1F4C8} Feel it", needTicker:"Enter a ticker or company.",
       duet:"\u{1F49E} Duet", duetTitle:"\u{1F49E} Duet \u2014 long-distance sync", duetRelay:"relay URL", duetRoom:"room code",
       duetMode:"mode", duetMirror:"mirror", duetLead:"I lead", duetFollow:"I follow",
       duetConnect:"Connect", duetLeave:"Leave", duetTouch:"\u{1F44B} Touch",
@@ -15347,6 +15498,7 @@ var CONSOLE_HTML = (
       pomo:"\u{1F345} \u4E13\u6CE8 25 \u5206\u949F", pomoStop:"\u25A0 \u4E13\u6CE8", pomoLeft:"\u{1F345} {m}:{s}",
       rec:"\u23FA \u5F55\u5236", recStop:"\u23F9 \u4FDD\u5B58", recName:"\u7ED9\u8FD9\u6BB5\u5F55\u5236\u8D77\u540D\uFF08\u7559\u7A7A\u81EA\u52A8\uFF09\uFF1A", recSaved:"\u{1F4BE} \u5DF2\u5B58\u4E3A ", recShort:"\u5F55\u5236\u592A\u77ED",
       vsync:"\u{1F39E}\uFE0F \u914D\u89C6\u9891", vsyncPlay:"\u25B6 \u914D\u89C6\u9891\u64AD\u653E", vsyncClose:"\u2715 \u5173\u95ED\u89C6\u9891", needVid:"\u8BF7\u5148\u9009\u4E00\u4E2A\u89C6\u9891\u6587\u4EF6\u3002", pickVideo:"\u89C6\u9891\u6587\u4EF6",
+      market:"\u5E02\u503C", marketPh:"\u4EE3\u7801 \u2014 AAPL / \u7279\u65AF\u62C9 / \u6BD4\u7279\u5E01", marketGo:"\u{1F4C8} \u611F\u53D7\u5B83", needTicker:"\u8BF7\u8F93\u5165\u4EE3\u7801\u6216\u516C\u53F8\u540D\u3002",
       duet:"\u{1F49E} \u53CC\u4EBA", duetTitle:"\u{1F49E} \u53CC\u4EBA \u2014 \u5F02\u5730\u540C\u6B65", duetRelay:"\u4E2D\u8F6C\u5730\u5740", duetRoom:"\u623F\u95F4\u7801",
       duetMode:"\u6A21\u5F0F", duetMirror:"\u955C\u50CF", duetLead:"\u6211\u4E3B\u5BFC", duetFollow:"\u6211\u8DDF\u968F",
       duetConnect:"\u8FDE\u63A5", duetLeave:"\u65AD\u5F00", duetTouch:"\u{1F44B} \u89E6\u78B0",
@@ -15407,7 +15559,7 @@ var CONSOLE_HTML = (
     var mode = $("#mode"); mode.textContent = state.mode; mode.className = "pill " + (state.mode === "buttplug" ? "bp" : "sim");
 
     var act = $("#active"), mEl = $("#masters");
-    if (state.activeMode){ act.style.display=""; var ic={video:"\u{1F3AC} ",audio:"\u{1F3B5} ",muse:"\u{1F3BC} ",bio:"\u{1F493} ",game:"\u{1F3AE} "}; act.textContent = (ic[state.activeMode.type]||"\u{1F3AE} ") + state.activeMode.label; }
+    if (state.activeMode){ act.style.display=""; var ic={video:"\u{1F3AC} ",audio:"\u{1F3B5} ",muse:"\u{1F3BC} ",bio:"\u{1F493} ",market:"\u{1F4C8} ",game:"\u{1F3AE} "}; act.textContent = (ic[state.activeMode.type]||"\u{1F3AE} ") + state.activeMode.label; }
     else act.style.display="none";
     if (state.masters > 0){ mEl.style.display=""; mEl.textContent = (state.masters>1?t("mastersOnN"):t("mastersOn")).replace("{n}", state.masters); } else mEl.style.display="none";
 
@@ -15827,6 +15979,15 @@ var CONSOLE_HTML = (
     else { recOn=false; var name=prompt(t("recName"))||""; send({ type:"rec_stop", name:name }); $("#recbtn").textContent=t("rec"); $("#recbtn").classList.remove("sel"); }
   };
 
+  // ---- market mode: feel a stock/crypto's live move ----
+  function marketGo(){
+    var sym = $("#market").value.trim();
+    if (!sym){ alert(t("needTicker")); return; }
+    send({ type:"market_start", symbol:sym, target:target });
+  }
+  $("#marketgo").onclick = marketGo;
+  $("#market").addEventListener("keydown", function(e){ if (e.key==="Enter") marketGo(); });
+
   applyI18n();
   $("#connlbl").textContent = t("connecting");
   connect();
@@ -16096,6 +16257,7 @@ function sampleScore(kf, t) {
 }
 
 // src/llm.ts
+init_util();
 var ANTHROPIC_KEY = () => process.env.CFM_LLM_API_KEY || process.env.ANTHROPIC_API_KEY || "";
 var OPENAI_KEY = () => process.env.OPENAI_API_KEY || "";
 var OPENAI_BASE = () => process.env.CFM_OPENAI_BASE_URL || "https://api.openai.com/v1";
@@ -16527,6 +16689,7 @@ var Recorder = class {
 };
 
 // src/console.ts
+init_util();
 function startConsole(manager2, modes2, port2) {
   const httpServer = http.createServer((req, res) => {
     const path = (req.url ?? "/").split("?")[0];
@@ -16727,6 +16890,9 @@ function startConsole(manager2, modes2, port2) {
               await manager2.stop(m.target ?? "all");
               manager2.setActiveMode(null);
             }
+            break;
+          case "market_start":
+            if (m.symbol) await modes2.startMarket(m.target ?? "all", String(m.symbol), {});
             break;
           case "rec_start":
             recorder.begin();
@@ -31287,6 +31453,21 @@ async function startMcp(manager2, modes2, memory2) {
     async () => text(modes2.reveal())
   );
   server.registerTool(
+    "market_mode",
+    {
+      title: "Market mode (feel the market)",
+      description: "Drive the device from a live stock/crypto quote: name a company or ticker (e.g. 'tesla', 'AAPL', 'bitcoin', 'BTC-USD') and it polls the price and plays a vibration melody from the intraday move \u2014 bigger move = stronger, green = rising arpeggio, red = falling. Polls every interval_ms (min 5000). Cancels any other running mode; stop_mode / emergency_stop end it. Not financial advice.",
+      inputSchema: {
+        symbol: external_exports.string().describe("company name or ticker (AAPL, tesla, BTC-USD, bitcoin)"),
+        target: external_exports.string().optional().describe("device id or 'all' (default)"),
+        interval_ms: external_exports.number().int().min(5e3).optional().describe("poll interval (default 15000)"),
+        duration_ms: external_exports.number().int().min(1e3).optional().describe("auto-end after this long"),
+        intensity_max: external_exports.number().min(0).max(1).optional().describe("ceiling for this session")
+      }
+    },
+    async ({ symbol, target, interval_ms, duration_ms, intensity_max }) => text(await modes2.startMarket(target ?? "all", symbol, { intervalMs: interval_ms, durationMs: duration_ms, intensityMax: intensity_max }))
+  );
+  server.registerTool(
     "remember",
     {
       title: "Remember something",
@@ -31331,6 +31512,7 @@ async function startMcp(manager2, modes2, memory2) {
 }
 
 // src/modes.ts
+init_util();
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -31698,6 +31880,55 @@ var ModeController = class {
     this.manager.log_("cmd", `game_event ${kind} (${Math.round(m * 100)}%)`);
     return { ok: true };
   }
+  // ---- market mode (feel the market) ----
+  /**
+   * Poll a ticker and play a vibration melody from its live move — bigger move,
+   * stronger buzz; green = rising arpeggio, red = falling. Token-cancellable like
+   * the other modes, so stop / emergency_stop kill it and the safety cap applies.
+   */
+  async startMarket(target, symbolInput, opts = {}) {
+    const { fetchQuote: fetchQuote2, marketMelody: marketMelody2, resolveSymbol: resolveSymbol2 } = await Promise.resolve().then(() => (init_market(), market_exports));
+    const ids = this.manager.resolveTargets(target);
+    if (ids.length === 0) throw new Error(`no device matched "${target}"`);
+    const symbol = resolveSymbol2(symbolInput);
+    const ceiling = clamp01(Math.min(opts.intensityMax ?? 1, this.persona.ceiling));
+    const interval = Math.max(5e3, opts.intervalMs ?? 15e3);
+    const endAt = opts.durationMs && opts.durationMs > 0 ? Date.now() + opts.durationMs : Infinity;
+    const my = ++this.token;
+    this.manager.log_("cmd", `market \u2192 ${symbol}`);
+    this.manager.setActiveMode({ type: "market", label: `\u{1F4C8} ${symbol}` });
+    this.memory?.recordPlay("market", symbol, this.persona.id);
+    const drive = async (v) => {
+      for (const id of ids) await this.manager.driveStep(id, v);
+    };
+    void (async () => {
+      while (this.token === my && Date.now() < endAt) {
+        let label = `\u{1F4C8} ${symbol}`;
+        try {
+          const q = await fetchQuote2(symbol);
+          if (this.token !== my) break;
+          const arrow = q.changePct >= 0 ? "\u25B2" : "\u25BC";
+          label = `\u{1F4C8} ${q.symbol} ${arrow}${Math.abs(q.changePct).toFixed(2)}% \xB7 ${q.price}`;
+          this.manager.setActiveMode({ type: "market", label });
+          for (const step of marketMelody2(q, ceiling)) {
+            if (this.token !== my) break;
+            await drive(step.intensity);
+            await delay(step.ms);
+          }
+        } catch (e) {
+          this.manager.log_("warn", `market: ${symbol} fetch failed (${e})`);
+          await drive(0);
+        }
+        const until = Date.now() + interval;
+        while (this.token === my && Date.now() < until && Date.now() < endAt) await delay(250);
+      }
+      if (this.token === my) {
+        await drive(0);
+        this.manager.setActiveMode(null);
+      }
+    })();
+    return { started: true, symbol };
+  }
   // ---- library persistence (best-effort) ----
   async loadLibrary() {
     try {
@@ -31809,6 +32040,7 @@ var BUILTIN_SCORES = [
 ];
 
 // src/memory.ts
+init_util();
 import { readFile as readFile2, writeFile as writeFile2, mkdir as mkdir2, rm } from "node:fs/promises";
 import { homedir as homedir2 } from "node:os";
 import { join as join2 } from "node:path";
@@ -31894,6 +32126,7 @@ var Memory = class {
 };
 
 // src/telegram.ts
+init_util();
 function startTelegram(manager2, modes2, token, allowCsv) {
   const allow = allowCsv.split(",").map((s) => s.trim()).filter(Boolean);
   if (allow.length === 0) {
@@ -32012,6 +32245,7 @@ function startTelegram(manager2, modes2, token, allowCsv) {
 
 // src/discord.ts
 init_wrapper();
+init_util();
 var GATEWAY = "wss://gateway.discord.gg/?v=10&encoding=json";
 var API = "https://discord.com/api/v10";
 var INTENTS = 1 << 9 | 1 << 12 | 1 << 15;
@@ -32143,6 +32377,7 @@ function startDiscord(manager2, modes2, token, allowCsv) {
 }
 
 // src/index.ts
+init_util();
 var args = process.argv.slice(2);
 var consoleOnly = args.includes("--console-only");
 if (!consoleOnly) {

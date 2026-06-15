@@ -44,6 +44,7 @@
 - 👑 **主人遥控**：手机友好的 `/master` 页面，让另一个人实时接管控制——大旋钮、按住震动、预设、急停。每个页面都会显示有几位主人在控制。
 - 🎬 **视频模式**：实时播放 [Funscript](https://github.com/FredTungsten/ScriptPlayer/wiki/Funscript) 时间轴（位置 `0..100` → 强度）。内置示例一键试玩，**或选本地视频+脚本，边看边完美同步**——暂停/拖动/倍速都自动跟上。
 - 🔌 **通用事件 webhook**：`POST /event` 端点，让任何东西（Stream Deck、IFTTT、Home Assistant、游戏 overlay、CV 脚本）都能驱动设备（`vibrate`/`pattern`/`game`/`stop`…）。
+- 📈 **市值模式**：报上公司名或代码（`特斯拉`、`AAPL`、`比特币`），它拉取实时行情，把涨跌变成**震动旋律**——波动越大越强，绿涨=上行琶音、红跌=下行。大概是唯一一个会对你持仓做出反应的情趣玩具。*(非投资建议。)*
 - 🎮 **游戏模式**：`轮盘`、`递增`、`环境`、`边缘`（挑逗-拒绝）、`转盘`（旋转停留），还有 `game_event` 钩子让 Claude 在文字冒险里即时反应。
 - 🎵 **音频模式**：用**麦克风**或**标签页/系统声音**实时驱动强度。
 - 🥁 **节奏库**：`脉冲`、`波浪`、`递增`、`挑逗`、`心跳`、`楼梯`、`SOS`、`地震`。
@@ -224,6 +225,16 @@ curl -fsS localhost:8731/event -d 'action=stop'
 
 动作：`vibrate`(`intensity`/`duration_ms`) · `pattern`(`name`/`loops`) · `game`(`type`) · `event`(`kind`=reward/penalty/tease/pulse, `magnitude`) · `stop` · `scan`。可选密钥 `CFM_EVENT_SECRET`（回退到 `CFM_DEV_SECRET`）。一切仍过安全上限。
 
+## 📈 市值模式
+
+感受市场。报上公司名或代码，它拉取实时行情（Yahoo Finance → Stooq → Coinbase 回退，无需 key），把当日涨跌变成震动旋律：波动幅度决定强度，绿涨播**上行**琶音、红跌播**下行**。
+
+- 对话里：`market_mode`，`symbol`（`特斯拉`/`AAPL`/`比特币`/`BTC-USD`），可选 `interval_ms`(≥5000)、`duration_ms`、`intensity_max`。`stop_mode` / `emergency_stop` 结束。
+- 控制台：在 **📈 市值** 框输代码，点 **感受它**。
+- 常见名字（苹果/特斯拉/英伟达/比特币…）自动解析成代码。
+
+> 在你本机轮询、过安全上限、最快 5 秒一次。非投资建议。
+
 ## MCP 工具
 
 | 工具 | 说明 |
@@ -237,6 +248,7 @@ curl -fsS localhost:8731/event -d 'action=stop'
 | `set_max_intensity` | 全局安全上限 0..1 |
 | `load_funscript` · `play_video` | 载入 + 播放 funscript（`loop`/`speed`/`invert`） |
 | `start_game` | `roulette`/`escalation`/`ambient`/`edge`/`wheel`（`intensity_max`、`duration_ms`） |
+| `market_mode` | 用实时股票/加密行情驱动（`symbol`、`interval_ms`、`duration_ms`、`intensity_max`） |
 | `game_event` | 一次性 `reward`/`penalty`/`tease`/`pulse`，给剧情用 |
 | `compose` | 你写 `keyframes`(`[{at,level}]`) 配 `brief` 并播放；可 `save_as`、`loop` |
 | `muse_list` · `muse_play` | 列出 / 重播 曲库 |

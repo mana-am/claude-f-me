@@ -345,6 +345,66 @@ export class ModeController {
     return { ok: true };
   }
 
+  // ---- market mode (feel the market) ----
+
+  /**
+   * Poll a ticker and play a vibration melody from its live move — bigger move,
+   * stronger buzz; green = rising arpeggio, red = falling. Token-cancellable like
+   * the other modes, so stop / emergency_stop kill it and the safety cap applies.
+   */
+  async startMarket(
+    target: string,
+    symbolInput: string,
+    opts: { intervalMs?: number; durationMs?: number; intensityMax?: number } = {}
+  ): Promise<{ started: boolean; symbol: string }> {
+    const { fetchQuote, marketMelody, resolveSymbol } = await import("./market.js");
+    const ids = this.manager.resolveTargets(target);
+    if (ids.length === 0) throw new Error(`no device matched "${target}"`);
+    const symbol = resolveSymbol(symbolInput);
+    const ceiling = clamp01(Math.min(opts.intensityMax ?? 1, this.persona.ceiling));
+    const interval = Math.max(5000, opts.intervalMs ?? 15000); // be kind to the data source
+    const endAt = opts.durationMs && opts.durationMs > 0 ? Date.now() + opts.durationMs : Infinity;
+
+    const my = ++this.token;
+    this.manager.log_("cmd", `market → ${symbol}`);
+    this.manager.setActiveMode({ type: "market", label: `📈 ${symbol}` });
+    this.memory?.recordPlay("market", symbol, this.persona.id);
+
+    const drive = async (v: number) => {
+      for (const id of ids) await this.manager.driveStep(id, v);
+    };
+
+    void (async () => {
+      while (this.token === my && Date.now() < endAt) {
+        let label = `📈 ${symbol}`;
+        try {
+          const q = await fetchQuote(symbol);
+          if (this.token !== my) break;
+          const arrow = q.changePct >= 0 ? "▲" : "▼";
+          label = `📈 ${q.symbol} ${arrow}${Math.abs(q.changePct).toFixed(2)}% · ${q.price}`;
+          this.manager.setActiveMode({ type: "market", label });
+          for (const step of marketMelody(q, ceiling)) {
+            if (this.token !== my) break;
+            await drive(step.intensity);
+            await delay(step.ms);
+          }
+        } catch (e) {
+          this.manager.log_("warn", `market: ${symbol} fetch failed (${e})`);
+          await drive(0);
+        }
+        // idle until the next poll, staying cancellable
+        const until = Date.now() + interval;
+        while (this.token === my && Date.now() < until && Date.now() < endAt) await delay(250);
+      }
+      if (this.token === my) {
+        await drive(0);
+        this.manager.setActiveMode(null);
+      }
+    })();
+
+    return { started: true, symbol };
+  }
+
   // ---- library persistence (best-effort) ----
 
   private async loadLibrary(): Promise<void> {

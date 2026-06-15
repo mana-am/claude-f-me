@@ -183,6 +183,12 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       <button class="chip" id="recbtn" data-i18n="rec"></button>
     </div>
     <div class="deckrow">
+      <span class="lbl" data-i18n="market"></span>
+      <input id="market" type="text" data-i18n-ph="marketPh" style="min-width:180px;
+        background:#0b0710; color:#f3e9f5; border:1px solid #ffffff22; border-radius:999px; padding:7px 12px; font:inherit;" />
+      <button class="chip" id="marketgo" data-i18n="marketGo"></button>
+    </div>
+    <div class="deckrow">
       <span class="lbl" data-i18n="video"></span>
       <button class="chip" id="vidbtn" data-i18n="funscript"></button>
       <button class="chip" id="duetbtn" data-i18n="duet"></button>
@@ -275,6 +281,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       pomo:"🍅 Focus 25m", pomoStop:"■ Focus", pomoLeft:"🍅 {m}:{s}",
       rec:"⏺ Record", recStop:"⏹ Save", recName:"Name this recording (blank = auto):", recSaved:"💾 saved as ", recShort:"recording too short",
       vsync:"🎞️ With video", vsyncPlay:"▶ Play with video", vsyncClose:"✕ Close video", needVid:"Choose a video file first.", pickVideo:"video file",
+      market:"Market", marketPh:"ticker — AAPL / tesla / bitcoin", marketGo:"📈 Feel it", needTicker:"Enter a ticker or company.",
       duet:"💞 Duet", duetTitle:"💞 Duet — long-distance sync", duetRelay:"relay URL", duetRoom:"room code",
       duetMode:"mode", duetMirror:"mirror", duetLead:"I lead", duetFollow:"I follow",
       duetConnect:"Connect", duetLeave:"Leave", duetTouch:"👋 Touch",
@@ -303,6 +310,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
       pomo:"🍅 专注 25 分钟", pomoStop:"■ 专注", pomoLeft:"🍅 {m}:{s}",
       rec:"⏺ 录制", recStop:"⏹ 保存", recName:"给这段录制起名（留空自动）：", recSaved:"💾 已存为 ", recShort:"录制太短",
       vsync:"🎞️ 配视频", vsyncPlay:"▶ 配视频播放", vsyncClose:"✕ 关闭视频", needVid:"请先选一个视频文件。", pickVideo:"视频文件",
+      market:"市值", marketPh:"代码 — AAPL / 特斯拉 / 比特币", marketGo:"📈 感受它", needTicker:"请输入代码或公司名。",
       duet:"💞 双人", duetTitle:"💞 双人 — 异地同步", duetRelay:"中转地址", duetRoom:"房间码",
       duetMode:"模式", duetMirror:"镜像", duetLead:"我主导", duetFollow:"我跟随",
       duetConnect:"连接", duetLeave:"断开", duetTouch:"👋 触碰",
@@ -363,7 +371,7 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     var mode = $("#mode"); mode.textContent = state.mode; mode.className = "pill " + (state.mode === "buttplug" ? "bp" : "sim");
 
     var act = $("#active"), mEl = $("#masters");
-    if (state.activeMode){ act.style.display=""; var ic={video:"🎬 ",audio:"🎵 ",muse:"🎼 ",bio:"💓 ",game:"🎮 "}; act.textContent = (ic[state.activeMode.type]||"🎮 ") + state.activeMode.label; }
+    if (state.activeMode){ act.style.display=""; var ic={video:"🎬 ",audio:"🎵 ",muse:"🎼 ",bio:"💓 ",market:"📈 ",game:"🎮 "}; act.textContent = (ic[state.activeMode.type]||"🎮 ") + state.activeMode.label; }
     else act.style.display="none";
     if (state.masters > 0){ mEl.style.display=""; mEl.textContent = (state.masters>1?t("mastersOnN"):t("mastersOn")).replace("{n}", state.masters); } else mEl.style.display="none";
 
@@ -782,6 +790,15 @@ export const CONSOLE_HTML = /* html */ `<!doctype html>
     if (!recOn){ recOn=true; send({ type:"rec_start" }); $("#recbtn").textContent=t("recStop"); $("#recbtn").classList.add("sel"); }
     else { recOn=false; var name=prompt(t("recName"))||""; send({ type:"rec_stop", name:name }); $("#recbtn").textContent=t("rec"); $("#recbtn").classList.remove("sel"); }
   };
+
+  // ---- market mode: feel a stock/crypto's live move ----
+  function marketGo(){
+    var sym = $("#market").value.trim();
+    if (!sym){ alert(t("needTicker")); return; }
+    send({ type:"market_start", symbol:sym, target:target });
+  }
+  $("#marketgo").onclick = marketGo;
+  $("#market").addEventListener("keydown", function(e){ if (e.key==="Enter") marketGo(); });
 
   applyI18n();
   $("#connlbl").textContent = t("connecting");

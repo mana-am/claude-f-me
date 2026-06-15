@@ -313,6 +313,26 @@ export async function startMcp(manager: DeviceManager, modes: ModeController, me
     async () => text(modes.reveal())
   );
 
+  // ---- market mode (feel the market) ----
+
+  server.registerTool(
+    "market_mode",
+    {
+      title: "Market mode (feel the market)",
+      description:
+        "Drive the device from a live stock/crypto quote: name a company or ticker (e.g. 'tesla', 'AAPL', 'bitcoin', 'BTC-USD') and it polls the price and plays a vibration melody from the intraday move — bigger move = stronger, green = rising arpeggio, red = falling. Polls every interval_ms (min 5000). Cancels any other running mode; stop_mode / emergency_stop end it. Not financial advice.",
+      inputSchema: {
+        symbol: z.string().describe("company name or ticker (AAPL, tesla, BTC-USD, bitcoin)"),
+        target: z.string().optional().describe("device id or 'all' (default)"),
+        interval_ms: z.number().int().min(5000).optional().describe("poll interval (default 15000)"),
+        duration_ms: z.number().int().min(1000).optional().describe("auto-end after this long"),
+        intensity_max: z.number().min(0).max(1).optional().describe("ceiling for this session"),
+      },
+    },
+    async ({ symbol, target, interval_ms, duration_ms, intensity_max }) =>
+      text(await modes.startMarket(target ?? "all", symbol, { intervalMs: interval_ms, durationMs: duration_ms, intensityMax: intensity_max }))
+  );
+
   // ---- memory (local-only; gets to know you over time) ----
 
   server.registerTool(
