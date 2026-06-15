@@ -1,0 +1,27 @@
+{
+  "$comment": "Manifest for the skills.sh registry (https://skills.sh). claude-f-me is a Claude Code plugin + MCP server. Installable with `npx skills add mana-am/claude-f-me`. Verify field names against the current skills.sh schema before publishing — see docs/publishing/GPT-STORE.md.",
+  "name": "claude-f-me",
+  "title": "claude-f-me",
+  "type": "plugin",
+  "description": "Control intimate hardware (Buttplug/Intiface) by chatting in Claude Code — reactive web console, built-in simulator, master remote, video/game/audio modes, safety caps.",
+  "version": "0.1.0",
+  "author": "mana-am",
+  "homepage": "https://github.com/mana-am/claude-f-me",
+  "repository": "https://github.com/mana-am/claude-f-me",
+  "license": "MIT",
+  "source": "github:mana-am/claude-f-me",
+  "keywords": ["mcp", "buttplug", "intiface", "hardware", "console", "funscript"],
+  "mcp": {
+    "command": "npx",
+    "args": ["-y", "github:mana-am/claude-f-me"],
+    "transport": "stdio"
+  },
+  "commands": [
+    "console", "demo", "fuck", "harder", "softer", "edge", "tease",
+    "roulette", "wheel", "dice", "morse", "muse", "persona", "story",
+    "surprise", "countdown", "blind", "aftercare", "safeword", "panic", "market"
+  ],
+  "requirements": {
+    "node": ">=18"
+  }
+}
