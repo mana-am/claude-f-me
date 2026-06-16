@@ -24,9 +24,9 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 <br/>
 
 
-<video src="https://github.com/user-attachments/assets/d8d89c0c-fdf1-4cd9-83ce-20a021308f0a" controls muted playsinline width="640"></video>
+<video src="https://github.com/user-attachments/assets/ca023b51-bb35-4e6a-b4e2-8f9c48acc2bf" controls muted playsinline width="640"></video>
 
-<sub>▶️ <b>Feature tour</b> — every mode at a glance (~25s).</sub>
+<sub>▶️ <b>Market mode</b> — type a ticker, feel its live price as a vibration (~14s).</sub>
 
 <sub>The “Pulse Core” console reacting live — the orb and aurora breathe with intensity. Recorded against the built-in simulator (zero hardware).</sub>
 
@@ -67,7 +67,7 @@ A **built-in simulator** lets you build and play with **zero hardware**.
 🎥 **Watch the console react in real time** (or [**try it live in your browser →**](https://f.mana.am/)):
 
 
-<sub>If the video doesn't play inline, [open it here](./docs/pulse-core.mp4) — or see the looping preview at the top.</sub>
+<sub>If the video doesn't play inline, [open it here](./docs/market-flow.mp4) — or see the looping preview at the top.</sub>
 
 | Console (EN) | 控制台 (中文) | Master remote | In-browser demo |
 |---|---|---|---|
@@ -130,6 +130,11 @@ slow build` — or, in Claude Code, slash commands like `/claude-f-me:fuck`, `:e
 
 One process is **both** the MCP server Claude talks to **and** the web console you watch —
 so the chat and the dashboard always share the exact same device state.
+
+> 💞 **For any body — solo or together.** It drives strokers (e.g. The Handy), wearables
+> (We-Vibe, Satisfyer) and 750+ toys all the same, so it works just as well for **men, women and
+> couples** — whether you're playing on your own device or handing the remote to a partner across
+> the room or across the world.
 
 **🎛️ Drive the device**
 - 🎼 **Muse** — describe a vibe ("a thunderstorm", "I love you in morse") and the model composes a smooth haptic score and plays it; save & replay.
@@ -630,7 +635,7 @@ Where this is headed — PRs and opinions welcome:
   moderation first — public means *the wearer opted in*, and can revoke instantly.
 - 🧩 **Share scores & patterns.** Export/import Muse scores and funscripts by a short code — a little
   community library of vibes.
-- 🗣️ **Persona voice.** Optional TTS so the persona actually *speaks* its lines (🍼 "good girl…").
+- 🗣️ **Persona voice.** Optional TTS so the persona actually *speaks* its lines (🍼 "you're doing so well…").
 - 🎮 **Game & stream integration.** React to events in games or streams (a death, a win, a donation).
 - 🐾 **Pet mode (agent throughput).** Hook a coding agent — **Codex** or Claude Code — and let its
   *live output rate* drive intensity: tokens flying = turned up, a stall or a red build = it drops.
